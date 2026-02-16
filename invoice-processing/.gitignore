@@ -1,5 +1,6 @@
 node_modules
 dist
+pnpm-lock.yaml
 .env
 .env.local
 *.local
@@ -7,3 +8,5 @@ __pycache__
 *.pyc
 .venv/
 .lumera/
+src/routeTree.gen.ts
+.tanstack/
