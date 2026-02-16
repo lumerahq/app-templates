@@ -1,0 +1,17 @@
+{
+  "external_id": "{{projectName}}:classify_and_code",
+  "name": "Classify & Code Invoice",
+  "description": "Analyzes an invoice against vendor history and GL accounts, suggests a GL code with confidence score, and updates the invoice record.",
+  "inputs": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "invoice_id": {
+          "type": "string",
+          "description": "The ID of the invoice record to classify and code"
+        }
+      },
+      "required": ["invoice_id"]
+    }
+  }
+}

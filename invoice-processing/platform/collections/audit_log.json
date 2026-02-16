@@ -1,0 +1,15 @@
+{
+  "id": "audit_log",
+  "name": "audit_log",
+  "fields": [
+    { "name": "entity_type", "type": "text", "required": true },
+    { "name": "entity_id", "type": "text", "required": true },
+    { "name": "action", "type": "text", "required": true },
+    { "name": "details", "type": "text" },
+    { "name": "performed_by", "type": "text" }
+  ],
+  "indexes": [
+    { "fields": ["entity_type", "entity_id"] },
+    { "fields": ["action"] }
+  ]
+}

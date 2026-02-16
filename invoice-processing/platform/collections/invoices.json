@@ -1,0 +1,30 @@
+{
+  "id": "invoices",
+  "name": "invoices",
+  "fields": [
+    { "name": "vendor", "type": "relation", "collection": "vendors" },
+    { "name": "invoice_number", "type": "text", "required": true },
+    { "name": "date", "type": "date", "required": true },
+    { "name": "due_date", "type": "date" },
+    { "name": "amount", "type": "number", "required": true },
+    {
+      "name": "status",
+      "type": "select",
+      "values": ["received", "processing", "coded", "pending_approval", "approved", "rejected", "posted"],
+      "default": "received"
+    },
+    { "name": "gl_code", "type": "text" },
+    { "name": "department", "type": "text" },
+    { "name": "description", "type": "text" },
+    { "name": "source_document", "type": "file" },
+    { "name": "coding_confidence", "type": "number" },
+    { "name": "notes", "type": "text" },
+    { "name": "approved_by", "type": "text" },
+    { "name": "approved_at", "type": "date" }
+  ],
+  "indexes": [
+    { "fields": ["invoice_number"], "unique": true },
+    { "fields": ["status"] },
+    { "fields": ["vendor"] }
+  ]
+}

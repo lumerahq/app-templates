@@ -1,0 +1,17 @@
+{
+  "external_id": "{{projectName}}:extract_invoice",
+  "name": "Extract Invoice Data",
+  "description": "Extracts invoice details from an uploaded document using AI vision.",
+  "inputs": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "file_descriptor": {
+          "type": "object",
+          "description": "The file descriptor from the uploaded invoice document"
+        }
+      },
+      "required": ["file_descriptor"]
+    }
+  }
+}

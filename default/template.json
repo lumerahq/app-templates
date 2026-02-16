@@ -1,0 +1,7 @@
+{
+  "name": "default",
+  "title": "Blank Starter",
+  "description": "A minimal starter with a dashboard, example collection, and seed script.",
+  "category": "General",
+  "version": "1.0.0"
+}

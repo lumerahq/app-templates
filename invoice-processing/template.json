@@ -1,0 +1,7 @@
+{
+  "name": "invoice-processing",
+  "title": "Invoice Processing & GL Coding",
+  "description": "AI-powered invoice processing with automatic GL coding, vendor management, and approval workflows.",
+  "category": "Procure-to-Pay",
+  "version": "1.0.0"
+}

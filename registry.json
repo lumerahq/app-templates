@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "name": "default",
+      "title": "Blank Starter",
+      "description": "A minimal starter with a dashboard, example collection, and seed script.",
+      "category": "General",
+      "version": "1.0.0"
+    },
+    {
+      "name": "invoice-processing",
+      "title": "Invoice Processing & GL Coding",
+      "description": "AI-powered invoice processing with automatic GL coding, vendor management, and approval workflows.",
+      "category": "Procure-to-Pay",
+      "version": "1.0.0"
+    }
+  ]
+}
