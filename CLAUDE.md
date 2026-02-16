@@ -20,11 +20,12 @@ app-templates/
 
 ## How the CLI Fetches Templates
 
-1. `lumera init` downloads `https://github.com/lumerahq/app-templates/archive/refs/heads/main.tar.gz`
-2. Extracts to `~/.lumera/templates/` (cached for 1 hour)
-3. Reads `template.json` from each subdirectory to list available templates
-4. Copies the selected template to the user's project directory
-5. Falls back to bundled templates (shipped with the CLI npm package) if offline
+1. `lumera init` checks the latest commit SHA via GitHub API
+2. If the cached SHA matches, uses local cache at `~/.lumera/templates/`
+3. Otherwise, downloads `https://github.com/lumerahq/app-templates/archive/refs/heads/main.tar.gz`
+4. Extracts to `~/.lumera/templates/` and stores the commit SHA in `.cache-meta.json`
+5. Reads `template.json` from each subdirectory to list available templates
+6. Copies the selected template to the user's project directory, replacing default values with the user's project name
 
 ## Template File Conventions
 
@@ -49,23 +50,23 @@ Metadata file — **not copied** to the user's project. Must contain:
 
 ### Variable Substitution
 
-All text files are processed through a simple `{{variable}}` replacement. Available variables:
+Templates are **runnable Lumera projects** that use real default values. The CLI replaces these defaults with the user's project name during scaffolding:
 
-| Variable             | Example Value       | Description                              |
-|----------------------|---------------------|------------------------------------------|
-| `{{projectName}}`    | `my-lumera-app`     | Lowercase hyphenated project name        |
-| `{{projectTitle}}`   | `My Lumera App`     | Title-cased version of project name      |
-| `{{projectInitial}}` | `M`                 | First letter of project title (uppercase) |
+| Default Value      | Replaced With            | Description                              |
+|--------------------|--------------------------|------------------------------------------|
+| `my-lumera-app`    | User's project name      | Lowercase hyphenated (e.g. `cool-app`)   |
+| `My Lumera App`    | User's project title     | Title-cased (e.g. `Cool App`)            |
 
-Use these in any text file — source code, config, markdown, etc.
+The project initial (first letter shown in sidebar logo) is computed at runtime from a `APP_NAME` constant in `Sidebar.tsx`, so it updates automatically.
 
-### Special File Naming Rules
+**Key rule:** Use `my-lumera-app` and `My Lumera App` as the default values in all template files. The CLI will replace them with the user's chosen name.
 
-| File in template      | Output in user project | Why                                         |
-|-----------------------|-----------------------|---------------------------------------------|
-| `foo.tsx.hbs`         | `foo.tsx`             | `.hbs` suffix is stripped during copy        |
-| `gitignore`           | `.gitignore`          | npm strips dotfiles from published packages  |
-| `template.json`       | *(not copied)*        | Metadata only — excluded from output         |
+### Special Files
+
+| File in template      | Behavior                                                    |
+|-----------------------|-------------------------------------------------------------|
+| `template.json`       | Metadata only — **not copied** to the user's project        |
+| `.gitignore`          | Copied as-is (use the real dotfile name)                    |
 
 ### Binary vs Text Files
 
@@ -79,8 +80,8 @@ Currently all files are read as UTF-8 text and processed for variable substituti
 app-templates/
 └── my-new-template/
     ├── template.json          # Required metadata
-    ├── gitignore              # Will become .gitignore
-    ├── package.json           # Use {{projectName}} for the package name
+    ├── .gitignore             # Standard gitignore
+    ├── package.json           # Use "my-lumera-app" as the package name
     ├── platform/
     │   └── collections/       # Lumera collection schemas (.json)
     │   └── automations/       # Python automation scripts
@@ -104,12 +105,12 @@ app-templates/
 }
 ```
 
-### Step 3: Use template variables
+### Step 3: Use default values for variable substitution
 
 In `package.json`:
 ```json
 {
-  "name": "{{projectName}}",
+  "name": "my-lumera-app",
   "version": "0.1.0"
 }
 ```
@@ -117,8 +118,14 @@ In `package.json`:
 In automation `config.json`:
 ```json
 {
-  "external_id": "{{projectName}}:my_automation"
+  "external_id": "my-lumera-app:my_automation"
 }
+```
+
+In `Sidebar.tsx` (for the project initial):
+```tsx
+const APP_NAME = 'My Lumera App';
+// Use {APP_NAME[0]} for initial, {APP_NAME} for full name
 ```
 
 ### Step 4: Update `registry.json`
@@ -127,17 +134,22 @@ Add your template entry to the `templates` array in `registry.json` at the repo 
 
 ### Step 5: Test the template
 
-Scaffold from the local directory and verify:
+Since templates are runnable projects, you can test directly:
 
 ```bash
-# From the lumera repo, point CLI at this repo's template
-cp -R app-templates/my-new-template /tmp/test-scaffold
-cd /tmp/test-scaffold
-# Manually replace {{projectName}} etc., then:
-pnpm install && pnpm typecheck
+cd app-templates/my-new-template
+pnpm install
+lumera login
+lumera dev
 ```
 
-Or test via the CLI with a local override (see CLI docs).
+Or scaffold via the CLI to verify substitution works:
+
+```bash
+lumera init test-project -t my-new-template -y
+cd test-project
+pnpm install && pnpm typecheck
+```
 
 ## Existing Templates
 
@@ -175,6 +187,6 @@ Or test via the CLI with a local override (see CLI docs).
 ## Important Notes
 
 - Templates are fetched as a GitHub tarball — the entire repo is downloaded, not individual templates. Keep the repo size reasonable.
-- The CLI caches templates in `~/.lumera/templates/` for 1 hour. Changes to this repo take effect on the next cache refresh.
-- The bundled templates in the CLI npm package serve as offline fallback. They should be kept in sync with this repo at major versions.
-- Always test templates by scaffolding a project and running `pnpm install && pnpm typecheck` before merging.
+- The CLI caches templates in `~/.lumera/templates/` using commit SHA for invalidation. Changes take effect on the next `lumera init` after a push to `main`.
+- Templates are runnable projects — you can `cd` into any template and run `lumera login && lumera dev` to test it directly.
+- Always test templates by running them directly and by scaffolding a project with `lumera init` to verify substitution works.

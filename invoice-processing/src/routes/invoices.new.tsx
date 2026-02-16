@@ -87,7 +87,7 @@ function NewInvoicePage() {
     (async () => {
       try {
         const run = await createRun({
-          automationId: '{{projectName}}:extract_invoice',
+          automationId: 'my-lumera-app:extract_invoice',
           inputs: { file_descriptor: fileUpload.result!.descriptor },
         });
 

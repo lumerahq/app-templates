@@ -1,4 +1,4 @@
-# {{projectTitle}} - Claude Code Instructions
+# My Lumera App - Claude Code Instructions
 
 ## Overview
 
@@ -13,7 +13,7 @@ AI-powered invoice processing with automatic GL coding, vendor management, and a
 
 ## Automations
 
-- **classify_and_code** (`{{projectName}}:classify_and_code`) — AI-powered GL code assignment. Analyzes invoice details against the GL account chart, assigns GL code + department + confidence score. Triggered from the invoice detail page.
+- **classify_and_code** (`my-lumera-app:classify_and_code`) — AI-powered GL code assignment. Analyzes invoice details against the GL account chart, assigns GL code + department + confidence score. Triggered from the invoice detail page.
 
 ## Status Workflow
 
@@ -145,7 +145,7 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "{{projectName}}:classify_and_code",
+    "my-lumera-app:classify_and_code",
     inputs={"invoice_id": "some_invoice_id"}
 )
 print(f"Run ID: {run.id}")
@@ -243,7 +243,7 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: '{{projectName}}:classify_and_code',
+  automationId: 'my-lumera-app:classify_and_code',
   inputs: { invoice_id: 'some_id' },
 });
 

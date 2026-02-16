@@ -1,4 +1,4 @@
-# {{projectTitle}}
+# My Lumera App
 
 Lumera custom embedded app.
 

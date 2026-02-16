@@ -1,5 +1,5 @@
 {
-  "external_id": "{{projectName}}:classify_and_code",
+  "external_id": "my-lumera-app:classify_and_code",
   "name": "Classify & Code Invoice",
   "description": "Analyzes an invoice against vendor history and GL accounts, suggests a GL code with confidence score, and updates the invoice record.",
   "inputs": {

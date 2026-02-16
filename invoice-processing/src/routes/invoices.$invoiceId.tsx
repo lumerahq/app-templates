@@ -174,7 +174,7 @@ function InvoiceDetailPage() {
     setAiRunning(true);
     try {
       const run = await createRun({
-        automationId: '{{projectName}}:classify_and_code',
+        automationId: 'my-lumera-app:classify_and_code',
         inputs: { invoice_id: invoiceId },
       });
       toast.info('AI coding started...');

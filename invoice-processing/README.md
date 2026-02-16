@@ -1,4 +1,4 @@
-# {{projectTitle}}
+# My Lumera App
 
 AI-powered invoice processing with automatic GL coding, vendor management, and approval workflows. Built with [Lumera](https://lumerahq.com).
 

@@ -1,8 +1,8 @@
-# {{projectTitle}} — Architecture
+# My Lumera App — Architecture
 
 ## Overview
 
-{{projectTitle}} is a Lumera embedded app — a React frontend served inside the Lumera platform iframe, backed by collections, hooks, and automations managed through the Lumera CLI.
+My Lumera App is a Lumera embedded app — a React frontend served inside the Lumera platform iframe, backed by collections, hooks, and automations managed through the Lumera CLI.
 
 ## System Diagram
 

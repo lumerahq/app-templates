@@ -9,6 +9,8 @@ type NavItem = {
   icon: React.ElementType;
 };
 
+const APP_NAME = 'My Lumera App';
+
 const navItems: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/settings', label: 'Settings', icon: Settings },
@@ -35,9 +37,9 @@ export function Sidebar() {
       <div className="flex items-center h-14 px-4 border-b border-slate-800">
         <Link to="/" className="flex items-center gap-2">
           <div className="size-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
-            {{projectInitial}}
+            {APP_NAME[0]}
           </div>
-          {!collapsed && <span className="font-semibold text-sm">{{projectTitle}}</span>}
+          {!collapsed && <span className="font-semibold text-sm">{APP_NAME}</span>}
         </Link>
       </div>
 

@@ -29,9 +29,11 @@ lumera init my-app -t invoice-processing -y
 
 1. Create a new directory at the repo root with your template name (lowercase, hyphens)
 2. Add a `template.json` with metadata (`name`, `title`, `description`, `category`, `version`)
-3. Use `{{projectName}}`, `{{projectTitle}}`, and `{{projectInitial}}` for variable substitution
+3. Use `my-lumera-app` and `My Lumera App` as default values — the CLI replaces them with the user's project name
 4. Add your template to `registry.json`
-5. Test by scaffolding and running `pnpm install && pnpm typecheck`
+5. Test by running the template directly (`cd my-template && pnpm install && lumera login`) and by scaffolding with `lumera init`
+
+Each template is a **runnable Lumera project** — you can `cd` into it and run `lumera dev` for development.
 
 See [CLAUDE.md](CLAUDE.md) for detailed conventions and patterns.
 
@@ -39,12 +41,10 @@ See [CLAUDE.md](CLAUDE.md) for detailed conventions and patterns.
 
 The Lumera CLI fetches templates from this repo at `lumera init` time:
 
-1. Downloads the repo as a tarball from GitHub
-2. Caches locally in `~/.lumera/templates/` (1-hour TTL)
+1. Checks the latest commit SHA via GitHub API
+2. Caches locally in `~/.lumera/templates/` (invalidated when commit SHA changes)
 3. Lists templates by scanning for `template.json` files
-4. Copies the selected template with variable substitution
-
-If offline, the CLI falls back to templates bundled in the npm package.
+4. Copies the selected template, replacing `my-lumera-app`/`My Lumera App` with the user's project name
 
 ## License
 

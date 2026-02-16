@@ -1,5 +1,5 @@
 {
-  "external_id": "{{projectName}}:extract_invoice",
+  "external_id": "my-lumera-app:extract_invoice",
   "name": "Extract Invoice Data",
   "description": "Extracts invoice details from an uploaded document using AI vision.",
   "inputs": {
