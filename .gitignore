@@ -10,3 +10,5 @@ __pycache__
 .lumera/
 src/routeTree.gen.ts
 .tanstack/
+.DS_Store
+uv.lock
