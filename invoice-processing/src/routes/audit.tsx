@@ -55,7 +55,7 @@ function AuditLogPage() {
   const { data: allData, isLoading } = useQuery({
     queryKey: ['audit-log'],
     queryFn: () =>
-      pbList<AuditLogEntry>('audit_log', {
+      pbList<AuditLogEntry>('inv_audit_log', {
         perPage: 500,
         sort: '-created',
       }),
@@ -92,7 +92,7 @@ function AuditLogPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = categoryFilter === 'all' ? 'audit_log.csv' : `audit_log_${categoryFilter}.csv`;
+    link.download = categoryFilter === 'all' ? 'inv_audit_log.csv' : `inv_audit_log_${categoryFilter}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };

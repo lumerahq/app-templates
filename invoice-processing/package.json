@@ -1,5 +1,5 @@
 {
-  "name": "my-lumera-app",
+  "name": "invoice-processing",
   "private": true,
   "type": "module",
   "pnpm": {
@@ -9,7 +9,7 @@
   },
   "lumera": {
     "version": 1,
-    "name": "My Lumera App"
+    "name": "Invoice Processing"
   },
   "scripts": {
     "dev": "pnpm dlx @lumerahq/cli dev",

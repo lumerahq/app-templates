@@ -1,4 +1,4 @@
-# My Lumera App - Claude Code Instructions
+# Default App - Claude Code Instructions
 
 **Full Architecture**: See `ARCHITECTURE.md`
 
@@ -123,7 +123,7 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "my-lumera-app:my_automation",
+    "default-app:my_automation",
     inputs={"param": "value"}
 )
 print(f"Run ID: {run.id}")
@@ -223,7 +223,7 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: 'my-lumera-app:process_data',
+  automationId: 'default-app:process_data',
   inputs: { file_id: 'abc123' },
 });
 

@@ -1,6 +1,6 @@
 {
-  "id": "audit_log",
-  "name": "audit_log",
+  "id": "ca_audit_log",
+  "name": "ca_audit_log",
   "fields": [
     { "name": "action", "type": "text", "required": true },
     { "name": "entity_type", "type": "text" },

@@ -1,4 +1,4 @@
-# My Lumera App - Claude Code Instructions
+# Payroll Journal Entry - Claude Code Instructions
 
 **Full Architecture**: See `ARCHITECTURE.md`
 
@@ -17,12 +17,12 @@ Upload payroll reports (CSV/PDF), AI extracts data and generates debit/credit jo
 
 - **`payroll_runs`** — pay period dates, pay date, document, status, totals, extracted_data
 - **`journal_entries`** — linked to payroll_run, account_code, account_name, department, debit_amount, credit_amount, memo
-- **`gl_accounts`** — code, name, account_type (expense/liability/asset)
+- **`payroll_gl_accounts`** — code, name, account_type (expense/liability/asset)
 
 ### Key External IDs
 
-- `my-lumera-app:extract_payroll` — automation that extracts payroll data and creates JE lines
-- `my-lumera-app:trigger_extract` — hook that fires on payroll_runs after_create
+- `payroll-journal-entry:extract_payroll` — automation that extracts payroll data and creates JE lines
+- `payroll-journal-entry:trigger_extract` — hook that fires on payroll_runs after_create
 
 ### Status Lifecycle
 
@@ -149,7 +149,7 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "my-lumera-app:my_automation",
+    "payroll-journal-entry:my_automation",
     inputs={"param": "value"}
 )
 print(f"Run ID: {run.id}")
@@ -249,7 +249,7 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: 'my-lumera-app:process_data',
+  automationId: 'payroll-journal-entry:process_data',
   inputs: { file_id: 'abc123' },
 });
 

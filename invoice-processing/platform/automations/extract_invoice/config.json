@@ -1,5 +1,4 @@
 {
-  "external_id": "my-lumera-app:extract_invoice",
   "name": "Extract Invoice",
   "description": "Extract structured data from an uploaded invoice using AI.",
   "inputs": {

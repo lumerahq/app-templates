@@ -1,5 +1,4 @@
 export const config = {
-  external_id: 'my-lumera-app:audit_invoices_update',
   collection: 'invoices',
   trigger: 'after_update',
   enabled: true,
@@ -56,7 +55,7 @@ export default async function handler(ctx) {
 
       if (!hasChanges) return;
 
-      await ctx.dao.create('audit_log', {
+      await ctx.dao.create('inv_audit_log', {
         action: 'update',
         action_category: 'invoice',
         action_label: actionLabel,

@@ -95,19 +95,19 @@ export async function deleteVendor(id: string) {
 // --- GL Accounts ---
 
 export async function listGlAccounts() {
-  return pbList<GlAccount>('gl_accounts', { perPage: 100, sort: 'code' });
+  return pbList<GlAccount>('inv_gl_accounts', { perPage: 100, sort: 'code' });
 }
 
 export async function createGlAccount(data: Partial<GlAccount>) {
-  return pbCreate<GlAccount>('gl_accounts', data);
+  return pbCreate<GlAccount>('inv_gl_accounts', data);
 }
 
 export async function updateGlAccount(id: string, data: Partial<GlAccount>) {
-  return pbUpdate<GlAccount>('gl_accounts', id, data);
+  return pbUpdate<GlAccount>('inv_gl_accounts', id, data);
 }
 
 export async function deleteGlAccount(id: string) {
-  return pbDelete('gl_accounts', id);
+  return pbDelete('inv_gl_accounts', id);
 }
 
 // --- Helpers ---

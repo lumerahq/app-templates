@@ -1,5 +1,4 @@
 export const config = {
-  external_id: 'my-lumera-app:trigger_extract',
   collection: 'payroll_runs',
   trigger: 'after_create',
   enabled: true
@@ -15,7 +14,7 @@ export default async function handler(ctx) {
 
     // Find the extract_payroll automation
     const [automation] = await ctx.dao.find('lm_automations', {
-      filter: { external_id: 'my-lumera-app:extract_payroll' },
+      filter: { external_id: '{{app}}:extract_payroll' },
       limit: 1
     });
 

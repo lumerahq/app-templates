@@ -56,16 +56,29 @@ Metadata file — **not copied** to the user's project. Must contain:
 
 ### Variable Substitution
 
-Templates are **runnable Lumera projects** that use real default values. The CLI replaces these defaults with the user's project name during scaffolding:
+Each template is a **runnable Lumera project** that uses its own real name (e.g. `invoice-processing`). During `lumera init`, the CLI reads the template's `package.json` name and title, then replaces them with the user's project name:
 
-| Default Value      | Replaced With            | Description                              |
-|--------------------|--------------------------|------------------------------------------|
-| `my-lumera-app`    | User's project name      | Lowercase hyphenated (e.g. `cool-app`)   |
-| `My Lumera App`    | User's project title     | Title-cased (e.g. `Cool App`)            |
+| Template Value           | Replaced With            | Description                              |
+|--------------------------|--------------------------|------------------------------------------|
+| Template's package name  | User's project name      | Lowercase hyphenated (e.g. `cool-app`)   |
+| Template's display title | User's project title     | Title-cased (e.g. `Cool App`)            |
+
+For example, `invoice-processing` has `"name": "invoice-processing"` in its `package.json`. When a user runs `lumera init my-app -t invoice-processing`, the CLI replaces `invoice-processing` → `my-app` and `Invoice Processing` → `My App` across all files.
 
 The project initial (first letter shown in sidebar logo) is computed at runtime from a `APP_NAME` constant in `Sidebar.tsx`, so it updates automatically.
 
-**Key rule:** Use `my-lumera-app` and `My Lumera App` as the default values in all template files. The CLI will replace them with the user's chosen name.
+**Key rule:** Each template uses its own name in all files. The CLI reads the source name from the template's `package.json` and replaces it with the user's chosen name.
+
+### Auto-derived `external_id`
+
+Automation and hook `external_id` values are **auto-derived by the CLI** from `<app-name>:<resource-name>`. You do not need to specify `external_id` in config files — the CLI computes it from the `package.json` name + the automation directory name or hook filename.
+
+For hook scripts that need to reference other automations by `external_id`, use the `{{app}}` variable. The CLI resolves it at deploy time:
+
+```js
+// In a hook script body:
+filter: { external_id: '{{app}}:extract_invoice' }
+```
 
 ### Special Files
 
@@ -109,7 +122,7 @@ After scaffolding, customize the template:
 1. Edit `platform/collections/` to define your collections
 2. Edit `src/routes/` to build your pages
 3. Edit `scripts/seed-demo.py` to add seed data
-4. Keep `my-lumera-app` / `My Lumera App` as default values (the CLI replaces them during `lumera init`)
+4. Update `package.json` name and `lumera.name` to match your template (the CLI replaces them during `lumera init`)
 
 ### Manual Steps (if not using the script)
 
@@ -120,7 +133,7 @@ app-templates/
 └── my-new-template/
     ├── template.json          # Required metadata
     ├── .gitignore             # Standard gitignore
-    ├── package.json           # Use "my-lumera-app" as the package name
+    ├── package.json           # Use the template name as the package name
     ├── platform/
     │   └── collections/       # Lumera collection schemas (.json)
     │   └── automations/       # Python automation scripts
@@ -144,26 +157,32 @@ app-templates/
 }
 ```
 
-#### Step 3: Use default values for variable substitution
+#### Step 3: Use the template name in all files
 
 In `package.json`:
 ```json
 {
-  "name": "my-lumera-app",
-  "version": "0.1.0"
+  "name": "my-new-template",
+  "version": "0.1.0",
+  "lumera": {
+    "version": 1,
+    "name": "My New Template"
+  }
 }
 ```
 
-In automation `config.json`:
+In automation `config.json` (no `external_id` needed — the CLI derives it automatically):
 ```json
 {
-  "external_id": "my-lumera-app:my_automation"
+  "name": "My Automation",
+  "description": "What this automation does.",
+  "inputs": { ... }
 }
 ```
 
 In `Sidebar.tsx` (for the project initial):
 ```tsx
-const APP_NAME = 'My Lumera App';
+const APP_NAME = 'My New Template';
 // Use {APP_NAME[0]} for initial, {APP_NAME} for full name
 ```
 
@@ -203,7 +222,7 @@ pnpm install && pnpm typecheck
 - Approval workflow: draft → processing → review → approved/rejected
 - Dashboard with stats, invoice list with status filters and pagination
 - Detail page with document preview, editable form fields, and approve/reject buttons
-- Collections: `invoices`, `vendors`, `gl_accounts`
+- Collections: `invoices`, `vendors`, `inv_gl_accounts`, `inv_audit_log`
 
 ## Coding Patterns Used in Templates
 
@@ -245,6 +264,22 @@ Run the sync script to pull the latest skills from the Lumera API into all templ
 ```
 
 This fetches from `https://app.lumerahq.com/api/public/skills`, updates `.claude/skills/` in each template, and regenerates the CLAUDE.md skill descriptions.
+
+## Collection Naming
+
+Collection names are **global** within a Lumera account — they are not scoped to an app. To avoid collisions when multiple templates are deployed to the same account, prefix generic collection names with a short template identifier:
+
+| Template | Prefix | Example |
+|---|---|---|
+| invoice-processing | `inv_` | `inv_gl_accounts`, `inv_audit_log` |
+| payroll-journal-entry | `payroll_` | `payroll_gl_accounts` |
+| fixed-asset-tracker | `asset_` | `asset_gl_accounts` |
+| collections-agent | `ca_` | `ca_audit_log` |
+
+**Rules:**
+- Template-specific collections (e.g. `invoices`, `payroll_runs`, `fixed_assets`) are already unique and don't need a prefix.
+- Only prefix generic/shared names that might appear in multiple templates (e.g. `gl_accounts`, `audit_log`).
+- The `validate-templates.sh` script checks for cross-template collection name collisions in CI.
 
 ## Important Notes
 

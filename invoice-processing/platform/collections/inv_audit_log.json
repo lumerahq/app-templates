@@ -1,6 +1,6 @@
 {
-  "id": "audit_log",
-  "name": "audit_log",
+  "id": "inv_audit_log",
+  "name": "inv_audit_log",
   "fields": [
     {
       "name": "action",

@@ -1,6 +1,6 @@
 {
-  "id": "gl_accounts",
-  "name": "gl_accounts",
+  "id": "asset_gl_accounts",
+  "name": "asset_gl_accounts",
   "fields": [
     {
       "name": "code",

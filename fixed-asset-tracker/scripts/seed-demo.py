@@ -50,9 +50,9 @@ gl_accounts = [
 
 print("Seeding GL accounts...")
 ext_ids = [a["external_id"] for a in gl_accounts]
-gl_id_map = resolve_ids("gl_accounts", ext_ids)
+gl_id_map = resolve_ids("asset_gl_accounts", ext_ids)
 attach_ids(gl_accounts, gl_id_map)
-result = pb.bulk_upsert("gl_accounts", gl_accounts)
+result = pb.bulk_upsert("asset_gl_accounts", gl_accounts)
 print(f"  {result['succeeded']} succeeded, {result['failed']} failed")
 
 # ── Fixed Assets ─────────────────────────────────────────────────────

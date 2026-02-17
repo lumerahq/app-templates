@@ -77,11 +77,13 @@ except Exception as e:
     error "not listed in registry.json"
   fi
 
-  # Check package.json uses default substitution value
+  # Check package.json exists and has a valid name (not the old placeholder)
   if [ -f "$dir/package.json" ]; then
     PKG_NAME=$(python3 -c "import json; print(json.load(open('$dir/package.json'))['name'])" 2>/dev/null || echo "")
-    if [ "$PKG_NAME" != "my-lumera-app" ]; then
-      error "package.json name is '$PKG_NAME', expected 'my-lumera-app'"
+    if [ -z "$PKG_NAME" ]; then
+      error "package.json missing name field"
+    elif [ "$PKG_NAME" = "my-lumera-app" ]; then
+      error "package.json still uses placeholder 'my-lumera-app' — use the template's own name"
     fi
   else
     error "missing package.json"
@@ -123,6 +125,56 @@ for name in $REGISTRY_NAMES; do
 done
 if [ $ERRORS -eq $PREV_ERRORS ]; then
   echo "  ok"
+fi
+
+# ── Check for collection name collisions across templates ─────────────────
+echo ""
+echo "[cross-template collection names]"
+PREV_ERRORS=$ERRORS
+
+COLLISION_RESULT=$(python3 -c "
+import json, os, sys
+
+repo_root = sys.argv[1]
+collections = {}  # name -> list of template dirs
+
+for entry in os.listdir(repo_root):
+    coll_dir = os.path.join(repo_root, entry, 'platform', 'collections')
+    if not os.path.isdir(coll_dir):
+        continue
+    for f in os.listdir(coll_dir):
+        if not f.endswith('.json'):
+            continue
+        try:
+            with open(os.path.join(coll_dir, f)) as fh:
+                data = json.load(fh)
+            name = data.get('name', '')
+            if name:
+                collections.setdefault(name, []).append(entry)
+        except Exception:
+            pass
+
+collisions = {k: v for k, v in collections.items() if len(v) > 1}
+if collisions:
+    for name, templates in sorted(collisions.items()):
+        print(f'collision:{name}:{','.join(templates)}')
+else:
+    print('ok')
+" "$REPO_ROOT" 2>&1)
+
+if [ "$COLLISION_RESULT" = "ok" ]; then
+  echo "  ok"
+else
+  echo "$COLLISION_RESULT" | while IFS= read -r line; do
+    case "$line" in
+      collision:*)
+        coll_name="${line#collision:}"
+        name="${coll_name%%:*}"
+        templates="${coll_name#*:}"
+        error "collection '$name' appears in multiple templates: $templates"
+        ;;
+    esac
+  done
 fi
 
 # ── Summary ──────────────────────────────────────────────────────────────────

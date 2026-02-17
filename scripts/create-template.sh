@@ -93,6 +93,16 @@ rm -f "$TEMPLATE_DIR/AGENTS.md" \
       "$TEMPLATE_DIR/ARCHITECTURE.md" \
       "$TEMPLATE_DIR/README.md"
 
+# ── Replace default template name with new template name ───────────────────
+echo "Updating template name..."
+find "$TEMPLATE_DIR" -type f | while read -r file; do
+  # Skip binary files
+  if grep -qI '' "$file" 2>/dev/null; then
+    sed -i '' "s/default-app/$NAME/g" "$file"
+    sed -i '' "s/Default App/$TITLE/g" "$file"
+  fi
+done
+
 # ── Write template.json ─────────────────────────────────────────────────────
 cat > "$TEMPLATE_DIR/template.json" <<EOF
 {

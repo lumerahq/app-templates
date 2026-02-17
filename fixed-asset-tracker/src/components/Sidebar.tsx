@@ -9,7 +9,7 @@ type NavItem = {
   icon: React.ElementType;
 };
 
-const APP_NAME = 'My Lumera App';
+const APP_NAME = 'Fixed Asset Tracker';
 
 const navItems: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },

@@ -1,4 +1,4 @@
-# My Lumera App - Claude Code Instructions
+# Invoice Processing - Claude Code Instructions
 
 **Full Architecture**: See `ARCHITECTURE.md`
 
@@ -22,14 +22,14 @@ This is an invoice processing application. Users upload invoice documents, AI ex
 
 ### Key External IDs
 
-- Automation: `my-lumera-app:extract_invoice`
-- Hook: `my-lumera-app:trigger_extract`
+- Automation: `invoice-processing:extract_invoice`
+- Hook: `invoice-processing:trigger_extract`
 
 ### Collections
 
 - `invoices` — Core records with document, extracted_data, status, and invoice fields
 - `vendors` — Vendor directory with default GL codes
-- `gl_accounts` — Chart of accounts for GL coding
+- `inv_gl_accounts` — Chart of accounts for GL coding
 
 ---
 
@@ -152,7 +152,7 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "my-lumera-app:my_automation",
+    "invoice-processing:my_automation",
     inputs={"param": "value"}
 )
 print(f"Run ID: {run.id}")
@@ -252,7 +252,7 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: 'my-lumera-app:process_data',
+  automationId: 'invoice-processing:process_data',
   inputs: { file_id: 'abc123' },
 });
 

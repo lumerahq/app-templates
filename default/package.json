@@ -1,5 +1,5 @@
 {
-  "name": "my-lumera-app",
+  "name": "default-app",
   "private": true,
   "type": "module",
   "pnpm": {
@@ -9,7 +9,7 @@
   },
   "lumera": {
     "version": 1,
-    "name": "My Lumera App"
+    "name": "Default App"
   },
   "scripts": {
     "dev": "pnpm dlx @lumerahq/cli dev",

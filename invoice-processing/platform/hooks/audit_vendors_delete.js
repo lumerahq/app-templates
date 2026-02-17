@@ -1,5 +1,4 @@
 export const config = {
-  external_id: 'my-lumera-app:audit_vendors_delete',
   collection: 'vendors',
   trigger: 'after_delete',
   enabled: true,
@@ -8,7 +7,7 @@ export const config = {
 export default async function handler(ctx) {
   async function main(ctx) {
     try {
-      await ctx.dao.create('audit_log', {
+      await ctx.dao.create('inv_audit_log', {
         action: 'delete',
         action_category: 'vendor',
         action_label: `Deleted vendor: ${ctx.record.name}`,

@@ -32,7 +32,7 @@ declare module '@tanstack/react-router' {
   }
 }
 
-const ROUTE_STORAGE_KEY = 'my-lumera-app-route';
+const ROUTE_STORAGE_KEY = 'payroll-journal-entry-route';
 
 function RouteRestorer() {
   const isFirstLoad = useRef(true);

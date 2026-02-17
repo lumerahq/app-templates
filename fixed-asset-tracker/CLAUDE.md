@@ -1,4 +1,4 @@
-# My Lumera App - Claude Code Instructions
+# Fixed Asset Tracker - Claude Code Instructions
 
 **Full Architecture**: See `ARCHITECTURE.md`
 
@@ -52,11 +52,11 @@ lumera skills install --force     # Re-install from scratch
 |---|---|
 | `fixed_assets` | Asset register — cost basis, useful life, accumulated depreciation, status |
 | `depreciation_entries` | Monthly depreciation records — amount, accumulated total, NBV |
-| `gl_accounts` | Chart of accounts for fixed asset accounting (asset, contra_asset, expense) |
+| `asset_gl_accounts` | Chart of accounts for fixed asset accounting (asset, contra_asset, expense) |
 
 ### Key External IDs
 
-- **Automation**: `my-lumera-app:calculate_depreciation` — calculates monthly depreciation for a single asset
+- **Automation**: `fixed-asset-tracker:calculate_depreciation` — calculates monthly depreciation for a single asset
 - Takes inputs: `asset_id` (string), `period` (string, YYYY-MM)
 - Supports straight-line and declining-balance methods
 
@@ -160,7 +160,7 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "my-lumera-app:my_automation",
+    "fixed-asset-tracker:my_automation",
     inputs={"param": "value"}
 )
 print(f"Run ID: {run.id}")
@@ -260,7 +260,7 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: 'my-lumera-app:process_data',
+  automationId: 'fixed-asset-tracker:process_data',
   inputs: { file_id: 'abc123' },
 });
 

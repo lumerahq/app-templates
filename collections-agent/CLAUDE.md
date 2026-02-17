@@ -1,4 +1,4 @@
-# My Lumera App - Claude Code Instructions
+# Collections Agent - Claude Code Instructions
 
 **Full Architecture**: See `ARCHITECTURE.md`
 
@@ -22,7 +22,7 @@ Monitor AR aging, draft AI-powered collection emails, and track customer touchpo
 
 ### Key External IDs
 
-- `my-lumera-app:draft_collection_email` — automation that drafts a collection email based on customer's open invoices
+- `collections-agent:draft_collection_email` — automation that drafts a collection email based on customer's open invoices
 
 ### Status Lifecycle
 
@@ -149,7 +149,7 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "my-lumera-app:my_automation",
+    "collections-agent:my_automation",
     inputs={"param": "value"}
 )
 print(f"Run ID: {run.id}")
@@ -249,7 +249,7 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: 'my-lumera-app:process_data',
+  automationId: 'collections-agent:process_data',
   inputs: { file_id: 'abc123' },
 });
 

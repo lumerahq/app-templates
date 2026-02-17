@@ -1,5 +1,4 @@
 {
-  "external_id": "my-lumera-app:calculate_depreciation",
   "name": "Calculate Depreciation",
   "description": "Calculate monthly depreciation for one or all active fixed assets.",
   "inputs": {

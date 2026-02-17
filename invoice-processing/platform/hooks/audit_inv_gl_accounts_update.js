@@ -1,6 +1,5 @@
 export const config = {
-  external_id: 'my-lumera-app:audit_gl_accounts_update',
-  collection: 'gl_accounts',
+  collection: 'inv_gl_accounts',
   trigger: 'after_update',
   enabled: true,
 };
@@ -25,14 +24,14 @@ export default async function handler(ctx) {
 
       if (!hasChanges) return;
 
-      await ctx.dao.create('audit_log', {
+      await ctx.dao.create('inv_audit_log', {
         action: 'update',
         action_category: 'gl_account',
         action_label: `Updated GL account: ${curr.code} — ${curr.name}`,
         actor_id: ctx.user?.id || null,
         actor_name: ctx.user?.name || null,
         actor_email: ctx.user?.email || null,
-        target_collection: 'gl_accounts',
+        target_collection: 'inv_gl_accounts',
         target_record_id: curr.id,
         before_state: beforeState,
         after_state: afterState,

@@ -71,7 +71,7 @@ function AssetDetailPage() {
       const now = new Date();
       const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
       const run = await createRun({
-        automationId: 'my-lumera-app:calculate_depreciation',
+        automationId: 'fixed-asset-tracker:calculate_depreciation',
         inputs: { asset_id: id, period },
       });
       const result = await pollRun(run.id);

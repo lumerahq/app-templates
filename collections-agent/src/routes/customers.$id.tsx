@@ -60,7 +60,7 @@ function CustomerDetailPage() {
   const draftEmailMutation = useMutation({
     mutationFn: async () => {
       const run = await createRun({
-        automationId: 'my-lumera-app:draft_collection_email',
+        automationId: 'collections-agent:draft_collection_email',
         inputs: { customer_id: id },
       });
       return pollRun(run.id);

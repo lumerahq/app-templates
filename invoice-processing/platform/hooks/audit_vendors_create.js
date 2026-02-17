@@ -1,5 +1,4 @@
 export const config = {
-  external_id: 'my-lumera-app:audit_vendors_create',
   collection: 'vendors',
   trigger: 'after_create',
   enabled: true,
@@ -8,7 +7,7 @@ export const config = {
 export default async function handler(ctx) {
   async function main(ctx) {
     try {
-      await ctx.dao.create('audit_log', {
+      await ctx.dao.create('inv_audit_log', {
         action: 'create',
         action_category: 'vendor',
         action_label: `Added vendor: ${ctx.record.name}`,

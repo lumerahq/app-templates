@@ -75,7 +75,7 @@ invoices = [
 print("Seeding demo data...")
 
 for gl in gl_accounts:
-    pb.upsert("gl_accounts", gl)
+    pb.upsert("inv_gl_accounts", gl)
     print(f"  GL: {gl['code']} - {gl['name']}")
 
 for v in vendors:

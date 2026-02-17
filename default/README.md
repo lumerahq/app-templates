@@ -1,4 +1,4 @@
-# My Lumera App
+# Default App
 
 Lumera custom embedded app.
 

@@ -1,7 +1,7 @@
 [project]
-name = "my-lumera-app"
+name = "invoice-processing"
 version = "0.1.0"
-description = "My Lumera App - Lumera custom app"
+description = "Invoice Processing - Lumera custom app"
 requires-python = ">=3.11"
 dependencies = [
     "lumera",

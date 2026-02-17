@@ -54,7 +54,7 @@ payroll_runs = [
 print("Seeding demo data...")
 
 for gl in gl_accounts:
-    pb.upsert("gl_accounts", gl)
+    pb.upsert("payroll_gl_accounts", gl)
     print(f"  GL: {gl['code']} - {gl['name']}")
 
 for run in payroll_runs:

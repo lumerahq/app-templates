@@ -157,7 +157,7 @@ export async function logAudit(
   description: string,
   metadata?: Record<string, unknown>,
 ) {
-  return pbCreate<AuditLogEntry>('audit_log', {
+  return pbCreate<AuditLogEntry>('ca_audit_log', {
     action,
     entity_type: entityType,
     entity_id: entityId,
@@ -167,7 +167,7 @@ export async function logAudit(
 }
 
 export async function listAuditLog(page = 1) {
-  return pbList<AuditLogEntry>('audit_log', {
+  return pbList<AuditLogEntry>('ca_audit_log', {
     page,
     perPage: 50,
     sort: '-created',

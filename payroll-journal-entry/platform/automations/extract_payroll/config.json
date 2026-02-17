@@ -1,5 +1,4 @@
 {
-  "external_id": "my-lumera-app:extract_payroll",
   "name": "Extract Payroll",
   "description": "Extract payroll data from an uploaded report and generate journal entry lines.",
   "inputs": {

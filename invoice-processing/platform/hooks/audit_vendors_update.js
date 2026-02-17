@@ -1,5 +1,4 @@
 export const config = {
-  external_id: 'my-lumera-app:audit_vendors_update',
   collection: 'vendors',
   trigger: 'after_update',
   enabled: true,
@@ -25,7 +24,7 @@ export default async function handler(ctx) {
 
       if (!hasChanges) return;
 
-      await ctx.dao.create('audit_log', {
+      await ctx.dao.create('inv_audit_log', {
         action: 'update',
         action_category: 'vendor',
         action_label: `Updated vendor: ${curr.name}`,

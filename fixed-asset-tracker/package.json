@@ -1,5 +1,5 @@
 {
-  "name": "my-lumera-app",
+  "name": "fixed-asset-tracker",
   "private": true,
   "type": "module",
   "pnpm": {
@@ -9,7 +9,7 @@
   },
   "lumera": {
     "version": 1,
-    "name": "My Lumera App"
+    "name": "Fixed Asset Tracker"
   },
   "scripts": {
     "dev": "pnpm dlx @lumerahq/cli dev",

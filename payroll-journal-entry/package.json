@@ -1,5 +1,5 @@
 {
-  "name": "my-lumera-app",
+  "name": "payroll-journal-entry",
   "private": true,
   "type": "module",
   "pnpm": {
@@ -9,7 +9,7 @@
   },
   "lumera": {
     "version": 1,
-    "name": "My Lumera App"
+    "name": "Payroll Journal Entry"
   },
   "scripts": {
     "dev": "pnpm dlx @lumerahq/cli dev",

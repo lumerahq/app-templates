@@ -20,7 +20,7 @@ export const Route = createFileRoute('/settings')({
   component: SettingsPage,
 });
 
-type Tab = 'vendors' | 'gl_accounts';
+type Tab = 'vendors' | 'inv_gl_accounts';
 
 function SettingsPage() {
   const [tab, setTab] = useState<Tab>('vendors');
@@ -47,9 +47,9 @@ function SettingsPage() {
         </button>
         <button
           type="button"
-          onClick={() => setTab('gl_accounts')}
+          onClick={() => setTab('inv_gl_accounts')}
           className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            tab === 'gl_accounts'
+            tab === 'inv_gl_accounts'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
