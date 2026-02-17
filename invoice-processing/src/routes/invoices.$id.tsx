@@ -43,8 +43,8 @@ function InvoiceDetailPage() {
       setForm({
         vendor_name: invoice.vendor_name || '',
         invoice_number: invoice.invoice_number || '',
-        invoice_date: invoice.invoice_date || '',
-        due_date: invoice.due_date || '',
+        invoice_date: invoice.invoice_date?.split('T')[0] || '',
+        due_date: invoice.due_date?.split('T')[0] || '',
         total_amount: invoice.total_amount != null ? String(invoice.total_amount) : '',
         currency: invoice.currency || 'USD',
         description: invoice.description || '',
@@ -151,19 +151,11 @@ function InvoiceDetailPage() {
             isImage ? (
               <img src={previewUrl} alt="Invoice document" className="w-full rounded-lg" />
             ) : (
-              <div className="relative">
-                <object data={previewUrl} type="application/pdf" className="w-full h-[600px] rounded-lg border">
-                  <div className="flex flex-col items-center justify-center h-[600px] rounded-lg border border-dashed gap-3">
-                    <p className="text-muted-foreground text-sm">PDF preview is not available in this browser.</p>
-                    <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                      <ExternalLink className="size-4" />
-                      Open Document
-                    </a>
-                  </div>
-                </object>
-                <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 right-2 inline-flex items-center gap-1.5 rounded-md bg-background/80 backdrop-blur border px-2 py-1 text-xs hover:bg-background transition-colors">
-                  <ExternalLink className="size-3" />
-                  Open
+              <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed gap-3">
+                <p className="text-muted-foreground text-sm">{invoice.document?.original_name || 'Document'}</p>
+                <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+                  <ExternalLink className="size-4" />
+                  Open Document
                 </a>
               </div>
             )
