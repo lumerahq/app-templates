@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer';
+import '@cyntler/react-doc-viewer/dist/index.css';
 import { ArrowLeft, CheckCircle, ExternalLink, Loader2, Save, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -97,8 +99,6 @@ function InvoiceDetailPage() {
     return <div className="py-8 text-center text-muted-foreground">Invoice not found.</div>;
   }
 
-  const isImage = invoice.document?.content_type?.startsWith('image/');
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -146,19 +146,33 @@ function InvoiceDetailPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Left: Document Preview */}
         <div className="rounded-xl border bg-card p-4">
-          <h2 className="font-semibold mb-3">Document</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold">Document</h2>
+            {previewUrl && (
+              <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+                <ExternalLink className="size-3" />
+                Open
+              </a>
+            )}
+          </div>
           {previewUrl ? (
-            isImage ? (
-              <img src={previewUrl} alt="Invoice document" className="w-full rounded-lg" />
-            ) : (
-              <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed gap-3">
-                <p className="text-muted-foreground text-sm">{invoice.document?.original_name || 'Document'}</p>
-                <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                  <ExternalLink className="size-4" />
-                  Open Document
-                </a>
-              </div>
-            )
+            <div className="rounded-lg overflow-hidden border doc-viewer-wrap" style={{ height: '80vh' }}>
+              <style>{`
+                .doc-viewer-wrap #react-doc-viewer { background: transparent; }
+                .doc-viewer-wrap #pdf-renderer { overflow: auto; }
+              `}</style>
+              <DocViewer
+                documents={[{ uri: previewUrl, fileName: invoice.document?.original_name || 'document' }]}
+                pluginRenderers={DocViewerRenderers}
+                prefetchMethod="GET"
+                config={{
+                  header: { disableHeader: true },
+                  pdfVerticalScrollByDefault: true,
+                  pdfZoom: { defaultZoom: 1, zoomJump: 0.2 },
+                }}
+                style={{ height: '100%' }}
+              />
+            </div>
           ) : (
             <div className="flex items-center justify-center h-48 text-muted-foreground text-sm rounded-lg border border-dashed">
               No document uploaded
