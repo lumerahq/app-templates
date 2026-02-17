@@ -45,7 +45,21 @@ Confidence >= 90% → `coded`. Below 90% → `pending_approval` for human review
 This project includes Lumera skills for AI coding agents in `.claude/skills/`. Read the relevant skill file when you need detailed API docs and usage patterns for that capability.
 
 <!-- LUMERA_SKILLS_START -->
-_Run `lumera skills install` to populate skill descriptions._
+**lumera-architecture-diagrams** — Generate visual architecture diagrams for Lumera projects. Creates an ARCHITECTURE.html file with a polished, professional visual diagram.
+
+**lumera-automations** — Create, run, and manage Lumera automations (background Python scripts). Create automations with `POST /api/automations`. Run them with `POST /api/automation-runs`. Monitor via `GET /api/automation-runs/{id}` or stream logs with `GET /api/automation-runs/{id}/logs/live`.
+
+**lumera-collections** — Manage data collections and records via the `lumera_api` tool. Use `GET /api/pb/collections` to list collections, `PUT /api/pb/collections/{name}` to ensure a collection exists with a given schema, and the records API for data operations. Supports filtering, search, and upsert by `external_id`.
+
+**lumera-file-uploads** — Upload and download files using the `lumera_api` tool. Use presigned URLs for uploads, then confirm with the resource endpoint. Download files via `GET .../download-url?name=filename`. Supports sessions, agent runs, documents, and PocketBase files.
+
+**lumera-sdk** — Write Python automations using the Lumera SDK. Use `from lumera import pb` for records, `from lumera import storage` for files, `from lumera import llm` for AI completions, `from lumera import email` for sending emails. Avoid importing from `lumera.sdk` directly.
+
+**lumera-using-lumera** — Build event-driven automation pipelines using collections, hooks, and automations.
+
+**lumera-webhooks** — Receive events from external services (Stripe, GitHub, Slack, etc.) via webhooks. Create endpoints with `webhooks.create()`, get the public URL with `webhooks.url()`, and process events from `lm_event_log`. Trigger automations via hooks on `lm_event_log.after_create`.
+
+**lumera-write-hooks** — Author Lumera collection hooks in JavaScript. Hooks run on lifecycle events (`before_create`, `after_update`, etc.). Manage via `GET/POST/PATCH/DELETE /api/pb/hooks`.
 <!-- LUMERA_SKILLS_END -->
 
 ### Managing Skills

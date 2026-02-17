@@ -11,6 +11,7 @@ app-templates/
 ├── registry.json          # Template manifest (source of truth)
 ├── scripts/
 │   ├── create-template.sh    # Scaffold a new template from default
+│   ├── sync-skills.sh        # Fetch latest skills from Lumera API
 │   └── validate-templates.sh # CI validation for all templates
 ├── .github/workflows/
 │   └── validate.yml       # GitHub Actions CI — runs validation on PRs
@@ -221,6 +222,28 @@ pnpm install && pnpm typecheck
 - **Collections**: `collections.get(name, id)`, `collections.update(name, id, data)`, `collections.list(name, filter, sort, limit)`
 - **Inputs**: `inputs["key"]` — dict populated from `createRun({ inputs })` call
 - **Return values**: Module-level `return { ... }` — accessible via `run.result` from frontend
+
+## AI Agent Skills
+
+Each template includes Lumera skills in `.claude/skills/` that provide AI agents with detailed API docs and usage patterns. Skills are served from the Lumera platform API and committed to git so agents have them immediately.
+
+### How skills work
+
+- Skill files live at `<template>/.claude/skills/lumera_*.md`
+- Each template's `CLAUDE.md` has skill description markers (`<!-- LUMERA_SKILLS_START -->` / `<!-- LUMERA_SKILLS_END -->`)
+- The `create-template.sh` script copies skills from `default` when scaffolding a new template
+- When a user runs `lumera init`, the CLI re-fetches the latest skills from the API and updates the CLAUDE.md markers
+
+### Keeping skills up to date
+
+Run the sync script to pull the latest skills from the Lumera API into all templates:
+
+```bash
+./scripts/sync-skills.sh          # Update all templates
+./scripts/sync-skills.sh --dry-run # Preview changes
+```
+
+This fetches from `https://app.lumerahq.com/api/public/skills`, updates `.claude/skills/` in each template, and regenerates the CLAUDE.md skill descriptions.
 
 ## Important Notes
 

@@ -88,9 +88,8 @@ rm -rf "$TEMPLATE_DIR/node_modules" \
        "$TEMPLATE_DIR/pnpm-lock.yaml" \
        "$TEMPLATE_DIR/src/routeTree.gen.ts"
 
-# Remove default-specific docs (the new template should have its own)
-rm -f "$TEMPLATE_DIR/CLAUDE.md" \
-      "$TEMPLATE_DIR/AGENTS.md" \
+# Remove default-specific docs (new template keeps CLAUDE.md with skills)
+rm -f "$TEMPLATE_DIR/AGENTS.md" \
       "$TEMPLATE_DIR/ARCHITECTURE.md" \
       "$TEMPLATE_DIR/README.md"
 
