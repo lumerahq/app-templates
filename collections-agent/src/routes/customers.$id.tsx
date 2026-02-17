@@ -153,19 +153,26 @@ function CustomerDetailPage() {
 
       {/* Actions */}
       <div className="flex gap-2 flex-wrap">
-        <button
-          type="button"
-          onClick={() => draftEmailMutation.mutate()}
-          disabled={draftEmailMutation.isPending}
-          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
-        >
-          {draftEmailMutation.isPending ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Mail className="size-4" />
+        <div className="relative group">
+          <button
+            type="button"
+            onClick={() => draftEmailMutation.mutate()}
+            disabled={draftEmailMutation.isPending || openInvoices.length === 0}
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {draftEmailMutation.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Mail className="size-4" />
+            )}
+            {draftEmailMutation.isPending ? 'Drafting...' : 'Draft Collection Email'}
+          </button>
+          {openInvoices.length === 0 && (
+            <div className="absolute left-0 top-full mt-1 hidden group-hover:block z-10 rounded-md bg-popover border px-3 py-1.5 text-xs text-muted-foreground shadow-md whitespace-nowrap">
+              Add an open invoice first to draft a collection email
+            </div>
           )}
-          {draftEmailMutation.isPending ? 'Drafting...' : 'Draft Collection Email'}
-        </button>
+        </div>
         <button
           type="button"
           onClick={() => setShowNoteForm(!showNoteForm)}

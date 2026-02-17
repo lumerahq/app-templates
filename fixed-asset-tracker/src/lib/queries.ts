@@ -135,15 +135,39 @@ export async function listDepreciationEntries(assetId: string) {
   });
 }
 
+export type DepreciationEntryWithAsset = DepreciationEntry & {
+  asset_name: string;
+  asset_tag: string;
+};
+
 export async function listAllDepreciationEntries(page = 1, statusFilter?: string) {
-  const filter = statusFilter ? JSON.stringify({ status: statusFilter }) : undefined;
-  return pbList<DepreciationEntry>('depreciation_entries', {
-    page,
-    perPage: 50,
-    sort: '-period',
-    filter,
-    expand: 'fixed_asset',
+  const perPage = 50;
+  const offset = (page - 1) * perPage;
+  const where = statusFilter ? `WHERE d.status = '${statusFilter}'` : '';
+
+  const countResult = await pbSql<{ total: string }>({
+    sql: `SELECT COUNT(*) as total FROM depreciation_entries d ${where}`,
   });
+  const totalItems = Number(countResult.rows?.[0]?.total ?? 0);
+
+  const result = await pbSql<DepreciationEntryWithAsset>({
+    sql: `
+      SELECT d.*, a.name as asset_name, a.asset_tag
+      FROM depreciation_entries d
+      LEFT JOIN fixed_assets a ON d.fixed_asset = a.id
+      ${where}
+      ORDER BY d.period DESC
+      LIMIT ${perPage} OFFSET ${offset}
+    `,
+  });
+
+  return {
+    items: result.rows ?? [],
+    page,
+    perPage,
+    totalItems,
+    totalPages: Math.ceil(totalItems / perPage),
+  };
 }
 
 export async function updateDepreciationEntry(id: string, data: Partial<DepreciationEntry>) {

@@ -20,11 +20,11 @@ def main(customer_id: str):
     contact_name = customer.get("contact_name") or "Accounts Payable"
 
     # Fetch open invoices for this customer
-    invoices = pb.list(
+    invoices = pb.search(
         "ar_invoices",
-        filter=f"customer='{customer_id}' && status='open'",
+        filter={"customer": customer_id, "status": "open"},
         sort="-days_overdue",
-        limit=50,
+        per_page=50,
     )
 
     items = invoices.get("items", [])

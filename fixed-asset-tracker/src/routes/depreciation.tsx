@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 import { StatusBadge } from '../components/StatusBadge';
-import { formatAmount, listAllDepreciationEntries, updateDepreciationEntry } from '../lib/queries';
+import { type DepreciationEntryWithAsset, formatAmount, listAllDepreciationEntries, updateDepreciationEntry } from '../lib/queries';
 
 export const Route = createFileRoute('/depreciation')({
   component: DepreciationPage,
@@ -120,16 +120,13 @@ function DepreciationPage() {
                 <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">Loading...</td>
               </tr>
             ) : data?.items && data.items.length > 0 ? (
-              data.items.map((e) => {
-                const asset = (e as Record<string, unknown>).expand as Record<string, Record<string, string>> | undefined;
-                const assetName = asset?.fixed_asset?.name;
-                const assetTag = asset?.fixed_asset?.asset_tag;
+              data.items.map((e: DepreciationEntryWithAsset) => {
                 return (
                 <tr key={e.id} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
                   <td className="px-4 py-3 font-medium">{e.period}</td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    <div>{assetName || '—'}</div>
-                    {assetTag && <div className="text-xs">{assetTag}</div>}
+                    <div>{e.asset_name || '—'}</div>
+                    {e.asset_tag && <div className="text-xs">{e.asset_tag}</div>}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">{formatAmount(e.depreciation_amount)}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{formatAmount(e.accumulated_total)}</td>
