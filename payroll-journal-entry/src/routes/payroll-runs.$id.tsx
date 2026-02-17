@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer';
+import '@cyntler/react-doc-viewer/dist/index.css';
 import { ArrowLeft, CheckCircle, ExternalLink, Loader2, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -58,7 +60,6 @@ function PayrollRunDetailPage() {
     return <div className="py-8 text-center text-muted-foreground">Payroll run not found.</div>;
   }
 
-  const isImage = run.document?.content_type?.startsWith('image/');
   const journalItems = entries?.items || [];
   const totalDebits = journalItems.reduce((sum, e) => sum + (e.debit_amount || 0), 0);
   const totalCredits = journalItems.reduce((sum, e) => sum + (e.credit_amount || 0), 0);
@@ -124,22 +125,36 @@ function PayrollRunDetailPage() {
 
       {/* Document + Journal Entries */}
       {run.status !== 'processing' && (
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-2">
           {/* Left: Document */}
           <div className="rounded-xl border bg-card p-4">
-            <h2 className="font-semibold mb-3">Document</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold">Document</h2>
+              {previewUrl && (
+                <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+                  <ExternalLink className="size-3" />
+                  Open
+                </a>
+              )}
+            </div>
             {previewUrl ? (
-              isImage ? (
-                <img src={previewUrl} alt="Payroll report" className="w-full rounded-lg" />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed gap-3">
-                  <p className="text-muted-foreground text-sm">{run.document?.original_name || 'Document'}</p>
-                  <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                    <ExternalLink className="size-4" />
-                    Open Document
-                  </a>
-                </div>
-              )
+              <div className="rounded-lg overflow-hidden border doc-viewer-wrap" style={{ height: '80vh' }}>
+                <style>{`
+                  .doc-viewer-wrap #react-doc-viewer { background: transparent; }
+                  .doc-viewer-wrap #pdf-renderer { overflow: auto; }
+                `}</style>
+                <DocViewer
+                  documents={[{ uri: previewUrl, fileName: run.document?.original_name || 'document' }]}
+                  pluginRenderers={DocViewerRenderers}
+                  prefetchMethod="GET"
+                  config={{
+                    header: { disableHeader: true },
+                    pdfVerticalScrollByDefault: true,
+                    pdfZoom: { defaultZoom: 1, zoomJump: 0.2 },
+                  }}
+                  style={{ height: '100%' }}
+                />
+              </div>
             ) : (
               <div className="flex items-center justify-center h-48 text-muted-foreground text-sm rounded-lg border border-dashed">
                 No document uploaded
@@ -155,7 +170,7 @@ function PayrollRunDetailPage() {
           </div>
 
           {/* Right: Journal Entries Table */}
-          <div className="lg:col-span-2 rounded-xl border bg-card">
+          <div className="rounded-xl border bg-card">
             <div className="p-4 border-b">
               <h2 className="font-semibold">Journal Entries</h2>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -213,15 +228,6 @@ function PayrollRunDetailPage() {
         </div>
       )}
 
-      {/* Extracted Data */}
-      {run.extracted_data && (
-        <details className="rounded-xl border bg-card p-4">
-          <summary className="font-semibold cursor-pointer">Extracted Data (Raw)</summary>
-          <pre className="mt-3 text-xs bg-muted p-3 rounded-lg overflow-auto max-h-64">
-            {JSON.stringify(run.extracted_data, null, 2)}
-          </pre>
-        </details>
-      )}
     </div>
   );
 }
