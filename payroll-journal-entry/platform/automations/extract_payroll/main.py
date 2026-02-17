@@ -53,13 +53,24 @@ Common payroll journal entry pattern:
 Return ONLY valid JSON. Use null for fields you cannot find.
 Total debits must equal total credits."""
 
-    response = llm.extract_text(
-        source=file_bytes,
-        mime_type=content_type,
-        filename=filename,
-        prompt=extraction_prompt,
-    )
-    result_text = response["content"]
+    is_text = content_type in ("text/csv", "text/plain") or filename.endswith(".csv")
+
+    if is_text:
+        # CSV/text files: read content directly and use llm.complete()
+        text_content = file_bytes.decode("utf-8")
+        prompt = f"Here is a payroll report:\n\n{text_content}\n\n{extraction_prompt}"
+        response = llm.complete(prompt, json_mode=True, temperature=1)
+        result_text = response["content"]
+    else:
+        # PDF/images: use vision-based extraction
+        response = llm.extract_text(
+            source=file_bytes,
+            mime_type=content_type,
+            filename=filename,
+            prompt=extraction_prompt,
+        )
+        result_text = response["content"]
+
     print(f"Extraction complete ({len(result_text)} chars)")
 
     # Parse the extraction result
