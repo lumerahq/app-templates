@@ -197,12 +197,13 @@ pnpm install && pnpm typecheck
 - Seed script with sample data
 - Good starting point for custom apps
 
-### `invoice-processing` — Invoice Processing & GL Coding
+### `invoice-processing` — Invoice Processing
 - Upload-first invoice creation with AI document extraction (`extract_invoice` automation)
-- AI-powered GL code classification (`classify_and_code` automation)
-- Vendor management, approval workflows, audit trail
-- Dashboard with stats, invoice list with pagination, detail view with document preview
-- Collections: `invoices`, `vendors`, `gl_accounts`, `audit_log`
+- `after_create` hook triggers extraction automatically on new invoices
+- Approval workflow: draft → processing → review → approved/rejected
+- Dashboard with stats, invoice list with status filters and pagination
+- Detail page with document preview, editable form fields, and approve/reject buttons
+- Collections: `invoices`, `vendors`, `gl_accounts`
 
 ## Coding Patterns Used in Templates
 

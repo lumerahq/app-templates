@@ -1,6 +1,6 @@
 import { cn } from '@lumerahq/ui/lib';
 import { Link, useRouterState } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight, ClipboardList, FileText, HelpCircle, LayoutDashboard, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileText, Info, LayoutDashboard, Settings } from 'lucide-react';
 import { useState } from 'react';
 
 type NavItem = {
@@ -14,9 +14,8 @@ const APP_NAME = 'My Lumera App';
 const navItems: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/invoices', label: 'Invoices', icon: FileText },
-  { to: '/audit', label: 'Audit Log', icon: ClipboardList },
   { to: '/settings', label: 'Settings', icon: Settings },
-  { to: '/how-it-works', label: 'How it Works', icon: HelpCircle },
+  { to: '/how-it-works', label: 'How it Works', icon: Info },
 ];
 
 export function Sidebar() {

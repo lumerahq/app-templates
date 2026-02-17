@@ -2,29 +2,25 @@
   "id": "invoices",
   "name": "invoices",
   "fields": [
-    { "name": "vendor", "type": "relation", "collection": "vendors" },
-    { "name": "invoice_number", "type": "text", "required": true },
-    { "name": "date", "type": "date", "required": true },
+    { "name": "vendor_name", "type": "text" },
+    { "name": "invoice_number", "type": "text" },
+    { "name": "invoice_date", "type": "date" },
     { "name": "due_date", "type": "date" },
-    { "name": "amount", "type": "number", "required": true },
+    { "name": "total_amount", "type": "number" },
+    { "name": "currency", "type": "text" },
+    { "name": "description", "type": "text" },
     {
       "name": "status",
       "type": "select",
-      "values": ["received", "processing", "coded", "pending_approval", "approved", "rejected", "posted"],
-      "default": "received"
+      "values": ["draft", "processing", "review", "approved", "rejected"],
+      "default": "draft"
     },
-    { "name": "gl_code", "type": "text" },
-    { "name": "department", "type": "text" },
-    { "name": "description", "type": "text" },
-    { "name": "source_document", "type": "file" },
-    { "name": "coding_confidence", "type": "number" },
-    { "name": "notes", "type": "text" },
-    { "name": "approved_by", "type": "text" },
-    { "name": "approved_at", "type": "date" }
+    { "name": "document", "type": "lumera_file" },
+    { "name": "extracted_data", "type": "json" },
+    { "name": "notes", "type": "text" }
   ],
   "indexes": [
-    { "fields": ["invoice_number"], "unique": true },
     { "fields": ["status"] },
-    { "fields": ["vendor"] }
+    { "fields": ["vendor_name"] }
   ]
 }

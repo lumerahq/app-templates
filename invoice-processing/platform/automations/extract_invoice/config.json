@@ -1,17 +1,23 @@
 {
   "external_id": "my-lumera-app:extract_invoice",
-  "name": "Extract Invoice Data",
-  "description": "Extracts invoice details from an uploaded document using AI vision.",
+  "name": "Extract Invoice",
+  "description": "Extract structured data from an uploaded invoice using AI.",
   "inputs": {
     "schema": {
-      "type": "object",
-      "properties": {
-        "file_descriptor": {
+      "function": {
+        "name": "main",
+        "parameters": {
           "type": "object",
-          "description": "The file descriptor from the uploaded invoice document"
+          "properties": {
+            "invoice_id": {
+              "type": "string",
+              "description": "ID of the invoice record"
+            }
+          },
+          "required": ["invoice_id"]
         }
       },
-      "required": ["file_descriptor"]
+      "type": "function"
     }
   }
 }

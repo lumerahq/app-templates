@@ -1,71 +1,75 @@
-# /// script
-# dependencies = ["lumera"]
-# ///
 """
-Extract invoice details from an uploaded document using AI vision.
+Extract structured data from an uploaded invoice document using AI vision.
 
-Downloads the file, uses LLM vision to extract text, then parses
-the text into structured invoice fields.
-
-Usage (triggered from frontend after file upload):
-    createRun({ automationId: 'project:extract_invoice', inputs: { file_descriptor } })
+Triggered automatically when a new invoice is created with a document attached.
+Updates the invoice record with extracted fields and sets status to "review".
 """
 
 import json
+from lumera import llm, pb, storage
 
-from lumera import storage, llm
 
-file_descriptor = inputs["file_descriptor"]
+def main(invoice_id: str):
+    print(f"Starting extraction for invoice: {invoice_id}")
 
-print(f"Extracting data from: {file_descriptor.get('original_name', 'unknown')}")
+    # Fetch the invoice record
+    invoice = pb.get("invoices", invoice_id)
+    document = invoice.get("document")
 
-# --- Download the uploaded file ---
-content = storage.download(file_descriptor["object_key"])
+    if not document:
+        pb.update("invoices", invoice_id, {"status": "draft"})
+        return {"error": "No document attached"}
 
-# --- Step 1: Extract raw text from the document using vision ---
-print("Running document vision...")
-extraction = llm.extract_text(
-    content,
-    mime_type=file_descriptor.get("content_type", "application/pdf"),
-    filename=file_descriptor.get("original_name", "invoice"),
-    prompt="Extract all text from this invoice document. Include every detail: invoice number, dates, amounts, vendor information, line items, and any other visible information.",
-)
+    # Download the file
+    object_key = document["object_key"]
+    content_type = document.get("content_type", "application/pdf")
+    filename = document.get("original_name", "invoice.pdf")
 
-raw_text = extraction["content"]
-print(f"Extracted {len(raw_text)} characters of text")
+    file_bytes = storage.download(object_key)
+    print(f"Downloaded {len(file_bytes)} bytes")
 
-# --- Step 2: Parse extracted text into structured fields ---
-print("Parsing into structured data...")
-parse_response = llm.complete(
-    prompt=f"""Parse this invoice text into structured data.
-
-Extracted text:
-{raw_text}
-
-Return JSON:
-{{
-  "invoice_number": "exact invoice number/ID",
-  "vendor_name": "vendor/company name",
-  "date": "YYYY-MM-DD or null",
-  "due_date": "YYYY-MM-DD or null",
-  "amount": 0.00,
-  "description": "brief description of what this invoice is for"
-}}
-
-Rules:
-- Use null for fields you cannot determine
-- Amount must be a number (no currency symbols)
-- Dates must be YYYY-MM-DD
-- Copy the invoice number exactly as shown""",
-    json_mode=True,
-    temperature=0.1,
-)
-
-extracted = json.loads(parse_response["content"])
-
-print(f"Extracted: {extracted.get('invoice_number', '?')} — ${extracted.get('amount', 0):,.2f}")
-
-return {
-    "success": True,
-    "extracted": extracted,
+    # Extract structured data using AI vision
+    extraction_prompt = """Extract the following fields from this invoice document as JSON:
+{
+  "vendor_name": "string - the vendor/supplier name",
+  "invoice_number": "string - the invoice number or ID",
+  "invoice_date": "string - date in YYYY-MM-DD format",
+  "due_date": "string - due date in YYYY-MM-DD format if present",
+  "total_amount": "number - the total amount",
+  "currency": "string - 3-letter currency code (default USD)",
+  "description": "string - brief description of what the invoice is for",
+  "line_items": [
+    {"description": "string", "quantity": "number", "unit_price": "number", "amount": "number"}
+  ]
 }
+
+Return ONLY valid JSON. Use null for fields you cannot find."""
+
+    response = llm.extract_text(
+        source=file_bytes,
+        mime_type=content_type,
+        filename=filename,
+        prompt=extraction_prompt,
+    )
+    result_text = response["content"]
+    print(f"Extraction complete ({len(result_text)} chars)")
+
+    # Parse the extraction result
+    try:
+        extracted = json.loads(result_text)
+    except json.JSONDecodeError:
+        extracted = {"raw_text": result_text}
+
+    # Build update from extracted fields
+    update = {"extracted_data": extracted, "status": "review"}
+
+    field_map = ["vendor_name", "invoice_number", "invoice_date", "due_date", "total_amount", "currency", "description"]
+    for field in field_map:
+        value = extracted.get(field)
+        if value is not None:
+            update[field] = value
+
+    pb.update("invoices", invoice_id, update)
+    print(f"Updated invoice with extracted data")
+
+    return {"status": "success", "extracted_fields": list(extracted.keys())}

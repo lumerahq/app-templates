@@ -3,21 +3,9 @@
   "name": "vendors",
   "fields": [
     { "name": "name", "type": "text", "required": true },
-    { "name": "email", "type": "email" },
-    { "name": "default_gl_code", "type": "text" },
-    {
-      "name": "payment_terms",
-      "type": "select",
-      "values": ["net_15", "net_30", "net_45", "net_60", "due_on_receipt"]
-    },
-    {
-      "name": "status",
-      "type": "select",
-      "values": ["active", "inactive"],
-      "default": "active"
-    }
+    { "name": "default_gl_code", "type": "text" }
   ],
   "indexes": [
-    { "fields": ["name"], "unique": true }
+    { "fields": ["name"] }
   ]
 }

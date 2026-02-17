@@ -5,12 +5,10 @@
     { "name": "code", "type": "text", "required": true },
     { "name": "name", "type": "text", "required": true },
     {
-      "name": "type",
+      "name": "account_type",
       "type": "select",
-      "values": ["expense", "asset", "liability", "revenue"]
-    },
-    { "name": "department", "type": "text" },
-    { "name": "active", "type": "bool" }
+      "values": ["expense", "asset", "liability", "equity", "revenue"]
+    }
   ],
   "indexes": [
     { "fields": ["code"], "unique": true }

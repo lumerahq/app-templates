@@ -1,42 +1,35 @@
 # My Lumera App - Claude Code Instructions
 
-## Overview
+**Full Architecture**: See `ARCHITECTURE.md`
 
-AI-powered invoice processing with automatic GL coding, vendor management, and approval workflows.
+---
 
-## Collections
+## Invoice Processing Template
 
-- **invoices** — Core invoice records with status workflow, GL coding fields, and AI confidence scores.
-- **vendors** — Vendor directory with default GL codes and payment terms.
-- **gl_accounts** — Chart of accounts with codes, types (expense/asset/liability/revenue), and departments.
-- **audit_log** — Activity trail for compliance — tracks every action (created, ai_coded, approved, rejected, posted).
+This is an invoice processing application. Users upload invoice documents, AI extracts structured data, and humans review/approve the results.
 
-## Automations
+### Data Flow
 
-- **classify_and_code** (`my-lumera-app:classify_and_code`) — AI-powered GL code assignment. Analyzes invoice details against the GL account chart, assigns GL code + department + confidence score. Triggered from the invoice detail page.
+1. User uploads a document via "New Invoice" → creates an `invoices` record with `status: draft`
+2. `trigger_extract` hook (`after_create` on `invoices`) sets `status: processing` and queues the `extract_invoice` automation
+3. `extract_invoice` automation downloads the document, calls `llm.extract_text()` to get structured data, updates the invoice fields, sets `status: review`
+4. User reviews extracted data on the detail page, edits/corrects fields
+5. User clicks Approve (`status: approved`) or Reject (`status: rejected`)
 
-## Status Workflow
+### Status Lifecycle
 
-```
-received → processing → coded → pending_approval → approved → posted
-                                                  ↘ rejected
-```
+`draft` → `processing` → `review` → `approved` / `rejected`
 
-Confidence >= 90% → `coded`. Below 90% → `pending_approval` for human review. `rejected` is terminal.
+### Key External IDs
 
-## Key Files
+- Automation: `my-lumera-app:extract_invoice`
+- Hook: `my-lumera-app:trigger_extract`
 
-- `platform/collections/` — Collection schemas (invoices, vendors, gl_accounts, audit_log)
-- `platform/automations/classify_and_code/` — AI coding automation (config.json + main.py)
-- `scripts/seed-demo.py` — Seeds GL accounts, vendors, invoices, and audit log entries
-- `src/routes/index.tsx` — Dashboard with stats and recent invoices
-- `src/routes/invoices.index.tsx` — Invoice list with status filters and "New Invoice" button
-- `src/routes/invoices.new.tsx` — New invoice form with document upload
-- `src/routes/invoices.$invoiceId.tsx` — Invoice detail with AI coding, approval actions, and audit trail
-- `src/routes/audit.tsx` — Full audit log with action filters, pagination, and CSV export
-- `src/routes/how-it-works.tsx` — Workflow guide explaining the processing pipeline
-- `src/routes/settings.tsx` — GL accounts and vendor management tables
-- `src/lib/queries.ts` — Types and data fetching functions
+### Collections
+
+- `invoices` — Core records with document, extracted_data, status, and invoice fields
+- `vendors` — Vendor directory with default GL codes
+- `gl_accounts` — Chart of accounts for GL coding
 
 ---
 
@@ -159,8 +152,8 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "my-lumera-app:classify_and_code",
-    inputs={"invoice_id": "some_invoice_id"}
+    "my-lumera-app:my_automation",
+    inputs={"param": "value"}
 )
 print(f"Run ID: {run.id}")
 print(f"Status: {run.status}")
@@ -205,16 +198,18 @@ EOF
 
 ```
 platform/
-├── automations/    # classify_and_code (AI GL coding)
-├── collections/    # invoices, vendors, gl_accounts schemas
+├── automations/    # Automation scripts (Python)
+├── collections/    # Collection schemas (JSON)
 └── hooks/          # Server-side JavaScript hooks
 
-scripts/            # seed-demo.py (sample data)
+scripts/            # Local scripts (seed, migrate, etc.)
 
 src/                # React frontend
-├── routes/         # Dashboard, invoices, invoice detail, settings
-├── lib/            # queries.ts (types + data fetching)
-└── components/     # Sidebar, StatCard, layout
+├── routes/         # TanStack Router pages
+├── lib/            # queries.ts, api helpers
+└── components/     # React components
+
+.venv/              # Python venv with lumera SDK (for IDE autocomplete)
 ```
 
 ### Python Environment
@@ -257,14 +252,11 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: 'my-lumera-app:classify_and_code',
-  inputs: { invoice_id: 'some_id' },
+  automationId: 'my-lumera-app:process_data',
+  inputs: { file_id: 'abc123' },
 });
 
 const result = await pollRun(run.id);
-if (result.status === 'succeeded') {
-  // Refresh data
-}
 ```
 
 ---
@@ -278,12 +270,12 @@ from lumera import pb
 # List collections
 print(pb.list_collections())
 
-# Search invoices
-result = pb.search("invoices", per_page=10)
+# Search records
+result = pb.search("my_collection", per_page=10)
 print(result)
 
 # Get single record
-record = pb.get("invoices", "record_id")
+record = pb.get("my_collection", "record_id")
 print(record)
 EOF
 ```

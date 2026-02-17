@@ -10,8 +10,8 @@
     },
     {
       "name": "invoice-processing",
-      "title": "Invoice Processing & GL Coding",
-      "description": "AI-powered invoice processing with automatic GL coding, vendor management, and approval workflows.",
+      "title": "Invoice Processing",
+      "description": "Upload invoices, extract data with AI, review and approve.",
       "category": "Procure-to-Pay",
       "version": "1.0.0"
     }

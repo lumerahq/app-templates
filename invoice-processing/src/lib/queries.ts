@@ -1,177 +1,123 @@
-import { type PbRecord, pbSql, pbGet, pbUpdate, pbList, pbCreate } from '@lumerahq/ui/lib';
+import { type PbRecord, pbCreate, pbDelete, pbGet, pbList, pbSql, pbUpdate } from '@lumerahq/ui/lib';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+// --- Types ---
 
 export type Invoice = PbRecord & {
-  vendor: string;
-  invoice_number: string;
-  date: string;
-  due_date: string;
-  amount: number;
-  status: string;
-  gl_code: string;
-  department: string;
-  description: string;
-  source_document: string;
-  coding_confidence: number;
-  notes: string;
-  approved_by: string;
-  approved_at: string;
-};
-
-export type InvoiceWithVendor = Invoice & {
   vendor_name: string;
+  invoice_number: string;
+  invoice_date: string;
+  due_date: string;
+  total_amount: number;
+  currency: string;
+  description: string;
+  status: 'draft' | 'processing' | 'review' | 'approved' | 'rejected';
+  document: { object_key: string; original_name: string; size: number; content_type: string } | null;
+  extracted_data: Record<string, unknown> | null;
+  notes: string;
 };
 
 export type Vendor = PbRecord & {
   name: string;
-  email: string;
   default_gl_code: string;
-  payment_terms: string;
-  status: string;
 };
 
 export type GlAccount = PbRecord & {
   code: string;
   name: string;
-  type: string;
-  department: string;
-  active: boolean;
+  account_type: string;
 };
 
-export type AuditEntry = PbRecord & {
-  entity_type: string;
-  entity_id: string;
-  action: string;
-  details: string;
-  performed_by: string;
+// --- Dashboard ---
+
+export type DashboardStats = {
+  total: string;
+  pending_review: string;
+  approved: string;
+  draft: string;
 };
 
-// ---------------------------------------------------------------------------
-// Dashboard
-// ---------------------------------------------------------------------------
-
-export type StatusSummary = {
-  status: string;
-  count: number;
-  total: number;
-};
-
-export async function getDashboardStats(): Promise<StatusSummary[]> {
-  const res = await pbSql<StatusSummary>({
-    sql: `SELECT status, COUNT(*) as count, COALESCE(SUM(amount), 0) as total
-          FROM invoices
-          GROUP BY status`,
+export async function getDashboardStats(): Promise<DashboardStats> {
+  const result = await pbSql<DashboardStats>({
+    sql: `
+      SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'review' THEN 1 ELSE 0 END) as pending_review,
+        SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+        SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as draft
+      FROM invoices
+    `,
   });
-  // pbSql returns numbers as strings — cast to avoid string concatenation in reduce()
-  return (res.rows ?? []).map((r) => ({
-    status: r.status,
-    count: Number(r.count),
-    total: Number(r.total),
-  }));
+  return result.rows?.[0] ?? { total: '0', pending_review: '0', approved: '0', draft: '0' };
 }
 
-export async function getRecentInvoices(limit = 10): Promise<InvoiceWithVendor[]> {
-  const res = await pbSql<InvoiceWithVendor>({
-    sql: `SELECT i.*, v.name as vendor_name
-          FROM invoices i
-          LEFT JOIN vendors v ON i.vendor = v.id
-          ORDER BY i.created DESC
-          LIMIT ?`,
-    args: [limit],
+// --- Invoices ---
+
+export async function listInvoices(page = 1, statusFilter?: string) {
+  const filter = statusFilter ? JSON.stringify({ status: statusFilter }) : undefined;
+  return pbList<Invoice>('invoices', {
+    page,
+    perPage: 20,
+    sort: '-created',
+    filter,
   });
-  return res.rows ?? [];
 }
-
-// ---------------------------------------------------------------------------
-// Invoice list (paginated, with vendor JOIN)
-// ---------------------------------------------------------------------------
-
-export async function listInvoices(opts: {
-  page?: number;
-  perPage?: number;
-  status?: string;
-}): Promise<{ items: InvoiceWithVendor[]; total: number }> {
-  const { page = 1, perPage = 20, status } = opts;
-  const offset = (page - 1) * perPage;
-
-  const conditions: string[] = [];
-  const args: unknown[] = [];
-  if (status) {
-    conditions.push('i.status = ?');
-    args.push(status);
-  }
-  const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-
-  const countRes = await pbSql<{ total: number }>({
-    sql: `SELECT COUNT(*) as total FROM invoices i ${where}`,
-    args,
-  });
-  const total = Number(countRes.rows?.[0]?.total ?? 0);
-
-  const dataRes = await pbSql<InvoiceWithVendor>({
-    sql: `SELECT i.*, v.name as vendor_name
-          FROM invoices i
-          LEFT JOIN vendors v ON i.vendor = v.id
-          ${where}
-          ORDER BY i.created DESC
-          LIMIT ? OFFSET ?`,
-    args: [...args, perPage, offset],
-  });
-
-  return { items: dataRes.rows ?? [], total };
-}
-
-// ---------------------------------------------------------------------------
-// Invoice CRUD
-// ---------------------------------------------------------------------------
 
 export async function getInvoice(id: string) {
   return pbGet<Invoice>('invoices', id);
 }
 
-export async function createInvoice(data: Record<string, unknown>) {
+export async function updateInvoice(id: string, data: Partial<Invoice>) {
+  return pbUpdate<Invoice>('invoices', id, data);
+}
+
+export async function createInvoice(data: Partial<Invoice>) {
   return pbCreate<Invoice>('invoices', data);
 }
 
-export async function updateInvoice(id: string, data: Partial<Invoice>) {
-  return pbUpdate('invoices', id, data);
+// --- Vendors ---
+
+export async function listVendors() {
+  return pbList<Vendor>('vendors', { perPage: 100, sort: 'name' });
 }
 
-// ---------------------------------------------------------------------------
-// Audit log
-// ---------------------------------------------------------------------------
-
-export async function getAuditLog(entityId: string): Promise<AuditEntry[]> {
-  const res = await pbSql<AuditEntry>({
-    sql: `SELECT * FROM audit_log
-          WHERE entity_type = 'invoice' AND entity_id = ?
-          ORDER BY created DESC`,
-    args: [entityId],
-  });
-  return res.rows ?? [];
+export async function createVendor(data: Partial<Vendor>) {
+  return pbCreate<Vendor>('vendors', data);
 }
 
-export async function logAction(entityId: string, action: string, details?: string) {
-  return pbCreate<AuditEntry>('audit_log', {
-    entity_type: 'invoice',
-    entity_id: entityId,
-    action,
-    details: details ?? '',
-    performed_by: 'current_user',
-  });
+export async function updateVendor(id: string, data: Partial<Vendor>) {
+  return pbUpdate<Vendor>('vendors', id, data);
 }
 
-// ---------------------------------------------------------------------------
-// Reference data
-// ---------------------------------------------------------------------------
-
-export async function listGlAccounts(page = 1, perPage = 50) {
-  return pbList<GlAccount>('gl_accounts', { page, perPage, sort: 'code' });
+export async function deleteVendor(id: string) {
+  return pbDelete('vendors', id);
 }
 
-export async function listVendors(page = 1, perPage = 50) {
-  return pbList<Vendor>('vendors', { page, perPage, sort: 'name' });
+// --- GL Accounts ---
+
+export async function listGlAccounts() {
+  return pbList<GlAccount>('gl_accounts', { perPage: 100, sort: 'code' });
+}
+
+export async function createGlAccount(data: Partial<GlAccount>) {
+  return pbCreate<GlAccount>('gl_accounts', data);
+}
+
+export async function updateGlAccount(id: string, data: Partial<GlAccount>) {
+  return pbUpdate<GlAccount>('gl_accounts', id, data);
+}
+
+export async function deleteGlAccount(id: string) {
+  return pbDelete('gl_accounts', id);
+}
+
+// --- Helpers ---
+
+const currencySymbols: Record<string, string> = {
+  USD: '$', EUR: '\u20AC', GBP: '\u00A3', JPY: '\u00A5', AUD: 'A$', CAD: 'C$', CHF: 'CHF\u00A0', INR: '\u20B9',
+};
+
+export function formatAmount(amount: number | null | undefined, currency?: string): string {
+  if (amount == null) return '\u2014';
+  const sym = currencySymbols[currency || 'USD'] || `${currency || 'USD'}\u00A0`;
+  return `${sym}${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 }
