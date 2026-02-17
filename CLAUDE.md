@@ -9,6 +9,8 @@ app-templates/
 ├── CLAUDE.md              # You are here — agent instructions
 ├── README.md              # Human-readable docs
 ├── registry.json          # Template manifest (source of truth)
+├── scripts/
+│   └── create-template.sh # Scaffold a new template from default
 ├── default/               # "Blank Starter" template
 │   ├── template.json      # Template metadata (not copied to user project)
 │   └── ...                # Template files
@@ -74,7 +76,40 @@ Currently all files are read as UTF-8 text and processed for variable substituti
 
 ## How to Add a New Template
 
-### Step 1: Create the template directory
+### Quick Start (recommended)
+
+Use the scaffolding script to create a new template from `default`:
+
+```bash
+./scripts/create-template.sh <name> [--title "Title"] [--description "Desc"] [--category "Category"]
+```
+
+Example:
+
+```bash
+./scripts/create-template.sh expense-tracker \
+  --title "Expense Tracker" \
+  --description "Track and approve employee expenses." \
+  --category "Finance"
+```
+
+This will:
+1. Copy the `default` template into a new directory
+2. Write `template.json` with the provided metadata
+3. Update `registry.json` with the new entry
+4. Clean up build artifacts (`node_modules`, `dist`, etc.)
+
+The title defaults to a title-cased version of the name and the category defaults to "General" if not provided.
+
+After scaffolding, customize the template:
+1. Edit `platform/collections/` to define your collections
+2. Edit `src/routes/` to build your pages
+3. Edit `scripts/seed-demo.py` to add seed data
+4. Keep `my-lumera-app` / `My Lumera App` as default values (the CLI replaces them during `lumera init`)
+
+### Manual Steps (if not using the script)
+
+#### Step 1: Create the template directory
 
 ```
 app-templates/
@@ -93,7 +128,7 @@ app-templates/
         └── seed-demo.py       # Demo data seeder
 ```
 
-### Step 2: Write `template.json`
+#### Step 2: Write `template.json`
 
 ```json
 {
@@ -105,7 +140,7 @@ app-templates/
 }
 ```
 
-### Step 3: Use default values for variable substitution
+#### Step 3: Use default values for variable substitution
 
 In `package.json`:
 ```json
@@ -128,11 +163,11 @@ const APP_NAME = 'My Lumera App';
 // Use {APP_NAME[0]} for initial, {APP_NAME} for full name
 ```
 
-### Step 4: Update `registry.json`
+#### Step 4: Update `registry.json`
 
 Add your template entry to the `templates` array in `registry.json` at the repo root. The fields must match your `template.json`.
 
-### Step 5: Test the template
+### Testing the template
 
 Since templates are runnable projects, you can test directly:
 

@@ -27,11 +27,23 @@ lumera init my-app -t invoice-processing -y
 
 ## Contributing a Template
 
-1. Create a new directory at the repo root with your template name (lowercase, hyphens)
-2. Add a `template.json` with metadata (`name`, `title`, `description`, `category`, `version`)
-3. Use `my-lumera-app` and `My Lumera App` as default values — the CLI replaces them with the user's project name
-4. Add your template to `registry.json`
-5. Test by running the template directly (`cd my-template && pnpm install && lumera login`) and by scaffolding with `lumera init`
+The fastest way to create a new template is with the scaffolding script:
+
+```bash
+./scripts/create-template.sh expense-tracker \
+  --title "Expense Tracker" \
+  --description "Track and approve employee expenses." \
+  --category "Finance"
+```
+
+This copies the `default` template, writes `template.json`, and updates `registry.json` for you.
+
+Then customize:
+1. Edit `platform/collections/` to define your data model
+2. Edit `src/routes/` to build your pages
+3. Edit `scripts/seed-demo.py` to add demo data
+4. Use `my-lumera-app` / `My Lumera App` as default values — the CLI replaces them with the user's project name
+5. Test by running the template directly (`cd my-template && pnpm install && lumera dev`) and by scaffolding with `lumera init`
 
 Each template is a **runnable Lumera project** — you can `cd` into it and run `lumera dev` for development.
 
