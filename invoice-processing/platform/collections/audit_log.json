@@ -1,0 +1,58 @@
+{
+  "id": "audit_log",
+  "name": "audit_log",
+  "fields": [
+    {
+      "name": "action",
+      "type": "select",
+      "required": true,
+      "values": ["create", "update", "delete"]
+    },
+    {
+      "name": "action_category",
+      "type": "select",
+      "required": true,
+      "values": ["invoice", "vendor", "gl_account"]
+    },
+    {
+      "name": "action_label",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "actor_id",
+      "type": "text"
+    },
+    {
+      "name": "actor_name",
+      "type": "text"
+    },
+    {
+      "name": "actor_email",
+      "type": "text"
+    },
+    {
+      "name": "target_collection",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "target_record_id",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "before_state",
+      "type": "json"
+    },
+    {
+      "name": "after_state",
+      "type": "json"
+    }
+  ],
+  "indexes": [
+    { "fields": ["action_category"] },
+    { "fields": ["target_collection"] },
+    { "fields": ["created"] }
+  ]
+}
