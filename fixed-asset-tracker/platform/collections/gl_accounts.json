@@ -1,0 +1,25 @@
+{
+  "id": "gl_accounts",
+  "name": "gl_accounts",
+  "fields": [
+    {
+      "name": "code",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "account_type",
+      "type": "select",
+      "values": ["asset", "contra_asset", "expense"],
+      "required": true
+    }
+  ],
+  "indexes": [
+    { "fields": ["code"], "unique": true }
+  ]
+}

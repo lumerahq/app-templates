@@ -1,0 +1,7 @@
+{
+  "name": "fixed-asset-tracker",
+  "title": "Fixed Asset Tracker",
+  "description": "Track fixed assets, calculate depreciation, and manage disposals with automated journal entries.",
+  "category": "Record-to-Report",
+  "version": "1.0.0"
+}

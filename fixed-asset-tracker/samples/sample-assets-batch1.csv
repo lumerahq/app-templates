@@ -1,0 +1,9 @@
+Name,Asset Tag,Category,Acquisition Date,Cost Basis,Salvage Value,Useful Life (Months),Depreciation Method,Location,Department
+"Dell Latitude 5540 Laptop",FA-101,equipment,2025-02-01,1299.00,100.00,36,straight_line,"HQ - Floor 1",Engineering
+"Ergotron Monitor Arm (x5)",FA-102,equipment,2025-02-01,875.00,50.00,60,straight_line,"HQ - Floor 2",Engineering
+"Cisco Meraki Switch",FA-103,equipment,2025-01-15,4200.00,200.00,60,straight_line,"Server Room",IT
+"Standing Desk - Uplift V2",FA-104,furniture,2025-02-10,699.00,50.00,84,straight_line,"HQ - Floor 1",Marketing
+"Executive Office Chair",FA-105,furniture,2025-01-20,1250.00,100.00,84,straight_line,"HQ - Floor 3",Executive
+"Adobe Creative Cloud (3-yr)",FA-106,software,2025-01-01,21600.00,0,36,straight_line,Cloud,Design
+"Warehouse Shelving System",FA-107,equipment,2025-02-05,8500.00,500.00,120,straight_line,Warehouse,Operations
+"Company Pickup Truck - F150",FA-108,vehicles,2025-01-10,52000.00,12000.00,60,declining_balance,Warehouse,Logistics

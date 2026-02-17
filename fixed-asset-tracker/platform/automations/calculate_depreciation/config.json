@@ -1,0 +1,27 @@
+{
+  "external_id": "my-lumera-app:calculate_depreciation",
+  "name": "Calculate Depreciation",
+  "description": "Calculate monthly depreciation for one or all active fixed assets.",
+  "inputs": {
+    "schema": {
+      "function": {
+        "name": "main",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "period": {
+              "type": "string",
+              "description": "The period to calculate depreciation for (YYYY-MM)"
+            },
+            "asset_id": {
+              "type": "string",
+              "description": "Optional — single asset ID. If omitted, processes all active assets."
+            }
+          },
+          "required": ["period"]
+        }
+      },
+      "type": "function"
+    }
+  }
+}
