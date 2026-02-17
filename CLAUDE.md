@@ -7,10 +7,13 @@ This repo contains ready-to-scaffold project templates for the Lumera platform. 
 ```
 app-templates/
 ├── CLAUDE.md              # You are here — agent instructions
-├── README.md              # Human-readable docs
+├── .gitignore             # Repo-wide ignores (node_modules, dist, etc.)
 ├── registry.json          # Template manifest (source of truth)
 ├── scripts/
-│   └── create-template.sh # Scaffold a new template from default
+│   ├── create-template.sh    # Scaffold a new template from default
+│   └── validate-templates.sh # CI validation for all templates
+├── .github/workflows/
+│   └── validate.yml       # GitHub Actions CI — runs validation on PRs
 ├── default/               # "Blank Starter" template
 │   ├── template.json      # Template metadata (not copied to user project)
 │   └── ...                # Template files
