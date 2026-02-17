@@ -1,0 +1,23 @@
+{
+  "external_id": "my-lumera-app:extract_payroll",
+  "name": "Extract Payroll",
+  "description": "Extract payroll data from an uploaded report and generate journal entry lines.",
+  "inputs": {
+    "schema": {
+      "function": {
+        "name": "main",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "payroll_run_id": {
+              "type": "string",
+              "description": "ID of the payroll_runs record"
+            }
+          },
+          "required": ["payroll_run_id"]
+        }
+      },
+      "type": "function"
+    }
+  }
+}

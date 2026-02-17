@@ -1,0 +1,14 @@
+[project]
+name = "my-lumera-app"
+version = "0.1.0"
+description = "My Lumera App - Lumera custom app"
+requires-python = ">=3.11"
+dependencies = [
+    "lumera",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pytest",
+]

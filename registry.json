@@ -14,6 +14,13 @@
       "description": "Upload invoices, extract data with AI, review and approve.",
       "category": "Procure-to-Pay",
       "version": "1.0.0"
+    },
+    {
+      "name": "payroll-journal-entry",
+      "title": "Payroll Journal Entry",
+      "description": "Upload payroll reports, extract data with AI, review and post journal entries.",
+      "category": "Payroll",
+      "version": "1.0.0"
     }
   ]
 }
