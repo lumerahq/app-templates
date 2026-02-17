@@ -1,0 +1,14 @@
+{
+  "id": "audit_log",
+  "name": "audit_log",
+  "fields": [
+    { "name": "action", "type": "text", "required": true },
+    { "name": "entity_type", "type": "text" },
+    { "name": "entity_id", "type": "text" },
+    { "name": "description", "type": "text" },
+    { "name": "metadata", "type": "json" }
+  ],
+  "indexes": [
+    { "fields": ["created"] }
+  ]
+}

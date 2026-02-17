@@ -1,0 +1,23 @@
+{
+  "external_id": "my-lumera-app:draft_collection_email",
+  "name": "Draft Collection Email",
+  "description": "Generate a personalized collection email for a customer based on their open AR invoices.",
+  "inputs": {
+    "schema": {
+      "function": {
+        "name": "main",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "customer_id": {
+              "type": "string",
+              "description": "ID of the customers record"
+            }
+          },
+          "required": ["customer_id"]
+        }
+      },
+      "type": "function"
+    }
+  }
+}

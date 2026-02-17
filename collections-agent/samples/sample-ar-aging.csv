@@ -1,0 +1,26 @@
+Customer,Contact,Email,Invoice Number,Amount,Due Date,Days Overdue,Status
+Acme Manufacturing,Sarah Johnson,ap@acmemfg.com,INV-2025-1001,25000.00,2025-10-15,125,open
+Acme Manufacturing,Sarah Johnson,ap@acmemfg.com,INV-2025-1042,12500.00,2025-11-15,94,open
+Acme Manufacturing,Sarah Johnson,ap@acmemfg.com,INV-2025-1078,10000.00,2025-12-15,64,open
+Globex Corporation,Tom Rivera,accounting@globex.com,INV-2025-0890,45000.00,2025-09-01,169,open
+Globex Corporation,Tom Rivera,accounting@globex.com,INV-2025-0945,22300.00,2025-10-01,139,open
+Globex Corporation,Tom Rivera,accounting@globex.com,INV-2025-1010,15000.00,2025-11-01,108,open
+Initech Solutions,Lisa Chen,finance@initech.io,INV-2025-1055,8250.00,2025-11-20,89,open
+Initech Solutions,Lisa Chen,finance@initech.io,INV-2025-1090,7500.00,2025-12-20,59,open
+Umbrella Corp,Mike Peters,ar@umbrellacorp.com,INV-2025-0750,50000.00,2025-08-10,191,open
+Umbrella Corp,Mike Peters,ar@umbrellacorp.com,INV-2025-0820,50000.00,2025-09-10,160,open
+Umbrella Corp,Mike Peters,ar@umbrellacorp.com,INV-2025-0900,25000.00,2025-10-10,130,open
+Wayne Enterprises,Alfred Pennyworth,payments@wayne.com,INV-2025-1100,9800.00,2025-12-01,78,open
+Stark Industries,Pepper Potts,ap@stark.com,INV-2025-0960,18200.00,2025-10-01,139,open
+Stark Industries,Pepper Potts,ap@stark.com,INV-2025-1030,16000.00,2025-11-01,108,open
+Oscorp Technologies,Norman Osborn,finance@oscorp.com,INV-2025-0650,35000.00,2025-07-15,217,open
+Oscorp Technologies,Norman Osborn,finance@oscorp.com,INV-2025-0780,20800.00,2025-08-15,186,open
+Oscorp Technologies,Norman Osborn,finance@oscorp.com,INV-2025-0850,12000.00,2025-09-15,155,open
+LexCorp,Mercy Graves,billing@lexcorp.com,INV-2025-1060,14100.00,2025-11-05,104,open
+LexCorp,Mercy Graves,billing@lexcorp.com,INV-2025-1105,8000.00,2025-12-05,74,open
+Cyberdyne Systems,Miles Dyson,ar@cyberdyne.com,INV-2025-0910,30000.00,2025-09-20,150,open
+Cyberdyne Systems,Miles Dyson,ar@cyberdyne.com,INV-2025-0980,25600.00,2025-10-20,120,open
+Massive Dynamic,Nina Sharp,finance@massive.com,INV-2025-1000,23000.00,2025-10-25,115,open
+Massive Dynamic,Nina Sharp,finance@massive.com,INV-2025-1070,18300.00,2025-11-25,84,open
+Hooli Inc,Gavin Belson,ap@hooli.com,INV-2025-1080,11400.00,2025-11-15,94,open
+Hooli Inc,Gavin Belson,ap@hooli.com,INV-2025-1120,7500.00,2025-12-15,64,open

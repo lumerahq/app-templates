@@ -1,0 +1,23 @@
+{
+  "id": "customers",
+  "name": "customers",
+  "fields": [
+    { "name": "name", "type": "text", "required": true },
+    { "name": "email", "type": "text" },
+    { "name": "contact_name", "type": "text" },
+    { "name": "phone", "type": "text" },
+    { "name": "total_outstanding", "type": "number" },
+    { "name": "oldest_due_date", "type": "date" },
+    {
+      "name": "status",
+      "type": "select",
+      "values": ["active", "contacted", "promised", "escalated", "resolved"],
+      "default": "active"
+    },
+    { "name": "last_contact_date", "type": "date" },
+    { "name": "notes", "type": "text" }
+  ],
+  "indexes": [
+    { "fields": ["status"] }
+  ]
+}

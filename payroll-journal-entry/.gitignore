@@ -8,5 +8,6 @@ __pycache__
 *.pyc
 .venv/
 .lumera/
+uv.lock
 src/routeTree.gen.ts
 .tanstack/
