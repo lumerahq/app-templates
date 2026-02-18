@@ -1,4 +1,4 @@
-# Default App - Claude Code Instructions
+# Fixed Asset Tracker - Claude Code Instructions
 
 **Full Architecture**: See `ARCHITECTURE.md`
 
@@ -32,6 +32,43 @@ This project includes Lumera skills for AI coding agents in `.claude/skills/`. R
 lumera skills update              # Update all skills to latest
 lumera skills install --force     # Re-install from scratch
 ```
+
+---
+
+## Fixed Asset Tracker — Template Context
+
+### Data Flow
+
+1. User adds an asset manually or via CSV import
+2. System stores asset in `fixed_assets` with status `active`
+3. User clicks "Run Depreciation" — triggers `calculate_depreciation` automation
+4. Automation creates `depreciation_entries` record and updates asset's `accumulated_depreciation`
+5. User reviews entries, clicks "Post" to finalize
+6. When asset is retired, user clicks "Dispose" with sale proceeds
+
+### Collections
+
+| Collection | Purpose |
+|---|---|
+| `fixed_assets` | Asset register — cost basis, useful life, accumulated depreciation, status |
+| `depreciation_entries` | Monthly depreciation records — amount, accumulated total, NBV |
+| `asset_gl_accounts` | Chart of accounts for fixed asset accounting (asset, contra_asset, expense) |
+
+### Key External IDs
+
+- **Automation**: `fixed-asset-tracker:calculate_depreciation` — calculates monthly depreciation for a single asset
+- Takes inputs: `asset_id` (string), `period` (string, YYYY-MM)
+- Supports straight-line and declining-balance methods
+
+### Status Lifecycle
+
+**Assets**: `active` → `fully_depreciated` (automatic when NBV reaches salvage) or `disposed` (manual)
+
+**Depreciation Entries**: `pending` → `posted` (manual approval)
+
+### Sample Files
+
+CSV files in `samples/` contain asset data that can be imported. Each has columns: Name, Asset Tag, Category, Acquisition Date, Cost Basis, Salvage Value, Useful Life, Depreciation Method, Location, Department.
 
 ---
 
@@ -123,7 +160,7 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "default-app:my_automation",
+    "fixed-asset-tracker:my_automation",
     inputs={"param": "value"}
 )
 print(f"Run ID: {run.id}")
@@ -223,7 +260,7 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: 'default-app:process_data',
+  automationId: 'fixed-asset-tracker:process_data',
   inputs: { file_id: 'abc123' },
 });
 

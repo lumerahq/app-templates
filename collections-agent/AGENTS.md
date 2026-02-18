@@ -1,6 +1,32 @@
-# Default App - Claude Code Instructions
+# Collections Agent - Claude Code Instructions
 
 **Full Architecture**: See `ARCHITECTURE.md`
+
+## Template: Collections Agent
+
+Monitor AR aging, draft AI-powered collection emails, and track customer touchpoints.
+
+### Data Flow
+
+1. Import customers and AR invoices (via Settings page or `lumera run scripts/seed-demo.py`)
+2. Dashboard shows AR aging overview — total outstanding, aging buckets, priority customers
+3. User clicks "Draft Collection Email" on a customer → triggers `draft_collection_email` automation
+4. AI reviews open invoices, drafts tone-appropriate email → saved as activity
+5. User reviews email, updates customer status through the collection lifecycle
+
+### Collections
+
+- **`customers`** — name, email, contact_name, phone, total_outstanding, oldest_due_date, status, notes
+- **`ar_invoices`** — linked to customer, invoice_number, amount, due_date, days_overdue, status (open/partial/paid/written_off)
+- **`collection_activities`** — linked to customer, activity_type (email_draft/email_sent/call/note/promise_to_pay), subject, content, contact_date
+
+### Key External IDs
+
+- `collections-agent:draft_collection_email` — automation that drafts a collection email based on customer's open invoices
+
+### Status Lifecycle
+
+`active` → `contacted` → `promised` / `escalated` → `resolved`
 
 ---
 
@@ -123,7 +149,7 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "default-app:my_automation",
+    "collections-agent:my_automation",
     inputs={"param": "value"}
 )
 print(f"Run ID: {run.id}")
@@ -223,7 +249,7 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: 'default-app:process_data',
+  automationId: 'collections-agent:process_data',
   inputs: { file_id: 'abc123' },
 });
 

@@ -1,6 +1,35 @@
-# Default App - Claude Code Instructions
+# Invoice Processing - Claude Code Instructions
 
 **Full Architecture**: See `ARCHITECTURE.md`
+
+---
+
+## Invoice Processing Template
+
+This is an invoice processing application. Users upload invoice documents, AI extracts structured data, and humans review/approve the results.
+
+### Data Flow
+
+1. User uploads a document via "New Invoice" → creates an `invoices` record with `status: draft`
+2. `trigger_extract` hook (`after_create` on `invoices`) sets `status: processing` and queues the `extract_invoice` automation
+3. `extract_invoice` automation downloads the document, calls `llm.extract_text()` to get structured data, updates the invoice fields, sets `status: review`
+4. User reviews extracted data on the detail page, edits/corrects fields
+5. User clicks Approve (`status: approved`) or Reject (`status: rejected`)
+
+### Status Lifecycle
+
+`draft` → `processing` → `review` → `approved` / `rejected`
+
+### Key External IDs
+
+- Automation: `invoice-processing:extract_invoice`
+- Hook: `invoice-processing:trigger_extract`
+
+### Collections
+
+- `invoices` — Core records with document, extracted_data, status, and invoice fields
+- `vendors` — Vendor directory with default GL codes
+- `inv_gl_accounts` — Chart of accounts for GL coding
 
 ---
 
@@ -123,7 +152,7 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "default-app:my_automation",
+    "invoice-processing:my_automation",
     inputs={"param": "value"}
 )
 print(f"Run ID: {run.id}")
@@ -223,7 +252,7 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: 'default-app:process_data',
+  automationId: 'invoice-processing:process_data',
   inputs: { file_id: 'abc123' },
 });
 

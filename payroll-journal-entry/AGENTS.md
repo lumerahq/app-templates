@@ -1,6 +1,32 @@
-# Default App - Claude Code Instructions
+# Payroll Journal Entry - Claude Code Instructions
 
 **Full Architecture**: See `ARCHITECTURE.md`
+
+## Template: Payroll Journal Entry
+
+Upload payroll reports (CSV/PDF), AI extracts data and generates debit/credit journal entry lines, then review and post.
+
+### Data Flow
+
+1. User uploads payroll report → `payroll_runs` record created (status: `draft`)
+2. `trigger_extract` hook fires → sets status to `processing`, queues `extract_payroll` automation
+3. Automation reads document with AI, creates `journal_entries` records → sets status to `review`
+4. User reviews journal entry lines, clicks Post or Reject → status: `posted` or `rejected`
+
+### Collections
+
+- **`payroll_runs`** — pay period dates, pay date, document, status, totals, extracted_data
+- **`journal_entries`** — linked to payroll_run, account_code, account_name, department, debit_amount, credit_amount, memo
+- **`payroll_gl_accounts`** — code, name, account_type (expense/liability/asset)
+
+### Key External IDs
+
+- `payroll-journal-entry:extract_payroll` — automation that extracts payroll data and creates JE lines
+- `payroll-journal-entry:trigger_extract` — hook that fires on payroll_runs after_create
+
+### Status Lifecycle
+
+`draft` → `processing` → `review` → `posted` / `rejected`
 
 ---
 
@@ -123,7 +149,7 @@ from lumera import automations
 
 # Run automation by external_id (returns Run object immediately)
 run = automations.run_by_external_id(
-    "default-app:my_automation",
+    "payroll-journal-entry:my_automation",
     inputs={"param": "value"}
 )
 print(f"Run ID: {run.id}")
@@ -223,7 +249,7 @@ const items = await pbList<User>('users', {
 import { createRun, pollRun } from '@lumerahq/ui/lib';
 
 const run = await createRun({
-  automationId: 'default-app:process_data',
+  automationId: 'payroll-journal-entry:process_data',
   inputs: { file_id: 'abc123' },
 });
 
