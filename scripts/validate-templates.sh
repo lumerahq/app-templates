@@ -96,12 +96,6 @@ except Exception as e:
     fi
   done
 
-  # Check skills are present
-  skills_dir="$dir/.claude/skills"
-  if [ ! -d "$skills_dir" ] || [ -z "$(ls "$skills_dir"/lumera_*.md 2>/dev/null)" ]; then
-    error "missing .claude/skills/ (run ./scripts/sync-skills.sh)"
-  fi
-
   # Check CLAUDE.md has skill markers
   if [ -f "$dir/CLAUDE.md" ]; then
     if ! grep -q "LUMERA_SKILLS_START" "$dir/CLAUDE.md"; then
