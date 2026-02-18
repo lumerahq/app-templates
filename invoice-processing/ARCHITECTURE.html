@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Processing — Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.7;
+    color: #1a1a2e;
+    background: #f8f9fa;
+    padding: 2rem 1rem;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    padding: 2.5rem 3rem;
+  }
+  h1 {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #334155;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  p {
+    margin-bottom: 1rem;
+    color: #334155;
+  }
+  strong {
+    color: #1e293b;
+  }
+  ol, ul {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+  li {
+    margin-bottom: 0.35rem;
+    color: #334155;
+  }
+  pre {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Consolas', monospace;
+    font-size: 0.88em;
+  }
+  pre code {
+    font-size: inherit;
+    color: #334155;
+  }
+  p code, li code, td code {
+    background: #f1f5f9;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.85em;
+    color: #7c3aed;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.92rem;
+  }
+  th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    font-weight: 600;
+    color: #1e293b;
+  }
+  td {
+    padding: 0.55rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+  }
+  tr:nth-child(even) td {
+    background: #f8fafc;
+  }
+  em {
+    color: #64748b;
+    font-style: italic;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 2rem 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Invoice Processing — Architecture</h1>
+
+<h2>Overview</h2>
+<p>Invoice Processing is a Lumera embedded app for uploading invoices, extracting data with AI, and managing an approval workflow. A React frontend runs inside the Lumera platform iframe, backed by collections, hooks, and automations managed through the Lumera CLI.</p>
+
+<h2>System Diagram</h2>
+<pre><code>┌───────────────────────────────────────────────────────────────┐
+│  Lumera Platform                                              │
+│                                                               │
+│  ┌───────────┐   postMessage    ┌──────────────────────────┐  │
+│  │  Host UI  │ ◄──────────────► │  App (iframe)            │  │
+│  │           │   (auth, init)   │  - Dashboard             │  │
+│  └─────┬─────┘                  │  - Invoice list &amp; detail │  │
+│        │                        │  - Audit log             │  │
+│        │  REST API              └───────────┬──────────────┘  │
+│        ▼                                    ▼                 │
+│  ┌────────────────────────────────────────────────────────┐   │
+│  │  Lumera API                                            │   │
+│  │  - Collections (CRUD, SQL, search)                     │   │
+│  │  - Automations (run, poll, cancel)                     │   │
+│  │  - File storage (upload, download)                     │   │
+│  └─────────┬────────────────────────┬─────────────────────┘   │
+│            │                        │                         │
+│            ▼                        ▼                         │
+│  ┌──────────────────┐   ┌──────────────────────────────┐      │
+│  │  Tenant Database │   │  Automation Runtime          │      │
+│  │  - invoices      │   │  - extract_invoice (Python)  │      │
+│  │  - vendors       │   │    AI document extraction    │      │
+│  │  - inv_gl_accts  │   └──────────────────────────────┘      │
+│  │  - inv_audit_log │                                         │
+│  └──────────────────┘                                         │
+└───────────────────────────────────────────────────────────────┘</code></pre>
+
+<h2>Frontend (<code>src/</code>)</h2>
+<p>React app using TanStack Router (file-based routing) and TanStack Query for data fetching. Embedded in Lumera via iframe with postMessage bridge for authentication.</p>
+
+<table>
+  <thead>
+    <tr><th>Directory</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>src/routes/</code></td><td>Pages — file names map to URL paths</td></tr>
+    <tr><td><code>src/components/</code></td><td>Shared React components</td></tr>
+    <tr><td><code>src/lib/</code></td><td>API helpers, query functions</td></tr>
+    <tr><td><code>src/main.tsx</code></td><td>App entry — auth bridge, router init</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Key pages:</strong></p>
+<ul>
+  <li><code>/</code> — Dashboard with stat cards (total, pending, approved, draft) and recent invoices</li>
+  <li><code>/invoices</code> — Invoice list with status filters and pagination</li>
+  <li><code>/invoices/:id</code> — Detail view with document preview, editable fields, approve/reject</li>
+  <li><code>/audit</code> — Audit log of all changes</li>
+  <li><code>/how-it-works</code> — Explanation of the app workflow</li>
+  <li><code>/settings</code> — GL accounts and vendor management</li>
+</ul>
+
+<h2>Platform Resources (<code>platform/</code>)</h2>
+<p>Declarative definitions deployed via <code>lumera apply</code>.</p>
+
+<table>
+  <thead>
+    <tr><th>Directory</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>platform/collections/</code></td><td>Collection schemas (JSON)</td></tr>
+    <tr><td><code>platform/automations/</code></td><td>Background Python scripts</td></tr>
+    <tr><td><code>platform/hooks/</code></td><td>Server-side JS on collection events</td></tr>
+  </tbody>
+</table>
+
+<h3>Automation: <code>extract_invoice</code></h3>
+<p>Python script that takes an <code>invoice_id</code>, downloads the attached document, uses AI vision (<code>llm.extract_text</code>) to extract structured invoice data (vendor, amounts, line items, dates), and writes the results back to the invoice record.</p>
+
+<h3>Hooks</h3>
+<table>
+  <thead>
+    <tr><th>Hook</th><th>Trigger</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>trigger_extract</code></td><td><code>invoices</code> after_create</td><td>Sets status to <code>processing</code>, queues extraction</td></tr>
+    <tr><td><code>audit_invoices_*</code></td><td><code>invoices</code> CUD events</td><td>Logs changes to <code>inv_audit_log</code></td></tr>
+    <tr><td><code>audit_vendors_*</code></td><td><code>vendors</code> CUD events</td><td>Logs changes to <code>inv_audit_log</code></td></tr>
+    <tr><td><code>audit_inv_gl_accounts_*</code></td><td><code>inv_gl_accounts</code> CUD</td><td>Logs changes to <code>inv_audit_log</code></td></tr>
+  </tbody>
+</table>
+
+<h2>Data Flow</h2>
+<ol>
+  <li><strong>User uploads invoice</strong> — Creates invoice record with document attachment</li>
+  <li><strong><code>trigger_extract</code> hook fires</strong> — Sets status to <code>processing</code>, queues <code>extract_invoice</code> automation</li>
+  <li><strong>AI extracts data</strong> — Automation reads document, extracts fields, updates invoice with <code>extracted_data</code></li>
+  <li><strong>User reviews</strong> — Invoice moves to <code>review</code> status, user edits fields if needed</li>
+  <li><strong>User approves/rejects</strong> — Status set to <code>approved</code> or <code>rejected</code></li>
+  <li><strong>Audit trail</strong> — All CUD operations logged via hooks to <code>inv_audit_log</code></li>
+</ol>
+
+<h2>Collections</h2>
+<table>
+  <thead>
+    <tr><th>Collection</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>invoices</code></td><td>Invoice records with document, status, extracted data</td></tr>
+    <tr><td><code>vendors</code></td><td>Vendor directory with default GL codes</td></tr>
+    <tr><td><code>inv_gl_accounts</code></td><td>Chart of accounts for coding invoices</td></tr>
+    <tr><td><code>inv_audit_log</code></td><td>Audit trail for all entity changes</td></tr>
+  </tbody>
+</table>
+
+<h2>Scripts (<code>scripts/</code>)</h2>
+<p>Local Python scripts run via <code>lumera run</code>. Used for seeding demo data. All scripts should be idempotent.</p>
+
+</div>
+</body>
+</html>

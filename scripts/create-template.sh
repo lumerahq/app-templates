@@ -88,10 +88,8 @@ rm -rf "$TEMPLATE_DIR/node_modules" \
        "$TEMPLATE_DIR/pnpm-lock.yaml" \
        "$TEMPLATE_DIR/src/routeTree.gen.ts"
 
-# Remove default-specific docs (new template keeps CLAUDE.md with skills)
-rm -f "$TEMPLATE_DIR/AGENTS.md" \
-      "$TEMPLATE_DIR/ARCHITECTURE.md" \
-      "$TEMPLATE_DIR/README.md"
+# Remove default-specific docs (AGENTS.md, ARCHITECTURE.md/html kept as scaffolds)
+rm -f "$TEMPLATE_DIR/README.md"
 
 # ── Replace default template name with new template name ───────────────────
 echo "Updating template name..."
