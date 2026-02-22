@@ -328,21 +328,7 @@ wheels = [
 ]
 
 [[package]]
-name = "lumera"
-version = "0.12.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "google-api-python-client" },
-    { name = "python-dotenv" },
-    { name = "requests" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/f8/be/2d8d3259d705dc3f97f586b422d014a797b21f85b4876a12d40637cc8c6d/lumera-0.12.1.tar.gz", hash = "sha256:920a4a4914d062320a0de3b3d92ce8daeb297860bda961bbeac8644d75cb7043", size = 53338, upload-time = "2026-02-13T09:43:00.04Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b3/16/78e11c03599be374066622b00eb2461b7768a63ffe3e6f21e37ac02e1190/lumera-0.12.1-py3-none-any.whl", hash = "sha256:1e1aead6e5b36fbf940cae1e51319f82c8eb5b4b2e355ee8feda7ebb9e4c5110", size = 53696, upload-time = "2026-02-13T09:42:58.849Z" },
-]
-
-[[package]]
-name = "my-lumera-app"
+name = "invoice-processing"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
@@ -362,6 +348,20 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'" },
 ]
 provides-extras = ["dev"]
+
+[[package]]
+name = "lumera"
+version = "0.12.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "google-api-python-client" },
+    { name = "python-dotenv" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f8/be/2d8d3259d705dc3f97f586b422d014a797b21f85b4876a12d40637cc8c6d/lumera-0.12.1.tar.gz", hash = "sha256:920a4a4914d062320a0de3b3d92ce8daeb297860bda961bbeac8644d75cb7043", size = 53338, upload-time = "2026-02-13T09:43:00.04Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b3/16/78e11c03599be374066622b00eb2461b7768a63ffe3e6f21e37ac02e1190/lumera-0.12.1-py3-none-any.whl", hash = "sha256:1e1aead6e5b36fbf940cae1e51319f82c8eb5b4b2e355ee8feda7ebb9e4c5110", size = 53696, upload-time = "2026-02-13T09:42:58.849Z" },
+]
 
 [[package]]
 name = "packaging"

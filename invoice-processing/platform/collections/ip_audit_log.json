@@ -1,6 +1,6 @@
 {
-  "id": "inv_audit_log",
-  "name": "inv_audit_log",
+  "id": "ip_audit_log",
+  "name": "ip_audit_log",
   "fields": [
     {
       "name": "action",
@@ -12,7 +12,7 @@
       "name": "action_category",
       "type": "select",
       "required": true,
-      "values": ["invoice", "vendor", "gl_account"]
+      "values": ["invoice", "vendor", "gl_account", "line_item", "comment"]
     },
     {
       "name": "action_label",

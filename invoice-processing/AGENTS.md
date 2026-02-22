@@ -6,15 +6,16 @@
 
 ## Invoice Processing Template
 
-This is an invoice processing application. Users upload invoice documents, AI extracts structured data, and humans review/approve the results.
+This is a complete invoice processing application. Users upload invoice documents, AI extracts structured data (including line items and GL codes), and humans review/approve the results with a full activity trail.
 
 ### Data Flow
 
-1. User uploads a document via "New Invoice" → creates an `invoices` record with `status: draft`
-2. `trigger_extract` hook (`after_create` on `invoices`) sets `status: processing` and queues the `extract_invoice` automation
-3. `extract_invoice` automation downloads the document, calls `llm.extract_text()` to get structured data, updates the invoice fields, sets `status: review`
-4. User reviews extracted data on the detail page, edits/corrects fields
-5. User clicks Approve (`status: approved`) or Reject (`status: rejected`)
+1. User uploads a document via "New Invoice" → creates an `ip_invoices` record with `status: draft`
+2. `trigger_extract` hook (`after_create` on `ip_invoices`) sets `status: processing` and queues the `extract_invoice` automation
+3. `extract_invoice` automation downloads the document, calls `llm.extract_text()` to get structured data, updates the invoice fields, creates `ip_line_items` records, suggests GL code from vendor default, sets `status: review`
+4. `create_status_comment` hook records every status change in `ip_comments`
+5. User reviews extracted data, line items, and GL coding on the detail page
+6. User clicks Approve (with optional note) or Reject (with required reason) → comment recorded, status updated
 
 ### Status Lifecycle
 
@@ -27,9 +28,12 @@ This is an invoice processing application. Users upload invoice documents, AI ex
 
 ### Collections
 
-- `invoices` — Core records with document, extracted_data, status, and invoice fields
-- `vendors` — Vendor directory with default GL codes
-- `inv_gl_accounts` — Chart of accounts for GL coding
+- `ip_invoices` — Core records with document, extracted_data, status, invoice fields, and GL code
+- `ip_vendors` — Vendor directory with default GL codes
+- `ip_gl_accounts` — Chart of accounts for coding invoices and line items
+- `ip_line_items` — Individual line items per invoice (description, qty, unit_price, amount, gl_code)
+- `ip_comments` — Activity timeline per invoice (comments, approvals, rejections, system events)
+- `ip_audit_log` — Audit trail for all entity changes across all collections
 
 ---
 

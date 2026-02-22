@@ -14,11 +14,11 @@ export function NewInvoiceDialog({ open, onClose }: { open: boolean; onClose: ()
   const [error, setError] = useState<string | null>(null);
 
   const { upload, status, reset } = useFileUpload({
-    collectionId: 'invoices',
+    collectionId: 'ip_invoices',
     fieldName: 'document',
     onSuccess: async ({ descriptor }) => {
       try {
-        const record = await pbCreate<Invoice>('invoices', {
+        const record = await pbCreate<Invoice>('ip_invoices', {
           document: descriptor,
           status: 'draft',
           currency: 'USD',

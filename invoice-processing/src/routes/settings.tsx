@@ -20,7 +20,7 @@ export const Route = createFileRoute('/settings')({
   component: SettingsPage,
 });
 
-type Tab = 'vendors' | 'inv_gl_accounts';
+type Tab = 'vendors' | 'gl_accounts';
 
 function SettingsPage() {
   const [tab, setTab] = useState<Tab>('vendors');
@@ -47,9 +47,9 @@ function SettingsPage() {
         </button>
         <button
           type="button"
-          onClick={() => setTab('inv_gl_accounts')}
+          onClick={() => setTab('gl_accounts')}
           className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            tab === 'inv_gl_accounts'
+            tab === 'gl_accounts'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
@@ -60,6 +60,24 @@ function SettingsPage() {
       </div>
 
       {tab === 'vendors' ? <VendorsTab /> : <GlAccountsTab />}
+    </div>
+  );
+}
+
+// ─── Modal Backdrop ─────────────────────────────────────────────────────────
+
+function Modal({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <button
+        type="button"
+        className="fixed inset-0 bg-black/50"
+        onClick={onClose}
+        aria-label="Close modal"
+      />
+      <div className="relative z-10 w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
+        {children}
+      </div>
     </div>
   );
 }
@@ -98,18 +116,22 @@ function VendorsTab() {
       </div>
 
       {creating && (
-        <VendorForm
-          onClose={() => setCreating(false)}
-          onSaved={() => { setCreating(false); queryClient.invalidateQueries({ queryKey: ['vendors'] }); }}
-        />
+        <Modal onClose={() => setCreating(false)}>
+          <VendorForm
+            onClose={() => setCreating(false)}
+            onSaved={() => { setCreating(false); queryClient.invalidateQueries({ queryKey: ['vendors'] }); }}
+          />
+        </Modal>
       )}
 
       {editing && (
-        <VendorForm
-          vendor={editing}
-          onClose={() => setEditing(null)}
-          onSaved={() => { setEditing(null); queryClient.invalidateQueries({ queryKey: ['vendors'] }); }}
-        />
+        <Modal onClose={() => setEditing(null)}>
+          <VendorForm
+            vendor={editing}
+            onClose={() => setEditing(null)}
+            onSaved={() => { setEditing(null); queryClient.invalidateQueries({ queryKey: ['vendors'] }); }}
+          />
+        </Modal>
       )}
 
       <div className="rounded-xl border bg-card">
@@ -190,24 +212,24 @@ function VendorForm({ vendor, onClose, onSaved }: { vendor?: Vendor; onClose: ()
   });
 
   return (
-    <div className="rounded-xl border bg-card p-4 space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-sm">{vendor ? 'Edit Vendor' : 'New Vendor'}</h3>
+        <h3 className="font-semibold">{vendor ? 'Edit Vendor' : 'New Vendor'}</h3>
         <button type="button" onClick={onClose} className="rounded p-1 hover:bg-muted transition-colors">
           <X className="size-4" />
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1">Name *</label>
+      <div className="space-y-3">
+        <label className="block">
+          <span className="block text-sm font-medium text-muted-foreground mb-1">Name *</span>
           <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Vendor name" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1">Default GL Code</label>
+        </label>
+        <label className="block">
+          <span className="block text-sm font-medium text-muted-foreground mb-1">Default GL Code</span>
           <input value={glCode} onChange={(e) => setGlCode(e.target.value)} className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="e.g. 6000" />
-        </div>
+        </label>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 pt-1">
         <button
           type="button"
           onClick={() => mutation.mutate()}
@@ -260,18 +282,22 @@ function GlAccountsTab() {
       </div>
 
       {creating && (
-        <GlAccountForm
-          onClose={() => setCreating(false)}
-          onSaved={() => { setCreating(false); queryClient.invalidateQueries({ queryKey: ['gl-accounts'] }); }}
-        />
+        <Modal onClose={() => setCreating(false)}>
+          <GlAccountForm
+            onClose={() => setCreating(false)}
+            onSaved={() => { setCreating(false); queryClient.invalidateQueries({ queryKey: ['gl-accounts'] }); }}
+          />
+        </Modal>
       )}
 
       {editing && (
-        <GlAccountForm
-          account={editing}
-          onClose={() => setEditing(null)}
-          onSaved={() => { setEditing(null); queryClient.invalidateQueries({ queryKey: ['gl-accounts'] }); }}
-        />
+        <Modal onClose={() => setEditing(null)}>
+          <GlAccountForm
+            account={editing}
+            onClose={() => setEditing(null)}
+            onSaved={() => { setEditing(null); queryClient.invalidateQueries({ queryKey: ['gl-accounts'] }); }}
+          />
+        </Modal>
       )}
 
       <div className="rounded-xl border bg-card">
@@ -357,32 +383,34 @@ function GlAccountForm({ account, onClose, onSaved }: { account?: GlAccount; onC
   });
 
   return (
-    <div className="rounded-xl border bg-card p-4 space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-sm">{account ? 'Edit GL Account' : 'New GL Account'}</h3>
+        <h3 className="font-semibold">{account ? 'Edit GL Account' : 'New GL Account'}</h3>
         <button type="button" onClick={onClose} className="rounded p-1 hover:bg-muted transition-colors">
           <X className="size-4" />
         </button>
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1">Code *</label>
-          <input value={code} onChange={(e) => setCode(e.target.value)} className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="e.g. 6000" />
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block">
+            <span className="block text-sm font-medium text-muted-foreground mb-1">Code *</span>
+            <input value={code} onChange={(e) => setCode(e.target.value)} className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="e.g. 6000" />
+          </label>
+          <label className="block">
+            <span className="block text-sm font-medium text-muted-foreground mb-1">Name *</span>
+            <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Account name" />
+          </label>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1">Name *</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-md border bg-background px-3 py-2 text-sm" placeholder="Account name" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1">Type</label>
+        <label className="block">
+          <span className="block text-sm font-medium text-muted-foreground mb-1">Type</span>
           <select value={accountType} onChange={(e) => setAccountType(e.target.value)} className="w-full rounded-md border bg-background px-3 py-2 text-sm">
             {accountTypes.map((t) => (
               <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
             ))}
           </select>
-        </div>
+        </label>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 pt-1">
         <button
           type="button"
           onClick={() => mutation.mutate()}

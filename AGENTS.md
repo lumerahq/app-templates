@@ -222,7 +222,7 @@ pnpm install && pnpm typecheck
 - Approval workflow: draft → processing → review → approved/rejected
 - Dashboard with stats, invoice list with status filters and pagination
 - Detail page with document preview, editable form fields, and approve/reject buttons
-- Collections: `invoices`, `vendors`, `inv_gl_accounts`, `inv_audit_log`
+- Collections: `ip_invoices`, `ip_vendors`, `ip_gl_accounts`, `ip_line_items`, `ip_comments`, `ip_audit_log`
 
 ## Coding Patterns Used in Templates
 
@@ -271,7 +271,7 @@ Collection names are **global** within a Lumera account — they are not scoped 
 
 | Template | Prefix | Example |
 |---|---|---|
-| invoice-processing | `inv_` | `inv_gl_accounts`, `inv_audit_log` |
+| invoice-processing | `ip_` | `ip_invoices`, `ip_vendors`, `ip_gl_accounts`, `ip_line_items` |
 | payroll-journal-entry | `payroll_` | `payroll_gl_accounts` |
 | fixed-asset-tracker | `asset_` | `asset_gl_accounts` |
 | collections-agent | `ca_` | `ca_audit_log` |

@@ -1,5 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ArrowDown, Bot, CheckCircle, Eye, FileUp, Zap } from 'lucide-react';
+import {
+  ArrowDown,
+  Bot,
+  CheckCircle,
+  DollarSign,
+  Eye,
+  FileUp,
+  MessageSquare,
+  Zap,
+} from 'lucide-react';
 
 export const Route = createFileRoute('/how-it-works')({
   component: HowItWorksPage,
@@ -39,7 +48,7 @@ function HowItWorksPage() {
           icon={<Bot className="size-5" />}
           color="purple"
           title="3. AI Reads Your Invoice"
-          description="An AI reads your uploaded document and pulls out key information: the vendor name, invoice number, dates, amounts, currency, and a description of what the invoice is for. This typically takes just a few seconds."
+          description="An AI reads your uploaded document and pulls out key information: the vendor name, invoice number, dates, amounts, currency, description, and individual line items with quantities and prices. It also suggests a GL code based on the vendor's default. This typically takes just a few seconds."
         />
 
         <Arrow />
@@ -48,7 +57,16 @@ function HowItWorksPage() {
           icon={<Eye className="size-5" />}
           color="orange"
           title="4. Review and Edit"
-          description="Once the AI has finished, the extracted information appears in an editable form next to your original document. Review what was found, correct any mistakes, and fill in anything that was missed. Click 'Save Changes' when you're done."
+          description="Once the AI has finished, the extracted information appears in an editable form next to your original document. Review the header fields, line items, and GL coding. Correct any mistakes, add or remove line items, and adjust GL codes as needed."
+        />
+
+        <Arrow />
+
+        <Step
+          icon={<DollarSign className="size-5" />}
+          color="slate"
+          title="5. GL Coding"
+          description="Assign a GL account code to the invoice and each line item. The system suggests a default based on the vendor, but you can change it to any account from your chart of accounts. This ensures every expense is properly categorized."
         />
 
         <Arrow />
@@ -56,8 +74,8 @@ function HowItWorksPage() {
         <Step
           icon={<CheckCircle className="size-5" />}
           color="green"
-          title="5. Approve or Reject"
-          description="When you're satisfied the details are correct, click 'Approve' to finalize the invoice. If something isn't right, click 'Reject'. Either way, the dashboard updates instantly to reflect the change."
+          title="6. Approve or Reject"
+          description="When you're satisfied the details are correct, click 'Approve' and optionally add a note. If something isn't right, click 'Reject' with a reason. Every approval and rejection is recorded in the activity timeline with who did it and when."
         />
       </div>
 
@@ -100,10 +118,66 @@ function HowItWorksPage() {
           <InfoItem label="Currency" description="The currency (e.g. USD, EUR, GBP)" />
           <InfoItem label="Description" description="What the invoice is for" />
           <InfoItem label="Line Items" description="Individual items, quantities, and prices" />
+          <InfoItem label="GL Code" description="Suggested accounting code from the vendor's default" />
         </div>
         <p className="text-sm text-muted-foreground">
           If the AI can't find a field or gets something wrong, you can always correct it manually during the Review step.
         </p>
+      </div>
+
+      {/* Line Items */}
+      <div className="rounded-xl border bg-card p-6 space-y-4">
+        <h2 className="font-semibold">Line Items</h2>
+        <p className="text-sm text-muted-foreground">
+          Each invoice can have multiple line items representing individual charges. Line items are extracted automatically by the AI and can be edited on the invoice detail page.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <InfoItem label="Description" description="What the charge is for" />
+          <InfoItem label="Quantity" description="Number of units" />
+          <InfoItem label="Unit Price" description="Price per unit" />
+          <InfoItem label="Amount" description="Total for this line (qty x price)" />
+          <InfoItem label="GL Code" description="Accounting code for this line item" />
+        </div>
+        <p className="text-sm text-muted-foreground">
+          If the sum of line items doesn't match the invoice total, a warning will appear so you can reconcile the difference.
+        </p>
+      </div>
+
+      {/* Comments & Activity */}
+      <div className="rounded-xl border bg-card p-6 space-y-4">
+        <h2 className="font-semibold">Comments & Activity Trail</h2>
+        <p className="text-sm text-muted-foreground">
+          Every invoice has an activity timeline that records what happened and when:
+        </p>
+        <div className="space-y-3">
+          <div className="flex gap-3 items-start">
+            <div className="size-8 rounded-lg flex items-center justify-center shrink-0 bg-blue-100 text-blue-600">
+              <MessageSquare className="size-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Status Changes</p>
+              <p className="text-xs text-muted-foreground">Automatically recorded when an invoice moves between statuses (e.g. "Status changed from Review to Approved")</p>
+            </div>
+          </div>
+          <div className="flex gap-3 items-start">
+            <div className="size-8 rounded-lg flex items-center justify-center shrink-0 bg-green-100 text-green-600">
+              <CheckCircle className="size-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Approval Notes</p>
+              <p className="text-xs text-muted-foreground">Optional notes added when approving an invoice</p>
+            </div>
+          </div>
+          <div className="flex gap-3 items-start">
+            <div className="size-8 rounded-lg flex items-center justify-center shrink-0 bg-slate-100 text-slate-600">
+              <MessageSquare className="size-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Manual Comments</p>
+              <p className="text-xs text-muted-foreground">Team members can add comments to discuss the invoice during review</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Master Data */}
@@ -115,11 +189,11 @@ function HowItWorksPage() {
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-lg border p-4 space-y-1">
             <h3 className="font-semibold text-sm">Vendors</h3>
-            <p className="text-xs text-muted-foreground">Your list of suppliers and their default accounting codes. Add vendors you frequently receive invoices from.</p>
+            <p className="text-xs text-muted-foreground">Your list of suppliers and their default GL codes. When an invoice is extracted, the vendor's default GL code is automatically suggested.</p>
           </div>
           <div className="rounded-lg border p-4 space-y-1">
             <h3 className="font-semibold text-sm">GL Accounts</h3>
-            <p className="text-xs text-muted-foreground">Your chart of accounts for categorizing expenses. Each account has a code, name, and type (expense, asset, liability, etc.).</p>
+            <p className="text-xs text-muted-foreground">Your chart of accounts for categorizing expenses (ip_gl_accounts). Each account has a code, name, and type (expense, asset, liability, etc.).</p>
           </div>
         </div>
       </div>

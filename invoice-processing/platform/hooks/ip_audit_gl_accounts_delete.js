@@ -1,5 +1,6 @@
 export const config = {
-  collection: 'inv_gl_accounts',
+  external_id: 'invoice-processing:ip_audit_gl_accounts_delete',
+  collection: 'ip_gl_accounts',
   trigger: 'after_delete',
   enabled: true,
 };
@@ -7,14 +8,14 @@ export const config = {
 export default async function handler(ctx) {
   async function main(ctx) {
     try {
-      await ctx.dao.create('inv_audit_log', {
+      await ctx.dao.create('ip_audit_log', {
         action: 'delete',
         action_category: 'gl_account',
         action_label: `Deleted GL account: ${ctx.record.code} — ${ctx.record.name}`,
         actor_id: ctx.user?.id || null,
         actor_name: ctx.user?.name || null,
         actor_email: ctx.user?.email || null,
-        target_collection: 'inv_gl_accounts',
+        target_collection: 'ip_gl_accounts',
         target_record_id: ctx.record.id,
         before_state: {
           code: ctx.record.code,

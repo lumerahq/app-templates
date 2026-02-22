@@ -1,5 +1,6 @@
 export const config = {
-  collection: 'inv_gl_accounts',
+  external_id: 'invoice-processing:ip_audit_comments_create',
+  collection: 'ip_comments',
   trigger: 'after_create',
   enabled: true,
 };
@@ -7,20 +8,20 @@ export const config = {
 export default async function handler(ctx) {
   async function main(ctx) {
     try {
-      await ctx.dao.create('inv_audit_log', {
+      await ctx.dao.create('ip_audit_log', {
         action: 'create',
-        action_category: 'gl_account',
-        action_label: `Added GL account: ${ctx.record.code} — ${ctx.record.name}`,
+        action_category: 'comment',
+        action_label: `${ctx.record.comment_type === 'system' ? 'System' : 'User'} comment on invoice`,
         actor_id: ctx.user?.id || null,
         actor_name: ctx.user?.name || null,
         actor_email: ctx.user?.email || null,
-        target_collection: 'inv_gl_accounts',
+        target_collection: 'ip_comments',
         target_record_id: ctx.record.id,
         before_state: null,
         after_state: {
-          code: ctx.record.code,
-          name: ctx.record.name,
-          account_type: ctx.record.account_type,
+          invoice_id: ctx.record.invoice_id,
+          comment_type: ctx.record.comment_type,
+          content: ctx.record.content,
         },
       });
     } catch (err) {

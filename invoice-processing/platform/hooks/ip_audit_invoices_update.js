@@ -1,5 +1,6 @@
 export const config = {
-  collection: 'invoices',
+  external_id: 'invoice-processing:ip_audit_invoices_update',
+  collection: 'ip_invoices',
   trigger: 'after_update',
   enabled: true,
 };
@@ -38,7 +39,7 @@ export default async function handler(ctx) {
       // Capture fields that changed
       const trackedFields = [
         'vendor_name', 'invoice_number', 'invoice_date', 'due_date',
-        'total_amount', 'currency', 'description', 'status', 'notes',
+        'total_amount', 'currency', 'description', 'status', 'notes', 'gl_code',
       ];
 
       const beforeState = {};
@@ -55,14 +56,14 @@ export default async function handler(ctx) {
 
       if (!hasChanges) return;
 
-      await ctx.dao.create('inv_audit_log', {
+      await ctx.dao.create('ip_audit_log', {
         action: 'update',
         action_category: 'invoice',
         action_label: actionLabel,
         actor_id: ctx.user?.id || null,
         actor_name: ctx.user?.name || null,
         actor_email: ctx.user?.email || null,
-        target_collection: 'invoices',
+        target_collection: 'ip_invoices',
         target_record_id: curr.id,
         before_state: beforeState,
         after_state: afterState,

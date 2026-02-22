@@ -1,6 +1,6 @@
 {
-  "id": "invoices",
-  "name": "invoices",
+  "id": "ip_invoices",
+  "name": "ip_invoices",
   "fields": [
     { "name": "vendor_name", "type": "text" },
     { "name": "invoice_number", "type": "text" },
@@ -17,7 +17,8 @@
     },
     { "name": "document", "type": "lumera_file" },
     { "name": "extracted_data", "type": "json" },
-    { "name": "notes", "type": "text" }
+    { "name": "notes", "type": "text" },
+    { "name": "gl_code", "type": "text" }
   ],
   "indexes": [
     { "fields": ["status"] },

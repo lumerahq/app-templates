@@ -1,6 +1,6 @@
 {
-  "id": "vendors",
-  "name": "vendors",
+  "id": "ip_vendors",
+  "name": "ip_vendors",
   "fields": [
     { "name": "name", "type": "text", "required": true },
     { "name": "default_gl_code", "type": "text" }

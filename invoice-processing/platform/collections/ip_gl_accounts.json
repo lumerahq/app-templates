@@ -1,6 +1,6 @@
 {
-  "id": "inv_gl_accounts",
-  "name": "inv_gl_accounts",
+  "id": "ip_gl_accounts",
+  "name": "ip_gl_accounts",
   "fields": [
     { "name": "code", "type": "text", "required": true },
     { "name": "name", "type": "text", "required": true },

@@ -12,11 +12,11 @@ Invoice Processing is a Lumera embedded app for uploading invoices, extracting d
 │                                                               │
 │  ┌───────────┐   postMessage    ┌──────────────────────────┐  │
 │  │  Host UI  │ ◄──────────────► │  App (iframe)            │  │
-│  │           │   (auth, init)   │  - Dashboard             │  │
+│  │           │   (auth, init)   │  - Dashboard (charts)    │  │
 │  └─────┬─────┘                  │  - Invoice list & detail │  │
-│        │                        │  - Audit log             │  │
-│        │  REST API              └───────────┬──────────────┘  │
-│        ▼                                    ▼                 │
+│        │                        │  - Line items & GL coding│  │
+│        │  REST API              │  - Comments & activity   │  │
+│        ▼                        │  - Audit log             │  │
 │  ┌────────────────────────────────────────────────────────┐   │
 │  │  Lumera API                                            │   │
 │  │  - Collections (CRUD, SQL, search)                     │   │
@@ -27,10 +27,12 @@ Invoice Processing is a Lumera embedded app for uploading invoices, extracting d
 │            ▼                        ▼                         │
 │  ┌──────────────────┐   ┌──────────────────────────────┐      │
 │  │  Tenant Database │   │  Automation Runtime          │      │
-│  │  - invoices      │   │  - extract_invoice (Python)  │      │
-│  │  - vendors       │   │    AI document extraction    │      │
-│  │  - inv_gl_accts  │   └──────────────────────────────┘      │
-│  │  - inv_audit_log │                                         │
+│  │  - ip_invoices   │   │  - extract_invoice (Python)  │      │
+│  │  - ip_vendors    │   │    AI document extraction    │      │
+│  │  - ip_gl_accounts│   │    + line item creation      │      │
+│  │  - ip_line_items │   │    + GL code suggestion      │      │
+│  │  - ip_comments   │   └──────────────────────────────┘      │
+│  │  - ip_audit_log  │                                         │
 │  └──────────────────┘                                         │
 └───────────────────────────────────────────────────────────────┘
 ```
@@ -47,10 +49,10 @@ React app using TanStack Router (file-based routing) and TanStack Query for data
 | `src/main.tsx`   | App entry — auth bridge, router init |
 
 **Key pages:**
-- `/` — Dashboard with stat cards (total, pending, approved, draft) and recent invoices
-- `/invoices` — Invoice list with status filters and pagination
-- `/invoices/:id` — Detail view with document preview, editable fields, approve/reject
-- `/audit` — Audit log of all changes
+- `/` — Dashboard with stat cards, status pipeline chart, vendor/GL spend charts, invoice aging, and recent invoices
+- `/invoices` — Invoice list with search, sort, status filters, and pagination
+- `/invoices/:id` — Detail view with document preview, editable fields, line items table, GL coding, activity timeline, and approve/reject with comments
+- `/audit` — Audit log of all changes (filterable by invoice, vendor, GL account, line item, comment)
 - `/how-it-works` — Explanation of the app workflow
 - `/settings` — GL accounts and vendor management
 
@@ -66,34 +68,40 @@ Declarative definitions deployed via `lumera apply`.
 
 ### Automation: `extract_invoice`
 
-Python script that takes an `invoice_id`, downloads the attached document, uses AI vision (`llm.extract_text`) to extract structured invoice data (vendor, amounts, line items, dates), and writes the results back to the invoice record.
+Python script that takes an `invoice_id`, downloads the attached document, uses AI vision (`llm.extract_text`) to extract structured invoice data (vendor, amounts, line items, dates), writes the results back to the invoice record, creates `ip_line_items` records for each extracted line item, and suggests a GL code based on the vendor's default.
 
 ### Hooks
 
-| Hook                      | Trigger                  | Purpose                               |
-|---------------------------|--------------------------|---------------------------------------|
-| `trigger_extract`         | `invoices` after_create  | Sets status to `processing`, queues extraction |
-| `audit_invoices_*`        | `invoices` CUD events   | Logs changes to `inv_audit_log`       |
-| `audit_vendors_*`         | `vendors` CUD events    | Logs changes to `inv_audit_log`       |
-| `audit_inv_gl_accounts_*` | `inv_gl_accounts` CUD   | Logs changes to `inv_audit_log`       |
+| Hook                        | Trigger                    | Purpose                                    |
+|-----------------------------|----------------------------|--------------------------------------------|
+| `ip_trigger_extract`        | `ip_invoices` after_create | Sets status to `processing`, queues extraction |
+| `ip_create_status_comment`  | `ip_invoices` after_update | Creates system comment when status changes  |
+| `ip_audit_invoices_*`       | `ip_invoices` CUD events   | Logs changes to `ip_audit_log`             |
+| `ip_audit_vendors_*`        | `ip_vendors` CUD events    | Logs changes to `ip_audit_log`             |
+| `ip_audit_gl_accounts_*`    | `ip_gl_accounts` CUD       | Logs changes to `ip_audit_log`             |
+| `ip_audit_line_items_create`| `ip_line_items` after_create| Logs line item creation to `ip_audit_log`  |
+| `ip_audit_comments_create`  | `ip_comments` after_create | Logs comment creation to `ip_audit_log`    |
 
 ## Data Flow
 
 1. **User uploads invoice** → Creates invoice record with document attachment
 2. **`trigger_extract` hook fires** → Sets status to `processing`, queues `extract_invoice` automation
-3. **AI extracts data** → Automation reads document, extracts fields, updates invoice with `extracted_data`
-4. **User reviews** → Invoice moves to `review` status, user edits fields if needed
-5. **User approves/rejects** → Status set to `approved` or `rejected`
-6. **Audit trail** → All CUD operations logged via hooks to `inv_audit_log`
+3. **AI extracts data** → Automation reads document, extracts fields and line items, suggests GL code, updates invoice, creates `ip_line_items` records
+4. **`create_status_comment` hook fires** → Records status change in `ip_comments`
+5. **User reviews** → Invoice moves to `review` status, user edits fields, line items, and GL codes
+6. **User approves/rejects** → Status set to `approved` or `rejected`, comment recorded with note/reason
+7. **Audit trail** → All CUD operations logged via hooks to `ip_audit_log`
 
 ## Collections
 
-| Collection       | Purpose                                        |
-|------------------|------------------------------------------------|
-| `invoices`       | Invoice records with document, status, extracted data |
-| `vendors`        | Vendor directory with default GL codes          |
-| `inv_gl_accounts`| Chart of accounts for coding invoices           |
-| `inv_audit_log`  | Audit trail for all entity changes              |
+| Collection        | Purpose                                                  |
+|-------------------|----------------------------------------------------------|
+| `ip_invoices`     | Invoice records with document, status, extracted data, GL code |
+| `ip_vendors`      | Vendor directory with default GL codes                    |
+| `ip_gl_accounts`  | Chart of accounts for coding invoices and line items      |
+| `ip_line_items`   | Individual line items per invoice (description, qty, price, GL code) |
+| `ip_comments`     | Activity timeline per invoice (comments, approvals, rejections, system events) |
+| `ip_audit_log`    | Audit trail for all entity changes across all collections |
 
 ## Scripts (`scripts/`)
 

@@ -17,7 +17,7 @@ export const Route = createFileRoute('/audit')({
 });
 
 type AuditAction = 'create' | 'update' | 'delete';
-type AuditCategory = 'invoice' | 'vendor' | 'gl_account';
+type AuditCategory = 'invoice' | 'vendor' | 'gl_account' | 'line_item' | 'comment';
 
 type AuditLogEntry = PbRecord & {
   action: AuditAction;
@@ -43,6 +43,8 @@ const categoryFilters = [
   { label: 'Invoice', value: 'invoice' as const },
   { label: 'Vendor', value: 'vendor' as const },
   { label: 'GL Account', value: 'gl_account' as const },
+  { label: 'Line Item', value: 'line_item' as const },
+  { label: 'Comment', value: 'comment' as const },
 ];
 
 const PER_PAGE = 20;
@@ -55,7 +57,7 @@ function AuditLogPage() {
   const { data: allData, isLoading } = useQuery({
     queryKey: ['audit-log'],
     queryFn: () =>
-      pbList<AuditLogEntry>('inv_audit_log', {
+      pbList<AuditLogEntry>('ip_audit_log', {
         perPage: 500,
         sort: '-created',
       }),
@@ -92,7 +94,7 @@ function AuditLogPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = categoryFilter === 'all' ? 'inv_audit_log.csv' : `inv_audit_log_${categoryFilter}.csv`;
+    link.download = categoryFilter === 'all' ? 'ip_audit_log.csv' : `ip_audit_log_${categoryFilter}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -263,6 +265,8 @@ const categoryBadgeConfig: Record<AuditCategory, { label: string; color: string 
   invoice: { label: 'Invoice', color: 'bg-blue-100 text-blue-700' },
   vendor: { label: 'Vendor', color: 'bg-amber-100 text-amber-700' },
   gl_account: { label: 'GL Account', color: 'bg-slate-100 text-slate-700' },
+  line_item: { label: 'Line Item', color: 'bg-purple-100 text-purple-700' },
+  comment: { label: 'Comment', color: 'bg-green-100 text-green-700' },
 };
 
 function CategoryBadge({ category }: { category: AuditCategory }) {

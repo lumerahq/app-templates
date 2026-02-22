@@ -1,5 +1,6 @@
 {
   "name": "Extract Invoice",
+  "external_id": "invoice-processing:extract_invoice",
   "description": "Extract structured data from an uploaded invoice using AI.",
   "inputs": {
     "schema": {

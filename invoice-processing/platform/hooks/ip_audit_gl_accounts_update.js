@@ -1,5 +1,6 @@
 export const config = {
-  collection: 'vendors',
+  external_id: 'invoice-processing:ip_audit_gl_accounts_update',
+  collection: 'ip_gl_accounts',
   trigger: 'after_update',
   enabled: true,
 };
@@ -14,7 +15,7 @@ export default async function handler(ctx) {
       const afterState = {};
       let hasChanges = false;
 
-      for (const field of ['name', 'default_gl_code']) {
+      for (const field of ['code', 'name', 'account_type']) {
         if (prev[field] !== curr[field]) {
           beforeState[field] = prev[field];
           afterState[field] = curr[field];
@@ -24,14 +25,14 @@ export default async function handler(ctx) {
 
       if (!hasChanges) return;
 
-      await ctx.dao.create('inv_audit_log', {
+      await ctx.dao.create('ip_audit_log', {
         action: 'update',
-        action_category: 'vendor',
-        action_label: `Updated vendor: ${curr.name}`,
+        action_category: 'gl_account',
+        action_label: `Updated GL account: ${curr.code} — ${curr.name}`,
         actor_id: ctx.user?.id || null,
         actor_name: ctx.user?.name || null,
         actor_email: ctx.user?.email || null,
-        target_collection: 'vendors',
+        target_collection: 'ip_gl_accounts',
         target_record_id: curr.id,
         before_state: beforeState,
         after_state: afterState,

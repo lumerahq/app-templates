@@ -130,11 +130,11 @@
 │                                                               │
 │  ┌───────────┐   postMessage    ┌──────────────────────────┐  │
 │  │  Host UI  │ ◄──────────────► │  App (iframe)            │  │
-│  │           │   (auth, init)   │  - Dashboard             │  │
+│  │           │   (auth, init)   │  - Dashboard (charts)    │  │
 │  └─────┬─────┘                  │  - Invoice list &amp; detail │  │
-│        │                        │  - Audit log             │  │
-│        │  REST API              └───────────┬──────────────┘  │
-│        ▼                                    ▼                 │
+│        │                        │  - Line items &amp; GL coding│  │
+│        │  REST API              │  - Comments &amp; activity   │  │
+│        ▼                        │  - Audit log             │  │
 │  ┌────────────────────────────────────────────────────────┐   │
 │  │  Lumera API                                            │   │
 │  │  - Collections (CRUD, SQL, search)                     │   │
@@ -145,10 +145,12 @@
 │            ▼                        ▼                         │
 │  ┌──────────────────┐   ┌──────────────────────────────┐      │
 │  │  Tenant Database │   │  Automation Runtime          │      │
-│  │  - invoices      │   │  - extract_invoice (Python)  │      │
-│  │  - vendors       │   │    AI document extraction    │      │
-│  │  - inv_gl_accts  │   └──────────────────────────────┘      │
-│  │  - inv_audit_log │                                         │
+│  │  - ip_invoices   │   │  - extract_invoice (Python)  │      │
+│  │  - ip_vendors    │   │    AI document extraction    │      │
+│  │  - ip_gl_accounts│   │    + line item creation      │      │
+│  │  - ip_line_items │   │    + GL code suggestion      │      │
+│  │  - ip_comments   │   └──────────────────────────────┘      │
+│  │  - ip_audit_log  │                                         │
 │  └──────────────────┘                                         │
 └───────────────────────────────────────────────────────────────┘</code></pre>
 
@@ -169,10 +171,10 @@
 
 <p><strong>Key pages:</strong></p>
 <ul>
-  <li><code>/</code> — Dashboard with stat cards (total, pending, approved, draft) and recent invoices</li>
-  <li><code>/invoices</code> — Invoice list with status filters and pagination</li>
-  <li><code>/invoices/:id</code> — Detail view with document preview, editable fields, approve/reject</li>
-  <li><code>/audit</code> — Audit log of all changes</li>
+  <li><code>/</code> — Dashboard with stat cards, status pipeline chart, vendor/GL spend charts, invoice aging, and recent invoices</li>
+  <li><code>/invoices</code> — Invoice list with search, sort, status filters, and pagination</li>
+  <li><code>/invoices/:id</code> — Detail view with document preview, editable fields, line items table, GL coding, activity timeline, and approve/reject with comments</li>
+  <li><code>/audit</code> — Audit log of all changes (filterable by invoice, vendor, GL account, line item, comment)</li>
   <li><code>/how-it-works</code> — Explanation of the app workflow</li>
   <li><code>/settings</code> — GL accounts and vendor management</li>
 </ul>
@@ -192,7 +194,7 @@
 </table>
 
 <h3>Automation: <code>extract_invoice</code></h3>
-<p>Python script that takes an <code>invoice_id</code>, downloads the attached document, uses AI vision (<code>llm.extract_text</code>) to extract structured invoice data (vendor, amounts, line items, dates), and writes the results back to the invoice record.</p>
+<p>Python script that takes an <code>invoice_id</code>, downloads the attached document, uses AI vision (<code>llm.extract_text</code>) to extract structured invoice data (vendor, amounts, line items, dates), writes the results back to the invoice record, creates <code>ip_line_items</code> records for each extracted line item, and suggests a GL code based on the vendor's default.</p>
 
 <h3>Hooks</h3>
 <table>
@@ -200,10 +202,13 @@
     <tr><th>Hook</th><th>Trigger</th><th>Purpose</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>trigger_extract</code></td><td><code>invoices</code> after_create</td><td>Sets status to <code>processing</code>, queues extraction</td></tr>
-    <tr><td><code>audit_invoices_*</code></td><td><code>invoices</code> CUD events</td><td>Logs changes to <code>inv_audit_log</code></td></tr>
-    <tr><td><code>audit_vendors_*</code></td><td><code>vendors</code> CUD events</td><td>Logs changes to <code>inv_audit_log</code></td></tr>
-    <tr><td><code>audit_inv_gl_accounts_*</code></td><td><code>inv_gl_accounts</code> CUD</td><td>Logs changes to <code>inv_audit_log</code></td></tr>
+    <tr><td><code>ip_trigger_extract</code></td><td><code>ip_invoices</code> after_create</td><td>Sets status to <code>processing</code>, queues extraction</td></tr>
+    <tr><td><code>ip_create_status_comment</code></td><td><code>ip_invoices</code> after_update</td><td>Creates system comment when status changes</td></tr>
+    <tr><td><code>ip_audit_invoices_*</code></td><td><code>ip_invoices</code> CUD events</td><td>Logs changes to <code>ip_audit_log</code></td></tr>
+    <tr><td><code>ip_audit_vendors_*</code></td><td><code>ip_vendors</code> CUD events</td><td>Logs changes to <code>ip_audit_log</code></td></tr>
+    <tr><td><code>ip_audit_gl_accounts_*</code></td><td><code>ip_gl_accounts</code> CUD</td><td>Logs changes to <code>ip_audit_log</code></td></tr>
+    <tr><td><code>ip_audit_line_items_create</code></td><td><code>ip_line_items</code> after_create</td><td>Logs line item creation to <code>ip_audit_log</code></td></tr>
+    <tr><td><code>ip_audit_comments_create</code></td><td><code>ip_comments</code> after_create</td><td>Logs comment creation to <code>ip_audit_log</code></td></tr>
   </tbody>
 </table>
 
@@ -211,10 +216,11 @@
 <ol>
   <li><strong>User uploads invoice</strong> — Creates invoice record with document attachment</li>
   <li><strong><code>trigger_extract</code> hook fires</strong> — Sets status to <code>processing</code>, queues <code>extract_invoice</code> automation</li>
-  <li><strong>AI extracts data</strong> — Automation reads document, extracts fields, updates invoice with <code>extracted_data</code></li>
-  <li><strong>User reviews</strong> — Invoice moves to <code>review</code> status, user edits fields if needed</li>
-  <li><strong>User approves/rejects</strong> — Status set to <code>approved</code> or <code>rejected</code></li>
-  <li><strong>Audit trail</strong> — All CUD operations logged via hooks to <code>inv_audit_log</code></li>
+  <li><strong>AI extracts data</strong> — Automation reads document, extracts fields and line items, suggests GL code, updates invoice, creates <code>ip_line_items</code> records</li>
+  <li><strong><code>create_status_comment</code> hook fires</strong> — Records status change in <code>ip_comments</code></li>
+  <li><strong>User reviews</strong> — Invoice moves to <code>review</code> status, user edits fields, line items, and GL codes</li>
+  <li><strong>User approves/rejects</strong> — Status set to <code>approved</code> or <code>rejected</code>, comment recorded with note/reason</li>
+  <li><strong>Audit trail</strong> — All CUD operations logged via hooks to <code>ip_audit_log</code></li>
 </ol>
 
 <h2>Collections</h2>
@@ -223,10 +229,12 @@
     <tr><th>Collection</th><th>Purpose</th></tr>
   </thead>
   <tbody>
-    <tr><td><code>invoices</code></td><td>Invoice records with document, status, extracted data</td></tr>
-    <tr><td><code>vendors</code></td><td>Vendor directory with default GL codes</td></tr>
-    <tr><td><code>inv_gl_accounts</code></td><td>Chart of accounts for coding invoices</td></tr>
-    <tr><td><code>inv_audit_log</code></td><td>Audit trail for all entity changes</td></tr>
+    <tr><td><code>ip_invoices</code></td><td>Invoice records with document, status, extracted data, GL code</td></tr>
+    <tr><td><code>ip_vendors</code></td><td>Vendor directory with default GL codes</td></tr>
+    <tr><td><code>ip_gl_accounts</code></td><td>Chart of accounts for coding invoices and line items</td></tr>
+    <tr><td><code>ip_line_items</code></td><td>Individual line items per invoice (description, qty, price, GL code)</td></tr>
+    <tr><td><code>ip_comments</code></td><td>Activity timeline per invoice (comments, approvals, rejections, system events)</td></tr>
+    <tr><td><code>ip_audit_log</code></td><td>Audit trail for all entity changes across all collections</td></tr>
   </tbody>
 </table>
 
