@@ -1,0 +1,28 @@
+{
+  "id": "ca_invoices",
+  "name": "ca_invoices",
+  "fields": [
+    { "name": "customer_id", "type": "text", "required": true },
+    { "name": "customer_name", "type": "text" },
+    { "name": "invoice_number", "type": "text" },
+    { "name": "amount", "type": "number" },
+    { "name": "due_date", "type": "date" },
+    { "name": "days_overdue", "type": "number" },
+    {
+      "name": "status",
+      "type": "select",
+      "values": ["open", "partial", "paid", "written_off"],
+      "default": "open"
+    },
+    { "name": "paid_amount", "type": "number" },
+    { "name": "balance_remaining", "type": "number" },
+    { "name": "reminder_count", "type": "number" },
+    { "name": "last_reminder_date", "type": "date" },
+    { "name": "notes", "type": "text" }
+  ],
+  "indexes": [
+    { "fields": ["customer_id"] },
+    { "fields": ["status"] },
+    { "fields": ["due_date"] }
+  ]
+}

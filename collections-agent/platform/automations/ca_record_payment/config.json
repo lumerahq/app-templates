@@ -1,0 +1,42 @@
+{
+  "name": "Record Payment",
+  "description": "Record a payment from a customer and apply it to outstanding invoices (oldest first or specified invoices).",
+  "inputs": {
+    "schema": {
+      "function": {
+        "name": "main",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "customer_id": {
+              "type": "string",
+              "description": "ID of the customer record"
+            },
+            "amount": {
+              "type": "number",
+              "description": "Payment amount"
+            },
+            "payment_date": {
+              "type": "string",
+              "description": "Payment date (YYYY-MM-DD)"
+            },
+            "method": {
+              "type": "string",
+              "description": "Payment method (wire, check, ach, credit_card, other)"
+            },
+            "reference": {
+              "type": "string",
+              "description": "Payment reference number"
+            },
+            "invoice_ids": {
+              "type": "string",
+              "description": "Comma-separated invoice IDs to apply payment to (optional, defaults to oldest first)"
+            }
+          },
+          "required": ["customer_id", "amount", "payment_date", "method"]
+        }
+      },
+      "type": "function"
+    }
+  }
+}

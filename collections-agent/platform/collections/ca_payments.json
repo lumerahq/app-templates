@@ -1,0 +1,22 @@
+{
+  "id": "ca_payments",
+  "name": "ca_payments",
+  "fields": [
+    { "name": "customer_id", "type": "text", "required": true },
+    { "name": "customer_name", "type": "text" },
+    { "name": "amount", "type": "number", "required": true },
+    { "name": "payment_date", "type": "date" },
+    { "name": "reference", "type": "text" },
+    {
+      "name": "method",
+      "type": "select",
+      "values": ["wire", "check", "ach", "credit_card", "other"]
+    },
+    { "name": "applied_invoices", "type": "json" },
+    { "name": "notes", "type": "text" }
+  ],
+  "indexes": [
+    { "fields": ["customer_id"] },
+    { "fields": ["payment_date"] }
+  ]
+}

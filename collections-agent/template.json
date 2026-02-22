@@ -1,0 +1,7 @@
+{
+  "name": "collections-agent",
+  "title": "Collections Agent",
+  "description": "Monitor overdue accounts, assess risk with AI, draft collection emails, and track payments.",
+  "category": "Order-to-Cash",
+  "version": "1.0.0"
+}
