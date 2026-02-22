@@ -2,8 +2,8 @@ import { createRun, pollRun } from '@lumerahq/ui/lib';
 import type { EmailResult } from '../components/EmailPreviewModal';
 import type { RiskResult } from '../components/RiskAssessmentModal';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
-import { Pencil, Plus, Trash2, X } from 'lucide-react';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { ChevronRight, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { EmailPreviewModal } from '../components/EmailPreviewModal';
@@ -19,8 +19,11 @@ import {
   listCustomerActivities,
   listCustomerInvoices,
   listCustomerPayments,
+  updateCustomer,
   updateInvoice,
+  type Customer,
   type Invoice,
+  type Payment,
 } from '../lib/queries';
 
 export const Route = createFileRoute('/customers/$id')({
@@ -108,6 +111,15 @@ function CustomerDetailPage() {
     }
   }
 
+  const statusMutation = useMutation({
+    mutationFn: (newStatus: Customer['status']) => updateCustomer(id, { status: newStatus }),
+    onSuccess: () => {
+      toast.success('Status updated');
+      queryClient.invalidateQueries({ queryKey: ['customer', id] });
+    },
+    onError: () => toast.error('Failed to update status'),
+  });
+
   if (isLoading) {
     return <div className="p-8 text-center text-muted-foreground">Loading...</div>;
   }
@@ -118,12 +130,30 @@ function CustomerDetailPage() {
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+        <Link to="/customers" className="hover:text-foreground transition-colors">Customers</Link>
+        <ChevronRight className="size-3.5" />
+        <span className="text-foreground font-medium">{customer.name}</span>
+      </div>
+
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{customer.name}</h1>
           <div className="flex items-center gap-3 mt-2">
-            <StatusBadge status={customer.status} />
+            <select
+              value={customer.status}
+              onChange={(e) => statusMutation.mutate(e.target.value as Customer['status'])}
+              disabled={statusMutation.isPending}
+              className="rounded-md border bg-background px-2 py-1 text-xs font-medium"
+            >
+              <option value="active">Active</option>
+              <option value="contacted">Contacted</option>
+              <option value="promised">Promised</option>
+              <option value="escalated">Escalated</option>
+              <option value="resolved">Resolved</option>
+            </select>
             {customer.risk_level && <StatusBadge status={customer.risk_level} />}
             <span className="text-muted-foreground text-sm">Outstanding: {formatAmount(customer.total_outstanding)}</span>
           </div>
@@ -277,6 +307,7 @@ function InvoicesTab({ customerId, onAdd, onEdit }: {
   onEdit: (invoice: Invoice) => void;
 }) {
   const queryClient = useQueryClient();
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ['customer-invoices', customerId],
     queryFn: () => listCustomerInvoices(customerId),
@@ -285,6 +316,7 @@ function InvoicesTab({ customerId, onAdd, onEdit }: {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteInvoice(id),
     onSuccess: () => {
+      setConfirmDeleteId(null);
       toast.success('Invoice deleted');
       queryClient.invalidateQueries({ queryKey: ['customer-invoices', customerId] });
       queryClient.invalidateQueries({ queryKey: ['customer', customerId] });
@@ -346,28 +378,40 @@ function InvoicesTab({ customerId, onAdd, onEdit }: {
                   <td className="px-4 py-3"><StatusBadge status={inv.status} /></td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1 justify-end">
-                      <button
-                        type="button"
-                        onClick={() => onEdit(inv)}
-                        className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      >
-                        <Pencil className="size-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (confirm('Delete this invoice?')) deleteMutation.mutate(inv.id!);
-                        }}
-                        className="rounded p-1 text-muted-foreground hover:text-red-600 hover:bg-muted transition-colors"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </button>
+                      {confirmDeleteId === inv.id ? (
+                        <>
+                          <button type="button" onClick={() => deleteMutation.mutate(inv.id!)} disabled={deleteMutation.isPending} className="rounded px-2 py-1 text-xs bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50">
+                            {deleteMutation.isPending ? '...' : 'Yes'}
+                          </button>
+                          <button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded px-2 py-1 text-xs border hover:bg-muted transition-colors">No</button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => onEdit(inv)}
+                            className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                          >
+                            <Pencil className="size-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeleteId(inv.id!)}
+                            className="rounded p-1 text-muted-foreground hover:text-red-600 hover:bg-muted transition-colors"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">No invoices.</td></tr>
+              <tr><td colSpan={7} className="px-4 py-12 text-center">
+                <p className="text-muted-foreground">No invoices yet.</p>
+                <button type="button" onClick={onAdd} className="mt-2 text-sm text-primary hover:underline">Add the first invoice</button>
+              </td></tr>
             )}
           </tbody>
         </table>
@@ -379,6 +423,7 @@ function InvoicesTab({ customerId, onAdd, onEdit }: {
 // --- Activities Tab ---
 
 function ActivitiesTab({ customerId, onAddNote }: { customerId: string; onAddNote: () => void }) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ['customer-activities', customerId],
     queryFn: () => listCustomerActivities(customerId),
@@ -409,11 +454,21 @@ function ActivitiesTab({ customerId, onAddNote }: { customerId: string; onAddNot
                   {formatDate(a.created)}
                 </span>
               </div>
-              {a.content && <p className="text-sm text-muted-foreground line-clamp-2">{a.content}</p>}
+              {a.content && (
+                <p
+                  className={`text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors ${expandedId === a.id ? '' : 'line-clamp-2'}`}
+                  onClick={() => setExpandedId(expandedId === a.id ? null : a.id!)}
+                >
+                  {a.content}
+                </p>
+              )}
             </div>
           ))
         ) : (
-          <div className="px-4 py-8 text-center text-muted-foreground">No activities yet.</div>
+          <div className="px-4 py-12 text-center">
+            <p className="text-muted-foreground">No activities yet.</p>
+            <button type="button" onClick={onAddNote} className="mt-2 text-sm text-primary hover:underline">Add a note</button>
+          </div>
         )}
       </div>
     </div>
@@ -428,6 +483,16 @@ function PaymentsTab({ customerId }: { customerId: string }) {
     queryFn: () => listCustomerPayments(customerId),
   });
 
+  function getAppliedInvoices(p: Payment): { invoice_id: string; invoice_number: string; applied_amount: number }[] {
+    if (!p.applied_invoices) return [];
+    try {
+      const parsed = typeof p.applied_invoices === 'string' ? JSON.parse(p.applied_invoices) : p.applied_invoices;
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
   return (
     <div className="rounded-xl border bg-card">
       <table className="w-full text-sm">
@@ -437,22 +502,42 @@ function PaymentsTab({ customerId }: { customerId: string }) {
             <th className="px-4 py-3 font-medium">Amount</th>
             <th className="px-4 py-3 font-medium">Method</th>
             <th className="px-4 py-3 font-medium">Reference</th>
+            <th className="px-4 py-3 font-medium">Applied To</th>
           </tr>
         </thead>
         <tbody>
           {isLoading ? (
-            <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">Loading...</td></tr>
+            <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">Loading...</td></tr>
           ) : data?.items && data.items.length > 0 ? (
-            data.items.map((p) => (
-              <tr key={p.id} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
-                <td className="px-4 py-3 text-muted-foreground">{formatDate(p.payment_date)}</td>
-                <td className="px-4 py-3 tabular-nums font-medium">{formatAmount(p.amount)}</td>
-                <td className="px-4 py-3 capitalize">{p.method || '--'}</td>
-                <td className="px-4 py-3 text-muted-foreground">{p.reference || '--'}</td>
-              </tr>
-            ))
+            data.items.map((p) => {
+              const applied = getAppliedInvoices(p);
+              return (
+                <tr key={p.id} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
+                  <td className="px-4 py-3 text-muted-foreground">{formatDate(p.payment_date)}</td>
+                  <td className="px-4 py-3 tabular-nums font-medium">{formatAmount(p.amount)}</td>
+                  <td className="px-4 py-3 capitalize">{p.method || '--'}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.reference || '--'}</td>
+                  <td className="px-4 py-3">
+                    {applied.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {applied.map((a) => (
+                          <span key={a.invoice_id} className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs">
+                            {a.invoice_number}
+                            <span className="text-muted-foreground">{formatAmount(a.applied_amount)}</span>
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">--</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })
           ) : (
-            <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">No payments yet.</td></tr>
+            <tr><td colSpan={5} className="px-4 py-12 text-center">
+              <p className="text-muted-foreground">No payments recorded yet.</p>
+            </td></tr>
           )}
         </tbody>
       </table>

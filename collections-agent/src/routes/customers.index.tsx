@@ -304,7 +304,12 @@ function CustomersPage() {
                 </tr>
               ))
             ) : (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">No customers found.</td></tr>
+              <tr><td colSpan={7} className="px-4 py-12 text-center">
+                <p className="text-muted-foreground">{search || statusFilter || riskFilter ? 'No customers match your filters.' : 'No customers yet.'}</p>
+                {!search && !statusFilter && !riskFilter && (
+                  <button type="button" onClick={() => { setEditingCustomer(null); setShowCustomerModal(true); }} className="mt-2 text-sm text-primary hover:underline">Add your first customer</button>
+                )}
+              </td></tr>
             )}
           </tbody>
         </table>

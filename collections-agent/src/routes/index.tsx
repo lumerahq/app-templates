@@ -3,7 +3,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { AlertTriangle, CalendarClock, DollarSign, Users } from 'lucide-react';
 import { StatCard } from '../components/StatCard';
 import { StatusBadge } from '../components/StatusBadge';
-import { formatAmount, getAgingBreakdown, getDashboardStats, listCustomers } from '../lib/queries';
+import { type AgingBucket, formatAmount, getAgingBreakdown, getDashboardStats, listCustomers } from '../lib/queries';
 
 export const Route = createFileRoute('/')({
   component: DashboardPage,
@@ -59,26 +59,9 @@ function DashboardPage() {
       <div className="rounded-xl border bg-card p-6">
         <h2 className="font-semibold mb-4">AR Aging Summary</h2>
         {aging && aging.length > 0 ? (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="pb-2 pr-4 font-medium">Bucket</th>
-                <th className="pb-2 px-4 font-medium">Amount</th>
-                <th className="pb-2 pl-4 font-medium">Invoices</th>
-              </tr>
-            </thead>
-            <tbody>
-              {aging.map((row) => (
-                <tr key={row.bucket} className="border-b last:border-0">
-                  <td className="py-2 pr-4 font-medium">{row.bucket}</td>
-                  <td className="py-2 px-4 tabular-nums">{formatAmount(Number(row.amount))}</td>
-                  <td className="py-2 pl-4 tabular-nums">{Number(row.count)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <AgingChart data={aging} />
         ) : (
-          <p className="text-sm text-muted-foreground">No open invoices.</p>
+          <p className="text-sm text-muted-foreground">No open invoices. Add invoices on a customer's detail page to see aging data here.</p>
         )}
       </div>
 
@@ -120,9 +103,50 @@ function DashboardPage() {
             </tbody>
           </table>
         ) : (
-          <p className="text-sm text-muted-foreground">No customers yet.</p>
+          <div className="text-center py-4">
+            <p className="text-sm text-muted-foreground">No customers yet.</p>
+            <Link to="/customers" className="mt-1 inline-block text-sm text-primary hover:underline">Add your first customer</Link>
+          </div>
         )}
       </div>
+    </div>
+  );
+}
+
+const BAR_COLORS = [
+  'bg-blue-500',
+  'bg-amber-400',
+  'bg-orange-500',
+  'bg-red-400',
+  'bg-red-600',
+];
+
+function AgingChart({ data }: { data: AgingBucket[] }) {
+  const maxAmount = Math.max(...data.map((d) => Number(d.amount)));
+
+  return (
+    <div className="space-y-3">
+      {data.map((row, i) => {
+        const amount = Number(row.amount);
+        const pct = maxAmount > 0 ? (amount / maxAmount) * 100 : 0;
+        return (
+          <div key={row.bucket} className="flex items-center gap-3 text-sm">
+            <span className="w-20 shrink-0 text-muted-foreground text-right">{row.bucket}</span>
+            <div className="flex-1 h-7 bg-muted/50 rounded overflow-hidden">
+              <div
+                className={`h-full rounded ${BAR_COLORS[i] ?? 'bg-primary'} transition-all duration-500`}
+                style={{ width: `${Math.max(pct, 1)}%` }}
+              />
+            </div>
+            <span className="w-24 shrink-0 text-xs tabular-nums font-medium text-right">
+              {formatAmount(amount)}
+            </span>
+            <span className="w-10 shrink-0 text-xs text-muted-foreground tabular-nums text-right">
+              {Number(row.count)} inv
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
