@@ -139,14 +139,14 @@ export async function getAgingBreakdown(): Promise<AgingBucket[]> {
 
 // --- Customers ---
 
-export async function listCustomers(page = 1, statusFilter?: string, riskFilter?: string, sort = '-total_outstanding') {
+export async function listCustomers(page = 1, statusFilter?: string, riskFilter?: string, sort = '-total_outstanding', perPage = 20) {
   const filterObj: Record<string, unknown> = {};
   if (statusFilter) filterObj.status = statusFilter;
   if (riskFilter) filterObj.risk_level = riskFilter;
   const filter = Object.keys(filterObj).length > 0 ? JSON.stringify(filterObj) : undefined;
   return pbList<Customer>('ca_customers', {
     page,
-    perPage: 20,
+    perPage,
     sort,
     filter,
   });
@@ -178,6 +178,18 @@ export async function listCustomerInvoices(customerId: string) {
   });
 }
 
+export async function createInvoice(data: Partial<Invoice>) {
+  return pbCreate<Invoice>('ca_invoices', data);
+}
+
+export async function updateInvoice(id: string, data: Partial<Invoice>) {
+  return pbUpdate<Invoice>('ca_invoices', id, data);
+}
+
+export async function deleteInvoice(id: string) {
+  return pbDelete('ca_invoices', id);
+}
+
 // --- Activities ---
 
 export async function listCustomerActivities(customerId: string) {
@@ -204,11 +216,16 @@ export async function listCustomerPayments(customerId: string) {
 
 // --- Audit Log ---
 
-export async function listAuditLog(page = 1) {
+export async function listAuditLog(page = 1, categoryFilter?: string, actionFilter?: string) {
+  const filterObj: Record<string, unknown> = {};
+  if (categoryFilter) filterObj.action_category = categoryFilter;
+  if (actionFilter) filterObj.action = actionFilter;
+  const filter = Object.keys(filterObj).length > 0 ? JSON.stringify(filterObj) : undefined;
   return pbList<AuditLog>('ca_audit_log', {
     page,
     perPage: 20,
     sort: '-created',
+    filter,
   });
 }
 

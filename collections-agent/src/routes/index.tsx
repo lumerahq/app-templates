@@ -63,16 +63,16 @@ function DashboardPage() {
             <thead>
               <tr className="border-b text-left text-muted-foreground">
                 <th className="pb-2 pr-4 font-medium">Bucket</th>
-                <th className="pb-2 px-4 font-medium text-right">Amount</th>
-                <th className="pb-2 pl-4 font-medium text-right">Invoices</th>
+                <th className="pb-2 px-4 font-medium">Amount</th>
+                <th className="pb-2 pl-4 font-medium">Invoices</th>
               </tr>
             </thead>
             <tbody>
               {aging.map((row) => (
                 <tr key={row.bucket} className="border-b last:border-0">
                   <td className="py-2 pr-4 font-medium">{row.bucket}</td>
-                  <td className="py-2 px-4 text-right tabular-nums">{formatAmount(Number(row.amount))}</td>
-                  <td className="py-2 pl-4 text-right tabular-nums">{Number(row.count)}</td>
+                  <td className="py-2 px-4 tabular-nums">{formatAmount(Number(row.amount))}</td>
+                  <td className="py-2 pl-4 tabular-nums">{Number(row.count)}</td>
                 </tr>
               ))}
             </tbody>
@@ -95,7 +95,7 @@ function DashboardPage() {
             <thead>
               <tr className="border-b text-left text-muted-foreground">
                 <th className="pb-2 pr-4 font-medium">Customer</th>
-                <th className="pb-2 px-4 font-medium text-right">Outstanding</th>
+                <th className="pb-2 px-4 font-medium">Outstanding</th>
                 <th className="pb-2 px-4 font-medium">Risk</th>
                 <th className="pb-2 pl-4 font-medium">Status</th>
               </tr>
@@ -108,7 +108,7 @@ function DashboardPage() {
                       {c.name}
                     </Link>
                   </td>
-                  <td className="py-2 px-4 text-right tabular-nums">{formatAmount(c.total_outstanding)}</td>
+                  <td className="py-2 px-4 tabular-nums">{formatAmount(c.total_outstanding)}</td>
                   <td className="py-2 px-4">
                     {c.risk_level ? <StatusBadge status={c.risk_level} /> : <span className="text-muted-foreground">--</span>}
                   </td>

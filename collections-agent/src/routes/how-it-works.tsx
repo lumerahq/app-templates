@@ -21,7 +21,7 @@ function HowItWorksPage() {
           icon={<Upload className="size-5" />}
           color="blue"
           title="1. Import Your AR Data"
-          description="Upload your accounts receivable invoices and customer data. The seed script can populate demo data for testing."
+          description="Add your customers and their outstanding invoices. Enter them manually or import from your accounting system."
         />
 
         <Arrow />
