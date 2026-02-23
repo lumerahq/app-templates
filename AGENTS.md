@@ -71,7 +71,7 @@ The project initial (first letter shown in sidebar logo) is computed at runtime 
 
 ### Auto-derived `external_id`
 
-Automation and hook `external_id` values are **auto-derived by the CLI** from `<app-name>:<resource-name>`. You do not need to specify `external_id` in config files — the CLI computes it from the `package.json` name + the automation directory name or hook filename.
+Automation, hook, and agent `external_id` values are **auto-derived by the CLI** from `<app-name>:<resource-name>`. You do not need to specify `external_id` in config files — the CLI computes it from the `package.json` name + the resource directory name or hook filename.
 
 For hook scripts that need to reference other automations by `external_id`, use the `{{app}}` variable. The CLI resolves it at deploy time:
 
@@ -120,9 +120,10 @@ The title defaults to a title-cased version of the name and the category default
 
 After scaffolding, customize the template:
 1. Edit `platform/collections/` to define your collections
-2. Edit `src/routes/` to build your pages
-3. Edit `scripts/seed-demo.py` to add seed data
-4. Update `package.json` name and `lumera.name` to match your template (the CLI replaces them during `lumera init`)
+2. Edit `platform/agents/` to define AI agents (config.json + system_prompt.md)
+3. Edit `src/routes/` to build your pages
+4. Edit `scripts/seed-demo.py` to add seed data
+5. Update `package.json` name and `lumera.name` to match your template (the CLI replaces them during `lumera init`)
 
 ### Manual Steps (if not using the script)
 
@@ -137,6 +138,7 @@ app-templates/
     ├── platform/
     │   └── collections/       # Lumera collection schemas (.json)
     │   └── automations/       # Python automation scripts
+    │   └── agents/            # AI agent definitions (config.json + system_prompt.md)
     ├── src/                   # Frontend source (React + TanStack Router)
     │   ├── routes/
     │   ├── components/
@@ -179,6 +181,16 @@ In automation `config.json` (no `external_id` needed — the CLI derives it auto
   "inputs": { ... }
 }
 ```
+
+In agent `config.json`:
+```json
+{
+  "name": "My Agent",
+  "description": "What this agent does.",
+  "skills": ["skill-slug-1"]
+}
+```
+The agent's system prompt goes in `system_prompt.md` alongside `config.json`.
 
 In `Sidebar.tsx` (for the project initial):
 ```tsx

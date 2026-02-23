@@ -24,6 +24,8 @@ This project includes Lumera skills for AI coding agents in `.claude/skills/`. R
 **lumera-webhooks** — Receive events from external services (Stripe, GitHub, Slack, etc.) via webhooks. Create endpoints with `webhooks.create()`, get the public URL with `webhooks.url()`, and process events from `lm_event_log`. Trigger automations via hooks on `lm_event_log.after_create`.
 
 **lumera-write-hooks** — Author Lumera collection hooks in JavaScript. Hooks run on lifecycle events (`before_create`, `after_update`, etc.). Manage via `GET/POST/PATCH/DELETE /api/pb/hooks`.
+
+**lumera-agents** — Build and manage AI-powered chat agents with custom system prompts, skills, and tools. Create agents via `POST /api/agents`, invoke synchronously via `POST /api/agents/{id}/invoke`, or stream responses via `POST /api/agents/{id}/chat`.
 <!-- LUMERA_SKILLS_END -->
 
 ### Managing Skills
@@ -132,7 +134,7 @@ pnpm check:ci
 # Deploy frontend
 lumera apply app
 
-# Apply all resources (collections, automations, hooks, app)
+# Apply all resources (collections, automations, hooks, agents, app)
 lumera apply
 
 # Preview changes first
@@ -176,17 +178,37 @@ EOF
 **Run object methods**: `wait(timeout)`, `refresh()`, `cancel()`
 **Status values**: `queued`, `running`, `succeeded`, `failed`, `cancelled`, `timeout`
 
+### Working with Agents
+
+Agents are defined in `platform/agents/`. Each agent has a `config.json` and `system_prompt.md`.
+
+```bash
+# Deploy agents
+lumera apply agents
+
+# Invoke an agent
+lumera run agents/asset_assistant "What is the total depreciation this month?"
+
+# Invoke with session continuity
+lumera run agents/asset_assistant "Follow up" --session my-session
+
+# List agents with sync status
+lumera list agents
+```
+
+For detailed API docs, refer to the **lumera-agents** skill (`.claude/skills/lumera_agents.md`).
+
 ---
 
 ## Important Rules
 
 1. **Authenticate first** - Before running any CLI or SDK commands, ensure the user has run `lumera login`. This stores credentials in `.lumera/credentials.json` which the SDK reads automatically.
 
-2. **Source of truth is code** - `platform/` contains all schemas, automations, hooks. Update local code first, then deploy.
+2. **Source of truth is code** - `platform/` contains all schemas, automations, hooks, and agents. Update local code first, then deploy.
 
 3. **Never edit Lumera directly** - Don't change data/schema in Lumera UI without explicit user approval.
 
-4. **Offer to deploy** - When schemas, hooks, or automations change, offer to deploy to Lumera.
+4. **Offer to deploy** - When schemas, hooks, automations, or agents change, offer to deploy to Lumera.
 
 5. **Use lumera-sdk skill for Python** - When writing scripts or automations, refer to the **lumera-sdk** skill (`.claude/skills/lumera-sdk.md`) for available SDK functions and usage patterns. The SDK source code is also available in `.venv/lib/python*/site-packages/lumera/` for detailed implementation reference. Key modules:
    - `lumera.pb` - Record and collection operations (search, get, create, update, delete)
@@ -206,6 +228,7 @@ EOF
 
 ```
 platform/
+├── agents/         # AI agent definitions (config.json + system_prompt.md)
 ├── automations/    # Automation scripts (Python)
 ├── collections/    # Collection schemas (JSON)
 └── hooks/          # Server-side JavaScript hooks
