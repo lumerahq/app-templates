@@ -90,15 +90,107 @@ Read the skill files in `.claude/skills/` for detailed API docs. Key skills:
 **lumera-agents** — Build and manage AI-powered chat agents with custom system prompts, skills, and tools. Create agents via `POST /api/agents`, invoke synchronously via `POST /api/agents/{id}/invoke`, or stream responses via `POST /api/agents/{id}/chat`.
 <!-- LUMERA_SKILLS_END -->
 
-## CLI Cheatsheet
+## Lumera CLI
+
+All `lumera` CLI commands are invoked via `bunx @lumerahq/cli <command>`. The `package.json` has shortcuts for common ones (`bun dev`, `bun deploy`).
+
+### First-time setup
 
 ```bash
-pnpm dev                              # Start dev server (login first: lumera login)
-lumera apply                           # Deploy all (collections, automations, hooks, agents, app)
-lumera plan                            # Preview what will change
-lumera run scripts/seed-demo.py        # Run seed script
-lumera apply app                       # Deploy frontend only
-lumera skills update                   # Update skill files to latest
+lumera login                           # Authenticate — stores creds in .lumera/credentials.json
+bun install                           # Install frontend dependencies
+bun dev                               # Start dev server (runs lumera dev under the hood)
+lumera run scripts/seed-demo.py        # Seed assets, GL accounts, and depreciation history
+```
+
+`lumera login` is required before any CLI or SDK command. It opens a browser for auth and saves credentials locally. The SDK (`from lumera import pb`) reads these automatically.
+
+### Developing
+
+```bash
+bun dev                               # Start dev server with Lumera registration (iframe mode)
+bun dev:vite                          # Plain Vite dev server (no Lumera registration)
+lumera dev --port 3001                  # Dev server on a custom port
+lumera dev --url https://xyz.ngrok.io   # Dev server behind an ngrok tunnel
+```
+
+`bun dev` registers the app with Lumera so it appears in the sidebar, then starts Vite. Use `bun dev:vite` for faster iteration when you don't need the Lumera iframe.
+
+### Deploying resources
+
+```bash
+lumera plan                            # Preview all changes (dry run — shows what would be created/updated/deleted)
+lumera apply                           # Deploy everything: collections, automations, hooks, agents, and frontend
+lumera apply collections               # Deploy only collection schemas
+lumera apply automations               # Deploy only automations (e.g. after editing calculate_depreciation)
+lumera apply hooks                     # Deploy only hooks
+lumera apply agents                    # Deploy only agents
+lumera apply app                       # Deploy only the frontend (builds + uploads)
+```
+
+**Typical workflow:** Edit files in `platform/` → run `lumera plan` to review → run `lumera apply` to deploy. Always plan before apply to catch issues.
+
+### Running scripts
+
+```bash
+lumera run scripts/seed-demo.py        # Run seed script on Lumera's servers
+lumera run scripts/migrate.py          # Run any Python script
+```
+
+Scripts run remotely on Lumera's infrastructure with full SDK access. They should be **idempotent** — safe to run multiple times. Dependencies are declared inline using PEP 723 (`# /// script` blocks).
+
+### Managing resources
+
+```bash
+lumera status                          # Show sync status of all resources (collections, automations, hooks, agents)
+lumera list collections                # List all collections with sync status
+lumera list automations                # List all automations
+lumera list hooks                      # List all hooks
+lumera list agents                     # List all agents with sync status
+lumera destroy                         # Delete all deployed resources (interactive confirmation)
+```
+
+### Running agents
+
+```bash
+lumera run agents/asset_assistant "What is the total NBV across all assets?"   # Invoke an agent
+lumera run agents/asset_assistant "Run depreciation for Feb" --session sess1   # Continue conversation
+```
+
+### Skills management
+
+```bash
+lumera skills update                   # Update all skill files in .claude/skills/ to latest from Lumera API
+lumera skills install --force          # Re-install skills from scratch
+```
+
+### Running automations from Python
+
+```python
+uv run python << 'EOF'
+from lumera import automations
+
+run = automations.run_by_external_id(
+    "fixed-asset-tracker:calculate_depreciation",
+    inputs={"asset_id": "abc123", "period": "2026-02"}
+)
+print(f"Status: {run.status}")        # queued → running → succeeded/failed
+
+result = run.wait(timeout=300)         # Block until done (5 min timeout)
+print(f"Result: {result}")
+EOF
+```
+
+**Run object:** `id`, `status`, `result`, `error`, `inputs`, `is_terminal` (properties) · `wait(timeout)`, `refresh()`, `cancel()` (methods)
+**Status values:** `queued` → `running` → `succeeded` / `failed` / `cancelled` / `timeout`
+
+### Code quality
+
+```bash
+bun typecheck                         # TypeScript type check (no emit)
+bun lint                              # Lint and auto-fix with Biome
+bun format                            # Format code with Biome
+bun check:ci                          # Run all checks (lint + format + typecheck) — use before committing
 ```
 
 ## Rules
