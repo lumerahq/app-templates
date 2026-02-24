@@ -3,350 +3,280 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Collections Agent — Architecture</title>
+<title>Collections Agent — How It Works</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: #f8fafc; color: #1e293b; padding: 2rem 1rem; line-height: 1.6;
+    background: #f8fafc; color: #1e293b; line-height: 1.7; padding: 2rem 1rem;
   }
-  .container { max-width: 1100px; margin: 0 auto; }
-  h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-  .subtitle { color: #64748b; font-size: 1.05rem; margin-bottom: 2.5rem; }
-  .section {
+  .container { max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .subtitle { color: #64748b; font-size: 1.05rem; margin-bottom: 2rem; }
+  .card {
     background: #fff; border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    padding: 2rem 2.5rem; margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    padding: 2rem 2.5rem; margin-bottom: 1.5rem;
   }
-  .section h2 {
-    font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem;
-    display: flex; align-items: center; gap: 0.5rem;
+  h2 { font-size: 1.35rem; font-weight: 600; margin-bottom: 1rem; }
+  h3 { font-size: 1.05rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #334155; }
+  p { margin-bottom: 1rem; color: #334155; }
+  ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+  li { margin-bottom: 0.35rem; color: #334155; }
+  code {
+    font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+    background: #f1f5f9; padding: 0.15em 0.4em; border-radius: 4px;
+    font-size: 0.88em; color: #7c3aed;
   }
-  .section h2 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-  svg { width: 100%; height: auto; display: block; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.92rem; }
+  th { text-align: left; padding: 0.6rem 0.75rem; background: #f1f5f9; border: 1px solid #e2e8f0; font-weight: 600; }
+  td { padding: 0.55rem 0.75rem; border: 1px solid #e2e8f0; }
+  .badge {
+    display: inline-block; padding: 0.15em 0.6em; border-radius: 9999px;
+    font-size: 0.78rem; font-weight: 600;
+  }
+  .badge-green { background: #dcfce7; color: #16a34a; }
+  .badge-yellow { background: #fef9c3; color: #a16207; }
+  .badge-orange { background: #ffedd5; color: #ea580c; }
+  .badge-purple { background: #f3e8ff; color: #7c3aed; }
+  .badge-red { background: #fee2e2; color: #dc2626; }
+  .badge-blue { background: #dbeafe; color: #2563eb; }
+  .callout {
+    padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1rem;
+    border-left: 4px solid;
+  }
+  .callout-info { background: #eff6ff; border-color: #3b82f6; }
+  .callout-orange { background: #fff7ed; border-color: #f97316; }
+  svg { width: 100%; height: auto; display: block; margin: 1rem 0; }
   svg text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-
-  .legend { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; font-size: 0.85rem; color: #475569; }
-  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
-  .legend-swatch { width: 14px; height: 14px; border-radius: 4px; }
-
   @keyframes flowDash { to { stroke-dashoffset: -20; } }
   .flow-line { stroke-dasharray: 6 4; animation: flowDash 0.8s linear infinite; }
-  .flow-line-slow { stroke-dasharray: 6 4; animation: flowDash 1.4s linear infinite; }
-
-  .node { cursor: pointer; transition: filter 0.2s; }
-  .node:hover { filter: brightness(0.95) drop-shadow(0 2px 6px rgba(0,0,0,0.12)); }
-
-  .flow-label {
-    font-weight: 600; font-size: 14px;
-  }
-
-  @media (max-width: 700px) { .section { padding: 1.25rem; } }
+  @media (max-width: 700px) { .card { padding: 1.25rem; } }
 </style>
 </head>
 <body>
 <div class="container">
 
-<h1>Collections Agent — Architecture</h1>
+<h1>Collections Agent</h1>
 <p class="subtitle">Monitor overdue AR accounts, AI risk assessment &amp; email drafting, record payments, full audit trail.</p>
 
-<div class="legend">
-  <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div> Collection</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:#8b5cf6"></div> Automation</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:#f97316"></div> Hook</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:#22c55e"></div> Frontend Page</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:#94a3b8"></div> External / Platform</div>
+<!-- ============================================================ -->
+<div class="card">
+  <h2>What This App Does</h2>
+  <p>This is an accounts receivable (AR) collections management app. It helps collections teams track overdue customer accounts, prioritise follow-ups using AI-generated risk scores, draft personalised collection emails, and record payments — all from a single interface.</p>
+
+  <p>There are three core AI-powered actions, each backed by its own automation:</p>
+  <ol>
+    <li><strong>Risk Assessment</strong> — AI analyses a customer's invoices, payment history, and overdue patterns to assign a risk score (0–100), risk level (low/medium/high), and a recommended next action. Sets follow-up dates automatically based on urgency.</li>
+    <li><strong>Email Drafting</strong> — AI picks the right reminder template (friendly → firm → urgent → final) based on how overdue the invoices are, then personalises the email with specific invoice details and amounts.</li>
+    <li><strong>Payment Recording</strong> — When a payment comes in, the automation applies it oldest-first across outstanding invoices, updates balances, and automatically resolves the customer's account when fully paid.</li>
+  </ol>
+
+  <p>The app also includes:</p>
+  <ul>
+    <li><strong>Dashboard</strong> — Total outstanding, active customer count, follow-ups due today, escalated accounts, AR aging summary (current, 1–30, 31–60, 61–90, 90+ days), and priority customers</li>
+    <li><strong>Worklist</strong> — Customers sorted by risk score with one-click buttons for assessment and email drafting</li>
+    <li><strong>Customer detail</strong> — Three-tab view: Invoices (with balances and days overdue), Activities (email/call/note log), and Payments (history with record-payment form)</li>
+    <li><strong>Audit trail</strong> — All changes to customers and invoices are logged automatically via hooks</li>
+    <li><strong>Settings</strong> — Reminder email templates by stage, and escalation rules (days overdue / amount thresholds)</li>
+  </ul>
 </div>
 
 <!-- ============================================================ -->
-<!-- SECTION 1: System Overview -->
+<div class="card">
+  <h2>Customer Statuses</h2>
+  <p>Customers move through statuses as the collections process progresses:</p>
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0;">
+    <span class="badge badge-green">active</span>
+    <span class="badge badge-blue">contacted</span>
+    <span class="badge badge-yellow">promised</span>
+    <span class="badge badge-red">escalated</span>
+    <span class="badge badge-green">resolved</span>
+  </div>
+  <ul>
+    <li><strong>active</strong> — Has outstanding invoices, no recent contact</li>
+    <li><strong>contacted</strong> — A collection email has been sent or a call logged</li>
+    <li><strong>promised</strong> — Customer has committed to a payment date</li>
+    <li><strong>escalated</strong> — Account meets escalation rules (high overdue amount or too many days)</li>
+    <li><strong>resolved</strong> — All invoices paid in full (set automatically by the payment automation)</li>
+  </ul>
+</div>
+
 <!-- ============================================================ -->
-<div class="section">
-  <h2><span class="dot" style="background:#94a3b8"></span> System Overview</h2>
-  <svg viewBox="0 0 960 380" xmlns="http://www.w3.org/2000/svg">
+<div class="card">
+  <h2>The Three Core Workflows</h2>
+
+  <h3>1. AI Risk Assessment</h3>
+  <p>From the worklist, the user clicks "Assess Risk" on a customer. The <code>ca_assess_risk</code> automation runs, examines all of the customer's invoices and payment history, and returns:</p>
+  <ul>
+    <li><strong>Risk score</strong> (0–100) — higher means higher risk of non-payment</li>
+    <li><strong>Risk level</strong> — low / medium / high</li>
+    <li><strong>Recommended next action</strong> — e.g. "Send friendly reminder", "Escalate to manager"</li>
+    <li><strong>Reasoning</strong> — Explanation of why this score was assigned</li>
+  </ul>
+  <p>The automation updates the customer's <code>risk_score</code>, <code>risk_level</code>, and <code>next_follow_up</code> date, and logs the assessment as an activity.</p>
+
+  <h3>2. AI Email Drafting</h3>
+  <p>From the worklist, the user clicks "Draft Email". The <code>ca_draft_email</code> automation:</p>
+  <ol>
+    <li>Looks up the customer's overdue invoices to determine the collection stage</li>
+    <li>Picks the matching reminder template from <code>ca_reminder_templates</code>:
+      <ul>
+        <li><span class="badge badge-green">friendly</span> — 1–15 days overdue</li>
+        <li><span class="badge badge-yellow">firm</span> — 16–30 days</li>
+        <li><span class="badge badge-orange">urgent</span> — 31–60 days</li>
+        <li><span class="badge badge-red">final</span> — 60+ days</li>
+      </ul>
+    </li>
+    <li>Uses AI to personalise the template with specific invoice numbers, amounts, and due dates</li>
+    <li>Saves the draft as an activity on the customer and updates their status to <code>contacted</code></li>
+  </ol>
+
+  <h3>3. Payment Recording</h3>
+  <p>From the customer detail page (Payments tab), the user enters a payment amount. The <code>ca_record_payment</code> automation:</p>
+  <ol>
+    <li>Creates a <code>ca_payments</code> record</li>
+    <li>Applies the payment <strong>oldest-first</strong> — allocates to invoices sorted by due date</li>
+    <li>Reduces each invoice's <code>balance_remaining</code> accordingly</li>
+    <li>Updates the customer's <code>total_outstanding</code></li>
+    <li>If all invoices are fully paid, automatically sets the customer status to <code>resolved</code></li>
+  </ol>
+
+  <svg viewBox="0 0 700 100" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <marker id="aGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker>
-      <marker id="aBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3b82f6"/></marker>
-      <marker id="aPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8b5cf6"/></marker>
-      <marker id="aOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#f97316"/></marker>
+      <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker>
     </defs>
-
-    <!-- Frontend -->
-    <g class="node">
-      <rect x="20" y="20" width="240" height="340" rx="12" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
-      <text x="140" y="50" text-anchor="middle" font-weight="600" font-size="15" fill="#16a34a">Frontend (iframe)</text>
-      <text x="45" y="80" font-size="12" fill="#475569">• Dashboard — outstanding, aging</text>
-      <text x="45" y="102" font-size="12" fill="#475569">• Worklist — risk-sorted customers</text>
-      <text x="45" y="124" font-size="12" fill="#475569">• Customer detail — 3 tabs:</text>
-      <text x="60" y="144" font-size="11" fill="#475569">Invoices · Activities · Payments</text>
-      <text x="45" y="168" font-size="12" fill="#475569">• Audit log viewer</text>
-      <text x="45" y="190" font-size="12" fill="#475569">• Settings — templates, rules</text>
-      <text x="45" y="222" font-size="11" fill="#94a3b8">React + TanStack Router/Query</text>
-    </g>
-
-    <line x1="260" y1="190" x2="310" y2="190" stroke="#94a3b8" stroke-width="2" class="flow-line" marker-end="url(#aGray)"/>
-
-    <!-- API -->
-    <g class="node">
-      <rect x="310" y="100" width="220" height="180" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
-      <text x="420" y="130" text-anchor="middle" font-weight="600" font-size="15" fill="#475569">Lumera API</text>
-      <text x="335" y="158" font-size="12" fill="#475569">• Collections CRUD + SQL</text>
-      <text x="335" y="180" font-size="12" fill="#475569">• Automation runs</text>
-      <text x="335" y="202" font-size="12" fill="#475569">• Hook execution</text>
-      <text x="335" y="224" font-size="12" fill="#475569">• Email sending</text>
-      <text x="335" y="246" font-size="12" fill="#475569">• AI completions (LLM)</text>
-    </g>
-
-    <line x1="530" y1="140" x2="610" y2="75" stroke="#3b82f6" stroke-width="2" class="flow-line" marker-end="url(#aBlue)"/>
-    <line x1="530" y1="230" x2="610" y2="260" stroke="#8b5cf6" stroke-width="2" class="flow-line" marker-end="url(#aPurple)"/>
-
-    <!-- Database -->
-    <g class="node">
-      <rect x="610" y="10" width="320" height="165" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
-      <text x="770" y="38" text-anchor="middle" font-weight="600" font-size="14" fill="#2563eb">Database</text>
-      <text x="635" y="62" font-size="12" fill="#475569">ca_customers</text>
-      <text x="800" y="62" font-size="12" fill="#475569">ca_invoices</text>
-      <text x="635" y="82" font-size="12" fill="#475569">ca_activities</text>
-      <text x="800" y="82" font-size="12" fill="#475569">ca_payments</text>
-      <text x="635" y="102" font-size="12" fill="#475569">ca_reminder_templates</text>
-      <text x="800" y="102" font-size="12" fill="#475569">ca_escalation_rules</text>
-      <text x="635" y="122" font-size="12" fill="#475569">ca_audit_log</text>
-      <text x="635" y="152" font-size="11" fill="#94a3b8">platform/collections/</text>
-    </g>
-
-    <!-- Automations -->
-    <g class="node">
-      <rect x="610" y="220" width="320" height="130" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-      <text x="770" y="248" text-anchor="middle" font-weight="600" font-size="14" fill="#7c3aed">Automation Runtime</text>
-      <text x="635" y="275" font-size="12" fill="#475569">• ca_assess_risk — AI risk scoring</text>
-      <text x="635" y="297" font-size="12" fill="#475569">• ca_draft_email — AI email generation</text>
-      <text x="635" y="319" font-size="12" fill="#475569">• ca_record_payment — payment allocation</text>
-    </g>
+    <rect x="0" y="20" width="120" height="50" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="60" y="42" text-anchor="middle" font-weight="600" font-size="11" fill="#16a34a">Record Payment</text>
+    <text x="60" y="58" text-anchor="middle" font-size="9" fill="#64748b">Enter amount</text>
+    <line x1="120" y1="45" x2="150" y2="45" stroke="#94a3b8" stroke-width="1.5" class="flow-line" marker-end="url(#a)"/>
+    <rect x="150" y="15" width="160" height="60" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5"/>
+    <text x="230" y="37" text-anchor="middle" font-weight="600" font-size="11" fill="#7c3aed">ca_record_payment</text>
+    <text x="230" y="53" text-anchor="middle" font-size="9" fill="#64748b">Apply oldest-first</text>
+    <text x="230" y="65" text-anchor="middle" font-size="9" fill="#64748b">Update balances</text>
+    <line x1="310" y1="45" x2="340" y2="45" stroke="#94a3b8" stroke-width="1.5" class="flow-line" marker-end="url(#a)"/>
+    <rect x="340" y="20" width="150" height="50" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="415" y="42" text-anchor="middle" font-weight="600" font-size="11" fill="#2563eb">Invoices updated</text>
+    <text x="415" y="58" text-anchor="middle" font-size="9" fill="#64748b">Balances reduced</text>
+    <line x1="490" y1="45" x2="520" y2="45" stroke="#94a3b8" stroke-width="1.5" class="flow-line" marker-end="url(#a)"/>
+    <rect x="520" y="20" width="160" height="50" rx="8" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="600" y="42" text-anchor="middle" font-weight="600" font-size="11" fill="#16a34a">All paid?</text>
+    <text x="600" y="58" text-anchor="middle" font-size="9" fill="#64748b">→ auto-resolve customer</text>
   </svg>
 </div>
 
 <!-- ============================================================ -->
-<!-- SECTION 2: Data Flow -->
+<div class="card">
+  <h2>Pages</h2>
+  <table>
+    <thead><tr><th>Route</th><th>File</th><th>What it shows</th></tr></thead>
+    <tbody>
+      <tr><td><code>/</code></td><td><code>index.tsx</code></td><td>Dashboard — total outstanding, active customers, follow-ups due, escalated count, AR aging summary table, priority customers table</td></tr>
+      <tr><td><code>/customers</code></td><td><code>customers.index.tsx</code></td><td>Worklist — customers sorted by risk score, filter tabs (All/High/Medium/Low), "Assess Risk" and "Draft Email" buttons per row</td></tr>
+      <tr><td><code>/customers/:id</code></td><td><code>customers.$id.tsx</code></td><td>Customer detail — 3 tabs: <strong>Invoices</strong> (amount, due date, days overdue, balance), <strong>Activities</strong> (timeline with add-note form), <strong>Payments</strong> (history with record-payment form)</td></tr>
+      <tr><td><code>/audit-log</code></td><td><code>audit-log.tsx</code></td><td>Audit log — all entity changes with before/after state</td></tr>
+      <tr><td><code>/settings</code></td><td><code>settings.tsx</code></td><td>Reminder templates (stage, days trigger, subject/body) and escalation rules (days overdue, amount threshold, action type)</td></tr>
+    </tbody>
+  </table>
+</div>
+
 <!-- ============================================================ -->
-<div class="section">
-  <h2><span class="dot" style="background:#22c55e"></span> Data Flow — Three Core Workflows</h2>
+<div class="card">
+  <h2>Data Model</h2>
 
-  <!-- Flow A: Risk Assessment -->
-  <svg viewBox="0 0 960 160" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 2rem;">
-    <defs>
-      <marker id="af" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
-      <marker id="afB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3b82f6"/></marker>
-    </defs>
+  <h3>ca_customers</h3>
+  <p>The central record. Each customer has financial totals, risk assessment results, and workflow status.</p>
+  <table>
+    <thead><tr><th>Field</th><th>Type</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td>text</td><td>Company name</td></tr>
+      <tr><td><code>email</code></td><td>text</td><td>Primary email</td></tr>
+      <tr><td><code>phone</code> · <code>contact_name</code></td><td>text</td><td>Contact details</td></tr>
+      <tr><td><code>status</code></td><td>select</td><td>active · contacted · promised · escalated · resolved</td></tr>
+      <tr><td><code>total_outstanding</code></td><td>number</td><td>Sum of unpaid invoice balances</td></tr>
+      <tr><td><code>total_paid</code></td><td>number</td><td>Lifetime payments received</td></tr>
+      <tr><td><code>risk_score</code></td><td>number</td><td>0–100, set by AI assessment</td></tr>
+      <tr><td><code>risk_level</code></td><td>select</td><td>low · medium · high</td></tr>
+      <tr><td><code>payment_terms</code></td><td>text</td><td>e.g. "Net 30"</td></tr>
+      <tr><td><code>next_action</code></td><td>text</td><td>Recommended next step (from AI)</td></tr>
+      <tr><td><code>next_follow_up</code></td><td>date</td><td>When to follow up next</td></tr>
+      <tr><td><code>last_contact_date</code></td><td>date</td><td>When last contacted</td></tr>
+    </tbody>
+  </table>
 
-    <text x="20" y="20" class="flow-label" fill="#7c3aed">A. AI Risk Assessment</text>
+  <h3>ca_invoices</h3>
+  <p>Individual invoices linked to customers. Balances are reduced as payments are applied.</p>
+  <table>
+    <thead><tr><th>Field</th><th>Type</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>customer_id</code> · <code>customer_name</code></td><td>text</td><td>Links to ca_customers</td></tr>
+      <tr><td><code>invoice_number</code></td><td>text</td><td>Invoice reference</td></tr>
+      <tr><td><code>amount</code></td><td>number</td><td>Original invoice amount</td></tr>
+      <tr><td><code>due_date</code></td><td>date</td><td>Payment due date</td></tr>
+      <tr><td><code>days_overdue</code></td><td>number</td><td>Computed days past due</td></tr>
+      <tr><td><code>status</code></td><td>select</td><td>Invoice payment status</td></tr>
+      <tr><td><code>paid_amount</code></td><td>number</td><td>Total paid against this invoice</td></tr>
+      <tr><td><code>balance_remaining</code></td><td>number</td><td>Amount still owed</td></tr>
+      <tr><td><code>reminder_count</code></td><td>number</td><td>How many reminders sent</td></tr>
+      <tr><td><code>last_reminder_date</code></td><td>date</td><td>When last reminder was sent</td></tr>
+    </tbody>
+  </table>
 
-    <g class="node">
-      <rect x="20" y="40" width="160" height="70" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
-      <text x="100" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#16a34a">Worklist</text>
-      <text x="100" y="88" text-anchor="middle" font-size="11" fill="#475569">Click "Assess Risk"</text>
-    </g>
+  <h3>ca_activities</h3>
+  <p>Timeline of all interactions with a customer — emails sent, calls made, notes added, and system events (risk assessments).</p>
+  <table>
+    <thead><tr><th>Field</th><th>Type</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>customer_id</code></td><td>text</td><td>Links to ca_customers</td></tr>
+      <tr><td><code>activity_type</code></td><td>select</td><td>email · call · note · system</td></tr>
+      <tr><td><code>subject</code> · <code>content</code></td><td>text</td><td>Activity details</td></tr>
+      <tr><td><code>outcome</code></td><td>text</td><td>Result of the interaction</td></tr>
+      <tr><td><code>follow_up_date</code></td><td>date</td><td>Next follow-up date (if set)</td></tr>
+    </tbody>
+  </table>
 
-    <line x1="180" y1="75" x2="220" y2="75" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
+  <h3>ca_payments · ca_reminder_templates · ca_escalation_rules · ca_audit_log</h3>
+  <p><strong>ca_payments</strong> — Payment records with amount, date, method, and <code>applied_invoices</code> JSON showing how the payment was allocated.
+  <strong>ca_reminder_templates</strong> — Email templates by stage (friendly/firm/urgent/final) with days-overdue triggers and subject/body templates.
+  <strong>ca_escalation_rules</strong> — Rules that define when accounts should be escalated (min days overdue, min amount, action type).
+  <strong>ca_audit_log</strong> — Audit trail with action, actor, target record, and before/after JSON state.</p>
+</div>
 
-    <g class="node">
-      <rect x="220" y="35" width="220" height="80" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-      <text x="330" y="62" text-anchor="middle" font-weight="600" font-size="13" fill="#7c3aed">ca_assess_risk</text>
-      <text x="330" y="82" text-anchor="middle" font-size="11" fill="#475569">Analyzes invoices + history</text>
-      <text x="330" y="100" text-anchor="middle" font-size="10" fill="#94a3b8">Returns score, level, action</text>
-    </g>
+<!-- ============================================================ -->
+<div class="card">
+  <h2>Automations &amp; Hooks</h2>
 
-    <line x1="440" y1="75" x2="480" y2="75" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
+  <h3>ca_assess_risk <span class="badge badge-purple">automation</span></h3>
+  <p>Takes a <code>customer_id</code>. Fetches the customer's invoices and payment history, sends the data to the LLM for analysis, and returns a risk score, level, recommended action, and reasoning. Updates the customer record and logs the assessment as an activity.</p>
+  <p><strong>External ID:</strong> <code>collections-agent:ca_assess_risk</code></p>
 
-    <g class="node">
-      <rect x="480" y="40" width="200" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
-      <text x="580" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_customers</text>
-      <text x="580" y="88" text-anchor="middle" font-size="11" fill="#475569">risk_score + follow_up_date updated</text>
-    </g>
+  <h3>ca_draft_email <span class="badge badge-purple">automation</span></h3>
+  <p>Takes a <code>customer_id</code>. Determines the collection stage from the customer's most overdue invoice, fetches the matching reminder template, and uses the LLM to personalise it with specific invoice details. Saves the draft as an activity and updates the customer's status to <code>contacted</code>.</p>
+  <p><strong>External ID:</strong> <code>collections-agent:ca_draft_email</code></p>
 
-    <line x1="680" y1="75" x2="720" y2="75" stroke="#3b82f6" stroke-width="1.5" class="flow-line-slow" marker-end="url(#afB)"/>
+  <h3>ca_record_payment <span class="badge badge-purple">automation</span></h3>
+  <p>Takes a <code>customer_id</code> and <code>amount</code>. Creates a payment record, applies the amount oldest-first across outstanding invoices, updates each invoice's <code>balance_remaining</code> and <code>paid_amount</code>, recalculates the customer's <code>total_outstanding</code>, and auto-resolves the customer if all balances are zero.</p>
+  <p><strong>External ID:</strong> <code>collections-agent:ca_record_payment</code></p>
 
-    <g class="node">
-      <rect x="720" y="40" width="180" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
-      <text x="810" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_activities</text>
-      <text x="810" y="88" text-anchor="middle" font-size="11" fill="#475569">Assessment logged</text>
-    </g>
-  </svg>
+  <h3>Audit hooks <span class="badge badge-yellow">hooks</span></h3>
+  <p>Three hooks fire on <code>ca_customers</code> <code>after_update</code> and <code>ca_invoices</code> <code>after_create</code> / <code>after_update</code>. They log every change to <code>ca_audit_log</code> with the full before/after state, creating a complete audit trail.</p>
 
-  <!-- Flow B: Email Drafting -->
-  <svg viewBox="0 0 960 160" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 2rem;">
-    <text x="20" y="20" class="flow-label" fill="#7c3aed">B. AI Email Drafting</text>
-
-    <g class="node">
-      <rect x="20" y="40" width="160" height="70" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
-      <text x="100" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#16a34a">Worklist</text>
-      <text x="100" y="88" text-anchor="middle" font-size="11" fill="#475569">Click "Draft Email"</text>
-    </g>
-
-    <line x1="180" y1="75" x2="220" y2="75" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
-
-    <g class="node">
-      <rect x="220" y="30" width="240" height="90" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-      <text x="340" y="56" text-anchor="middle" font-weight="600" font-size="13" fill="#7c3aed">ca_draft_email</text>
-      <text x="340" y="76" text-anchor="middle" font-size="11" fill="#475569">Picks template by overdue stage</text>
-      <text x="340" y="92" text-anchor="middle" font-size="11" fill="#475569">AI personalizes with invoice details</text>
-      <text x="340" y="108" text-anchor="middle" font-size="10" fill="#94a3b8">friendly → firm → urgent → final</text>
-    </g>
-
-    <line x1="460" y1="75" x2="500" y2="75" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
-
-    <g class="node">
-      <rect x="500" y="40" width="200" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
-      <text x="600" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_activities</text>
-      <text x="600" y="88" text-anchor="middle" font-size="11" fill="#475569">Draft email saved as activity</text>
-    </g>
-
-    <line x1="700" y1="75" x2="740" y2="75" stroke="#3b82f6" stroke-width="1.5" class="flow-line-slow" marker-end="url(#afB)"/>
-
-    <g class="node">
-      <rect x="740" y="40" width="180" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
-      <text x="830" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_customers</text>
-      <text x="830" y="88" text-anchor="middle" font-size="11" fill="#475569">status → contacted</text>
-    </g>
-  </svg>
-
-  <!-- Flow C: Payment Recording -->
-  <svg viewBox="0 0 960 170" xmlns="http://www.w3.org/2000/svg">
-    <text x="20" y="20" class="flow-label" fill="#7c3aed">C. Payment Recording</text>
-
-    <g class="node">
-      <rect x="20" y="40" width="160" height="70" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
-      <text x="100" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#16a34a">Customer Detail</text>
-      <text x="100" y="88" text-anchor="middle" font-size="11" fill="#475569">Record payment</text>
-    </g>
-
-    <line x1="180" y1="75" x2="220" y2="75" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
-
-    <g class="node">
-      <rect x="220" y="30" width="230" height="90" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-      <text x="335" y="56" text-anchor="middle" font-weight="600" font-size="13" fill="#7c3aed">ca_record_payment</text>
-      <text x="335" y="76" text-anchor="middle" font-size="11" fill="#475569">Applies payment oldest-first</text>
-      <text x="335" y="92" text-anchor="middle" font-size="11" fill="#475569">Updates invoice balances</text>
-      <text x="335" y="108" text-anchor="middle" font-size="10" fill="#94a3b8">Auto-resolves when fully paid</text>
-    </g>
-
-    <line x1="450" y1="60" x2="490" y2="50" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
-    <line x1="450" y1="90" x2="490" y2="100" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
-
-    <g class="node">
-      <rect x="490" y="20" width="170" height="50" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
-      <text x="575" y="42" text-anchor="middle" font-weight="600" font-size="12" fill="#2563eb">ca_invoices</text>
-      <text x="575" y="58" text-anchor="middle" font-size="10" fill="#475569">balances reduced</text>
-    </g>
-
-    <g class="node">
-      <rect x="490" y="80" width="170" height="50" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
-      <text x="575" y="102" text-anchor="middle" font-weight="600" font-size="12" fill="#2563eb">ca_payments</text>
-      <text x="575" y="118" text-anchor="middle" font-size="10" fill="#475569">payment recorded</text>
-    </g>
-
-    <line x1="660" y1="75" x2="710" y2="75" stroke="#3b82f6" stroke-width="1.5" class="flow-line-slow" marker-end="url(#afB)"/>
-
-    <g class="node">
-      <rect x="710" y="45" width="200" height="60" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
-      <text x="810" y="70" text-anchor="middle" font-weight="600" font-size="12" fill="#16a34a">ca_customers</text>
-      <text x="810" y="88" text-anchor="middle" font-size="10" fill="#475569">auto → resolved when $0 owed</text>
-    </g>
-  </svg>
-
-  <!-- Audit hooks callout -->
-  <div style="margin-top: 1.5rem; padding: 1rem 1.25rem; border-radius: 8px; background: #fff7ed; border: 1.5px solid #f97316;">
-    <strong style="color: #ea580c; font-size: 0.9rem;">🔸 Audit Hooks</strong>
-    <p style="color: #475569; font-size: 0.85rem; margin-top: 0.25rem;">
-      All updates to <code style="background:#fef3c7; padding:0.1em 0.3em; border-radius:3px; font-size:0.85em;">ca_customers</code> and
-      <code style="background:#fef3c7; padding:0.1em 0.3em; border-radius:3px; font-size:0.85em;">ca_invoices</code> are automatically logged to
-      <code style="background:#fef3c7; padding:0.1em 0.3em; border-radius:3px; font-size:0.85em;">ca_audit_log</code> via after_create / after_update hooks with before/after state.
-    </p>
+  <div class="callout callout-orange">
+    <strong>No auto-trigger hooks:</strong> Unlike invoice-processing, none of the automations run automatically. They're all triggered explicitly by the user clicking buttons in the UI. This is intentional — collections is a human-in-the-loop process where the user decides when to assess, email, or record payments.
   </div>
 </div>
 
 <!-- ============================================================ -->
-<!-- SECTION 3: Collection Relationships -->
-<!-- ============================================================ -->
-<div class="section">
-  <h2><span class="dot" style="background:#3b82f6"></span> Collection Relationships</h2>
-  <svg viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <marker id="aRel" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#93c5fd"/></marker>
-    </defs>
-
-    <!-- ca_customers (center top) -->
-    <g class="node">
-      <rect x="300" y="10" width="360" height="120" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
-      <text x="480" y="38" text-anchor="middle" font-weight="700" font-size="15" fill="#2563eb">ca_customers</text>
-      <line x1="320" y1="46" x2="640" y2="46" stroke="#bfdbfe" stroke-width="1"/>
-      <text x="325" y="66" font-size="11" fill="#475569">name · email · phone · status</text>
-      <text x="325" y="84" font-size="11" fill="#475569">total_outstanding · risk_score · risk_level</text>
-      <text x="325" y="102" font-size="11" fill="#475569">last_contact_date · follow_up_date · notes</text>
-    </g>
-
-    <!-- ca_invoices (left) -->
-    <g class="node">
-      <rect x="20" y="190" width="260" height="100" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
-      <text x="150" y="218" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_invoices</text>
-      <line x1="40" y1="226" x2="260" y2="226" stroke="#bfdbfe" stroke-width="1"/>
-      <text x="45" y="246" font-size="11" fill="#475569">customer (→ ca_customers)</text>
-      <text x="45" y="264" font-size="11" fill="#475569">amount · balance · due_date · status</text>
-      <text x="45" y="282" font-size="11" fill="#475569">invoice_number · days_overdue</text>
-    </g>
-    <line x1="380" y1="130" x2="200" y2="190" stroke="#93c5fd" stroke-width="1.5" marker-end="url(#aRel)"/>
-    <text x="270" y="155" font-size="10" fill="#93c5fd">has many ↓</text>
-
-    <!-- ca_activities (center) -->
-    <g class="node">
-      <rect x="340" y="190" width="280" height="100" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
-      <text x="480" y="218" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_activities</text>
-      <line x1="360" y1="226" x2="600" y2="226" stroke="#bfdbfe" stroke-width="1"/>
-      <text x="365" y="246" font-size="11" fill="#475569">customer (→ ca_customers)</text>
-      <text x="365" y="264" font-size="11" fill="#475569">type (email / call / note / system)</text>
-      <text x="365" y="282" font-size="11" fill="#475569">subject · body · metadata</text>
-    </g>
-    <line x1="480" y1="130" x2="480" y2="190" stroke="#93c5fd" stroke-width="1.5" marker-end="url(#aRel)"/>
-
-    <!-- ca_payments (right) -->
-    <g class="node">
-      <rect x="680" y="190" width="250" height="100" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
-      <text x="805" y="218" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_payments</text>
-      <line x1="700" y1="226" x2="910" y2="226" stroke="#bfdbfe" stroke-width="1"/>
-      <text x="705" y="246" font-size="11" fill="#475569">customer (→ ca_customers)</text>
-      <text x="705" y="264" font-size="11" fill="#475569">amount · payment_date · method</text>
-      <text x="705" y="282" font-size="11" fill="#475569">reference · allocations (json)</text>
-    </g>
-    <line x1="580" y1="130" x2="760" y2="190" stroke="#93c5fd" stroke-width="1.5" marker-end="url(#aRel)"/>
-    <text x="690" y="155" font-size="10" fill="#93c5fd">has many ↓</text>
-
-    <!-- ca_reminder_templates (bottom left) -->
-    <g class="node">
-      <rect x="20" y="350" width="260" height="80" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 2"/>
-      <text x="150" y="378" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_reminder_templates</text>
-      <line x1="40" y1="386" x2="260" y2="386" stroke="#bfdbfe" stroke-width="1"/>
-      <text x="45" y="406" font-size="11" fill="#475569">stage · days_trigger · subject · body</text>
-    </g>
-    <text x="150" y="340" text-anchor="middle" font-size="10" fill="#94a3b8" font-style="italic">Used by ca_draft_email automation</text>
-
-    <!-- ca_escalation_rules (bottom center) -->
-    <g class="node">
-      <rect x="340" y="350" width="280" height="80" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 2"/>
-      <text x="480" y="378" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_escalation_rules</text>
-      <line x1="360" y1="386" x2="600" y2="386" stroke="#bfdbfe" stroke-width="1"/>
-      <text x="365" y="406" font-size="11" fill="#475569">days_overdue · amount_threshold · action_type</text>
-    </g>
-    <text x="480" y="340" text-anchor="middle" font-size="10" fill="#94a3b8" font-style="italic">Used by ca_assess_risk automation</text>
-
-    <!-- ca_audit_log (bottom right) -->
-    <g class="node">
-      <rect x="680" y="350" width="250" height="80" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 2"/>
-      <text x="805" y="378" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_audit_log</text>
-      <line x1="700" y1="386" x2="910" y2="386" stroke="#bfdbfe" stroke-width="1"/>
-      <text x="705" y="406" font-size="11" fill="#475569">entity_type · entity_id · action</text>
-      <text x="705" y="422" font-size="11" fill="#475569">before_data · after_data</text>
-    </g>
-    <text x="805" y="340" text-anchor="middle" font-size="10" fill="#94a3b8" font-style="italic">Populated by audit hooks</text>
-  </svg>
+<div class="card">
+  <h2>Key Design Decisions</h2>
+  <ul>
+    <li><strong>Worklist-driven UX:</strong> The primary page is a risk-sorted worklist, not a traditional list view. Collections teams work top-down through their highest-risk accounts.</li>
+    <li><strong>Oldest-first payment allocation:</strong> When a payment comes in, it's automatically allocated to the oldest unpaid invoices first. This matches standard accounting practice and avoids manual allocation.</li>
+    <li><strong>Template-based email generation:</strong> The AI doesn't write emails from scratch — it personalises pre-defined templates. This ensures compliance and consistent tone while still making each email feel personal.</li>
+    <li><strong>Denormalized customer_name on invoices/activities/payments:</strong> The customer name is stored directly on related records (not just the ID). This avoids JOINs in list queries and makes the data easier to work with in SQL dashboards.</li>
+    <li><strong>All collections prefixed with <code>ca_</code>:</strong> Avoids name collisions with other templates deployed to the same Lumera account.</li>
+    <li><strong>Escalation rules are data, not code:</strong> Escalation thresholds are stored in <code>ca_escalation_rules</code> and managed in the settings UI. This lets users adjust escalation policies without code changes.</li>
+  </ul>
 </div>
 
 </div>

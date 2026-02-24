@@ -3,258 +3,153 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Default App — Architecture</title>
+<title>Default App — How It Works</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: #f8fafc;
-    color: #1e293b;
-    padding: 2rem 1rem;
-    line-height: 1.6;
+    background: #f8fafc; color: #1e293b; line-height: 1.7; padding: 2rem 1rem;
   }
-  .container { max-width: 1100px; margin: 0 auto; }
-  h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
+  .container { max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .subtitle { color: #64748b; font-size: 1.05rem; margin-bottom: 2rem; }
+  .card {
+    background: #fff; border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    padding: 2rem 2.5rem; margin-bottom: 1.5rem;
   }
-  .subtitle {
-    color: #64748b;
-    font-size: 1.05rem;
-    margin-bottom: 2.5rem;
+  h2 { font-size: 1.35rem; font-weight: 600; margin-bottom: 1rem; }
+  h3 { font-size: 1.05rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #334155; }
+  p { margin-bottom: 1rem; color: #334155; }
+  ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+  li { margin-bottom: 0.35rem; color: #334155; }
+  code {
+    font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+    background: #f1f5f9; padding: 0.15em 0.4em; border-radius: 4px;
+    font-size: 0.88em; color: #7c3aed;
   }
-  .section {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    padding: 2rem 2.5rem;
-    margin-bottom: 2rem;
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.92rem; }
+  th { text-align: left; padding: 0.6rem 0.75rem; background: #f1f5f9; border: 1px solid #e2e8f0; font-weight: 600; }
+  td { padding: 0.55rem 0.75rem; border: 1px solid #e2e8f0; }
+  .badge {
+    display: inline-block; padding: 0.15em 0.6em; border-radius: 9999px;
+    font-size: 0.78rem; font-weight: 600; vertical-align: middle;
   }
-  .section h2 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  .badge-green { background: #dcfce7; color: #16a34a; }
+  .badge-blue { background: #dbeafe; color: #2563eb; }
+  .badge-gray { background: #f1f5f9; color: #64748b; }
+  .callout {
+    padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1rem;
+    border-left: 4px solid;
   }
-  .section h2 .dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  svg { width: 100%; height: auto; display: block; }
-  svg text {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  }
-
-  /* Legend */
-  .legend {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.5rem;
-    font-size: 0.85rem;
-    color: #475569;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-  .legend-swatch {
-    width: 14px; height: 14px;
-    border-radius: 4px;
-  }
-
-  /* Animated dashes */
-  @keyframes flowDash {
-    to { stroke-dashoffset: -20; }
-  }
-  .flow-line {
-    stroke-dasharray: 6 4;
-    animation: flowDash 0.8s linear infinite;
-  }
-
-  /* Hover interactivity */
-  .node { cursor: pointer; transition: filter 0.2s; }
-  .node:hover { filter: brightness(0.95) drop-shadow(0 2px 6px rgba(0,0,0,0.12)); }
-
-  /* Tooltip */
-  .tooltip-box {
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .node:hover + .tooltip-box,
-  .node:hover .tooltip-box { opacity: 1; }
-
-  @media (max-width: 700px) {
-    .section { padding: 1.25rem; }
-    .legend { gap: 0.75rem; font-size: 0.8rem; }
-  }
+  .callout-info { background: #eff6ff; border-color: #3b82f6; }
+  .callout-tip { background: #f0fdf4; border-color: #22c55e; }
+  svg { width: 100%; height: auto; display: block; margin: 1rem 0; }
+  svg text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+  @keyframes flowDash { to { stroke-dashoffset: -20; } }
+  .flow-line { stroke-dasharray: 6 4; animation: flowDash 0.8s linear infinite; }
+  @media (max-width: 700px) { .card { padding: 1.25rem; } }
 </style>
 </head>
 <body>
 <div class="container">
 
-<h1>Default App — Architecture</h1>
-<p class="subtitle">Blank starter template with a dashboard, example collection, and seed script.</p>
+<h1>Default App</h1>
+<p class="subtitle">A blank starter template — replace the example collection with your own domain and build from here.</p>
 
-<div class="legend">
-  <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div> Collection</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:#8b5cf6"></div> Automation</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:#f97316"></div> Hook</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:#22c55e"></div> Frontend Page</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:#94a3b8"></div> External / Platform</div>
+<!-- ============================================================ -->
+<div class="card">
+  <h2>What This App Does</h2>
+  <p>This is a <strong>minimal starting point</strong> for building a Lumera app. It comes with:</p>
+  <ul>
+    <li>A <strong>dashboard</strong> with placeholder stat cards and a recent activity section</li>
+    <li>An <strong>example collection</strong> (<code>example_items</code>) to show how data is structured</li>
+    <li>A <strong>settings page</strong> as a placeholder for configuration</li>
+    <li>A <strong>seed script</strong> that populates demo data</li>
+    <li>An <strong>AI agent</strong> (<code>assistant</code>) ready to be customised</li>
+  </ul>
+  <p>The idea is to replace <code>example_items</code> with your own collections, build real pages, and add automations and hooks as needed.</p>
 </div>
 
 <!-- ============================================================ -->
-<!-- SECTION 1: System Overview -->
-<!-- ============================================================ -->
-<div class="section">
-  <h2><span class="dot" style="background:#94a3b8"></span> System Overview</h2>
-  <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
-    <!-- Frontend -->
-    <g class="node">
-      <rect x="30" y="60" width="220" height="200" rx="12" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
-      <text x="140" y="90" text-anchor="middle" font-weight="600" font-size="15" fill="#16a34a">Frontend (iframe)</text>
-      <text x="60" y="120" font-size="12" fill="#475569">• Dashboard</text>
-      <text x="60" y="142" font-size="12" fill="#475569">• Settings page</text>
-      <text x="60" y="164" font-size="12" fill="#475569">• React + TanStack Router</text>
-      <text x="60" y="186" font-size="12" fill="#475569">• TanStack Query</text>
-      <text x="60" y="218" font-size="11" fill="#94a3b8">src/routes/</text>
-    </g>
+<div class="card">
+  <h2>How a Lumera App Fits Together</h2>
+  <p>Every Lumera app follows the same pattern: a <strong>React frontend</strong> runs inside an iframe in the Lumera platform, talking to the <strong>Lumera API</strong> for data and automation. All backend resources are defined as code in the <code>platform/</code> directory and deployed with the CLI.</p>
 
-    <!-- Arrow: Frontend → API -->
-    <line x1="250" y1="160" x2="340" y2="160" stroke="#94a3b8" stroke-width="2" class="flow-line" marker-end="url(#arrowGray)"/>
-    <text x="295" y="148" text-anchor="middle" font-size="10" fill="#94a3b8">REST API</text>
-
-    <!-- Lumera API -->
-    <g class="node">
-      <rect x="340" y="80" width="220" height="160" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
-      <text x="450" y="110" text-anchor="middle" font-weight="600" font-size="15" fill="#475569">Lumera API</text>
-      <text x="370" y="138" font-size="12" fill="#475569">• Collections CRUD</text>
-      <text x="370" y="160" font-size="12" fill="#475569">• SQL queries</text>
-      <text x="370" y="182" font-size="12" fill="#475569">• Automation runs</text>
-      <text x="370" y="204" font-size="12" fill="#475569">• File storage</text>
-    </g>
-
-    <!-- Arrow: API → Database -->
-    <line x1="560" y1="130" x2="650" y2="100" stroke="#3b82f6" stroke-width="2" class="flow-line" marker-end="url(#arrowBlue)"/>
-
-    <!-- Arrow: API → Agents -->
-    <line x1="560" y1="200" x2="650" y2="230" stroke="#8b5cf6" stroke-width="2" class="flow-line" marker-end="url(#arrowPurple)"/>
-
-    <!-- Database -->
-    <g class="node">
-      <rect x="650" y="40" width="220" height="100" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
-      <text x="760" y="70" text-anchor="middle" font-weight="600" font-size="14" fill="#2563eb">Database</text>
-      <text x="680" y="96" font-size="12" fill="#475569">• example_items</text>
-      <text x="680" y="118" font-size="11" fill="#94a3b8">platform/collections/</text>
-    </g>
-
-    <!-- Agents -->
-    <g class="node">
-      <rect x="650" y="180" width="220" height="100" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-      <text x="760" y="210" text-anchor="middle" font-weight="600" font-size="14" fill="#7c3aed">AI Agent</text>
-      <text x="680" y="236" font-size="12" fill="#475569">• assistant</text>
-      <text x="680" y="258" font-size="11" fill="#94a3b8">platform/agents/</text>
-    </g>
-
-    <!-- Arrowhead markers -->
+  <svg viewBox="0 0 700 170" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
-      </marker>
-      <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/>
-      </marker>
-      <marker id="arrowPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6"/>
-      </marker>
+      <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker>
     </defs>
+    <rect x="0" y="40" width="180" height="90" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+    <text x="90" y="70" text-anchor="middle" font-weight="600" font-size="14" fill="#16a34a">Frontend</text>
+    <text x="90" y="90" text-anchor="middle" font-size="11" fill="#475569">React · TanStack Router</text>
+    <text x="90" y="106" text-anchor="middle" font-size="11" fill="#475569">src/routes/</text>
+    <line x1="180" y1="85" x2="250" y2="85" stroke="#94a3b8" stroke-width="2" class="flow-line" marker-end="url(#a)"/>
+    <text x="215" y="78" text-anchor="middle" font-size="10" fill="#94a3b8">REST</text>
+    <rect x="250" y="40" width="180" height="90" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+    <text x="340" y="70" text-anchor="middle" font-weight="600" font-size="14" fill="#475569">Lumera API</text>
+    <text x="340" y="90" text-anchor="middle" font-size="11" fill="#475569">Collections · Automations</text>
+    <text x="340" y="106" text-anchor="middle" font-size="11" fill="#475569">Hooks · File Storage</text>
+    <line x1="430" y1="65" x2="510" y2="55" stroke="#3b82f6" stroke-width="2" class="flow-line" marker-end="url(#a)"/>
+    <line x1="430" y1="105" x2="510" y2="115" stroke="#8b5cf6" stroke-width="2" class="flow-line" marker-end="url(#a)"/>
+    <rect x="510" y="20" width="180" height="55" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="600" y="45" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">Database</text>
+    <text x="600" y="62" text-anchor="middle" font-size="11" fill="#475569">platform/collections/</text>
+    <rect x="510" y="95" width="180" height="55" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5"/>
+    <text x="600" y="120" text-anchor="middle" font-weight="600" font-size="13" fill="#7c3aed">Automations &amp; Agents</text>
+    <text x="600" y="137" text-anchor="middle" font-size="11" fill="#475569">platform/automations/</text>
   </svg>
+
+  <div class="callout callout-info">
+    <strong>Key concept:</strong> The <code>platform/</code> directory is the source of truth. Edit collection schemas, automations, hooks, and agents there, then deploy with <code>lumera apply</code>.
+  </div>
 </div>
 
 <!-- ============================================================ -->
-<!-- SECTION 2: Data Flow -->
-<!-- ============================================================ -->
-<div class="section">
-  <h2><span class="dot" style="background:#22c55e"></span> Data Flow</h2>
-  <p style="color:#64748b; font-size:0.9rem; margin-bottom:1.5rem;">
-    This is a blank starter — the flow below shows the typical pattern you'll build on top of.
-  </p>
-  <svg viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <marker id="arrowFlow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-        <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
-      </marker>
-    </defs>
-
-    <!-- Step 1: User Action -->
-    <g class="node">
-      <rect x="20" y="50" width="150" height="70" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
-      <text x="95" y="80" text-anchor="middle" font-weight="600" font-size="13" fill="#16a34a">User Action</text>
-      <text x="95" y="100" text-anchor="middle" font-size="11" fill="#475569">Create / update record</text>
-    </g>
-
-    <!-- Arrow -->
-    <line x1="170" y1="85" x2="225" y2="85" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#arrowFlow)"/>
-
-    <!-- Step 2: Hook -->
-    <g class="node">
-      <rect x="225" y="50" width="150" height="70" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
-      <text x="300" y="80" text-anchor="middle" font-weight="600" font-size="13" fill="#ea580c">Hook (optional)</text>
-      <text x="300" y="100" text-anchor="middle" font-size="11" fill="#475569">Trigger automation</text>
-    </g>
-
-    <!-- Arrow -->
-    <line x1="375" y1="85" x2="430" y2="85" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#arrowFlow)"/>
-
-    <!-- Step 3: Automation -->
-    <g class="node">
-      <rect x="430" y="50" width="170" height="70" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-      <text x="515" y="80" text-anchor="middle" font-weight="600" font-size="13" fill="#7c3aed">Automation</text>
-      <text x="515" y="100" text-anchor="middle" font-size="11" fill="#475569">AI / compute / update</text>
-    </g>
-
-    <!-- Arrow -->
-    <line x1="600" y1="85" x2="655" y2="85" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#arrowFlow)"/>
-
-    <!-- Step 4: Collection Updated -->
-    <g class="node">
-      <rect x="655" y="50" width="170" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
-      <text x="740" y="80" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">Collection</text>
-      <text x="740" y="100" text-anchor="middle" font-size="11" fill="#475569">Data updated</text>
-    </g>
-
-    <!-- Feedback arrow back to UI -->
-    <path d="M 740 120 L 740 160 L 95 160 L 95 120" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4 3" class="flow-line" marker-end="url(#arrowFlow)"/>
-    <text x="420" y="178" text-anchor="middle" font-size="11" fill="#64748b">UI refreshes via React Query</text>
-  </svg>
+<div class="card">
+  <h2>Pages</h2>
+  <table>
+    <thead><tr><th>Route</th><th>File</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>/</code></td><td><code>index.tsx</code></td><td>Dashboard with placeholder stat cards and recent activity</td></tr>
+      <tr><td><code>/settings</code></td><td><code>settings.tsx</code></td><td>Settings page placeholder</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <!-- ============================================================ -->
-<!-- SECTION 3: Collection Relationships -->
-<!-- ============================================================ -->
-<div class="section">
-  <h2><span class="dot" style="background:#3b82f6"></span> Collection Relationships</h2>
-  <svg viewBox="0 0 900 160" xmlns="http://www.w3.org/2000/svg">
-    <!-- example_items -->
-    <g class="node">
-      <rect x="310" y="30" width="280" height="100" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
-      <text x="450" y="60" text-anchor="middle" font-weight="600" font-size="15" fill="#2563eb">example_items</text>
-      <line x1="330" y1="70" x2="570" y2="70" stroke="#bfdbfe" stroke-width="1"/>
-      <text x="340" y="90" font-size="12" fill="#475569">name (text) · status (text)</text>
-      <text x="340" y="110" font-size="12" fill="#475569">description (text) · priority (select)</text>
-    </g>
+<div class="card">
+  <h2>Data Model</h2>
 
-    <text x="450" y="155" text-anchor="middle" font-size="12" fill="#94a3b8" font-style="italic">
-      Add your own collections to build on this starter.
-    </text>
-  </svg>
+  <h3>example_items</h3>
+  <p>A sample collection to demonstrate the schema pattern. Replace it with your own.</p>
+  <table>
+    <thead><tr><th>Field</th><th>Type</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td>text</td><td>Item name</td></tr>
+      <tr><td><code>status</code></td><td>select</td><td>Current status</td></tr>
+      <tr><td><code>description</code></td><td>text</td><td>Description text</td></tr>
+      <tr><td><code>source_id</code></td><td>text</td><td>External reference ID</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================================================ -->
+<div class="card">
+  <h2>Building on This Template</h2>
+  <p>The typical pattern for adding a new feature:</p>
+  <ol>
+    <li><strong>Define the collection</strong> — Add a JSON schema in <code>platform/collections/</code></li>
+    <li><strong>Build the UI</strong> — Add route files in <code>src/routes/</code>, query data with <code>pbSql</code> or <code>pbList</code></li>
+    <li><strong>Add automation (if needed)</strong> — Create a Python script in <code>platform/automations/</code> for AI processing or background work</li>
+    <li><strong>Wire up hooks (if needed)</strong> — Add JS hooks in <code>platform/hooks/</code> to trigger automations on create/update events</li>
+    <li><strong>Seed data</strong> — Update <code>scripts/seed-demo.py</code> with realistic test records</li>
+    <li><strong>Deploy</strong> — Run <code>lumera plan</code> then <code>lumera apply</code></li>
+  </ol>
+
+  <div class="callout callout-tip">
+    <strong>Tip:</strong> Read the skill files in <code>.claude/skills/</code> for detailed API docs on collections, automations, hooks, and agents.
+  </div>
 </div>
 
 </div>
