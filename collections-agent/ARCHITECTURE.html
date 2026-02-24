@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collections Agent — Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #f8fafc; color: #1e293b; padding: 2rem 1rem; line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .subtitle { color: #64748b; font-size: 1.05rem; margin-bottom: 2.5rem; }
+  .section {
+    background: #fff; border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    padding: 2rem 2.5rem; margin-bottom: 2rem;
+  }
+  .section h2 {
+    font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section h2 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+  .legend { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; font-size: 0.85rem; color: #475569; }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 4px; }
+
+  @keyframes flowDash { to { stroke-dashoffset: -20; } }
+  .flow-line { stroke-dasharray: 6 4; animation: flowDash 0.8s linear infinite; }
+  .flow-line-slow { stroke-dasharray: 6 4; animation: flowDash 1.4s linear infinite; }
+
+  .node { cursor: pointer; transition: filter 0.2s; }
+  .node:hover { filter: brightness(0.95) drop-shadow(0 2px 6px rgba(0,0,0,0.12)); }
+
+  .flow-label {
+    font-weight: 600; font-size: 14px;
+  }
+
+  @media (max-width: 700px) { .section { padding: 1.25rem; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Collections Agent — Architecture</h1>
+<p class="subtitle">Monitor overdue AR accounts, AI risk assessment &amp; email drafting, record payments, full audit trail.</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div> Collection</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#8b5cf6"></div> Automation</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#f97316"></div> Hook</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#22c55e"></div> Frontend Page</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#94a3b8"></div> External / Platform</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: System Overview -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="dot" style="background:#94a3b8"></span> System Overview</h2>
+  <svg viewBox="0 0 960 380" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="aGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#94a3b8"/></marker>
+      <marker id="aBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3b82f6"/></marker>
+      <marker id="aPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8b5cf6"/></marker>
+      <marker id="aOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#f97316"/></marker>
+    </defs>
+
+    <!-- Frontend -->
+    <g class="node">
+      <rect x="20" y="20" width="240" height="340" rx="12" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+      <text x="140" y="50" text-anchor="middle" font-weight="600" font-size="15" fill="#16a34a">Frontend (iframe)</text>
+      <text x="45" y="80" font-size="12" fill="#475569">• Dashboard — outstanding, aging</text>
+      <text x="45" y="102" font-size="12" fill="#475569">• Worklist — risk-sorted customers</text>
+      <text x="45" y="124" font-size="12" fill="#475569">• Customer detail — 3 tabs:</text>
+      <text x="60" y="144" font-size="11" fill="#475569">Invoices · Activities · Payments</text>
+      <text x="45" y="168" font-size="12" fill="#475569">• Audit log viewer</text>
+      <text x="45" y="190" font-size="12" fill="#475569">• Settings — templates, rules</text>
+      <text x="45" y="222" font-size="11" fill="#94a3b8">React + TanStack Router/Query</text>
+    </g>
+
+    <line x1="260" y1="190" x2="310" y2="190" stroke="#94a3b8" stroke-width="2" class="flow-line" marker-end="url(#aGray)"/>
+
+    <!-- API -->
+    <g class="node">
+      <rect x="310" y="100" width="220" height="180" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+      <text x="420" y="130" text-anchor="middle" font-weight="600" font-size="15" fill="#475569">Lumera API</text>
+      <text x="335" y="158" font-size="12" fill="#475569">• Collections CRUD + SQL</text>
+      <text x="335" y="180" font-size="12" fill="#475569">• Automation runs</text>
+      <text x="335" y="202" font-size="12" fill="#475569">• Hook execution</text>
+      <text x="335" y="224" font-size="12" fill="#475569">• Email sending</text>
+      <text x="335" y="246" font-size="12" fill="#475569">• AI completions (LLM)</text>
+    </g>
+
+    <line x1="530" y1="140" x2="610" y2="75" stroke="#3b82f6" stroke-width="2" class="flow-line" marker-end="url(#aBlue)"/>
+    <line x1="530" y1="230" x2="610" y2="260" stroke="#8b5cf6" stroke-width="2" class="flow-line" marker-end="url(#aPurple)"/>
+
+    <!-- Database -->
+    <g class="node">
+      <rect x="610" y="10" width="320" height="165" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+      <text x="770" y="38" text-anchor="middle" font-weight="600" font-size="14" fill="#2563eb">Database</text>
+      <text x="635" y="62" font-size="12" fill="#475569">ca_customers</text>
+      <text x="800" y="62" font-size="12" fill="#475569">ca_invoices</text>
+      <text x="635" y="82" font-size="12" fill="#475569">ca_activities</text>
+      <text x="800" y="82" font-size="12" fill="#475569">ca_payments</text>
+      <text x="635" y="102" font-size="12" fill="#475569">ca_reminder_templates</text>
+      <text x="800" y="102" font-size="12" fill="#475569">ca_escalation_rules</text>
+      <text x="635" y="122" font-size="12" fill="#475569">ca_audit_log</text>
+      <text x="635" y="152" font-size="11" fill="#94a3b8">platform/collections/</text>
+    </g>
+
+    <!-- Automations -->
+    <g class="node">
+      <rect x="610" y="220" width="320" height="130" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="770" y="248" text-anchor="middle" font-weight="600" font-size="14" fill="#7c3aed">Automation Runtime</text>
+      <text x="635" y="275" font-size="12" fill="#475569">• ca_assess_risk — AI risk scoring</text>
+      <text x="635" y="297" font-size="12" fill="#475569">• ca_draft_email — AI email generation</text>
+      <text x="635" y="319" font-size="12" fill="#475569">• ca_record_payment — payment allocation</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: Data Flow -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="dot" style="background:#22c55e"></span> Data Flow — Three Core Workflows</h2>
+
+  <!-- Flow A: Risk Assessment -->
+  <svg viewBox="0 0 960 160" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 2rem;">
+    <defs>
+      <marker id="af" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
+      <marker id="afB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3b82f6"/></marker>
+    </defs>
+
+    <text x="20" y="20" class="flow-label" fill="#7c3aed">A. AI Risk Assessment</text>
+
+    <g class="node">
+      <rect x="20" y="40" width="160" height="70" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+      <text x="100" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#16a34a">Worklist</text>
+      <text x="100" y="88" text-anchor="middle" font-size="11" fill="#475569">Click "Assess Risk"</text>
+    </g>
+
+    <line x1="180" y1="75" x2="220" y2="75" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
+
+    <g class="node">
+      <rect x="220" y="35" width="220" height="80" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="330" y="62" text-anchor="middle" font-weight="600" font-size="13" fill="#7c3aed">ca_assess_risk</text>
+      <text x="330" y="82" text-anchor="middle" font-size="11" fill="#475569">Analyzes invoices + history</text>
+      <text x="330" y="100" text-anchor="middle" font-size="10" fill="#94a3b8">Returns score, level, action</text>
+    </g>
+
+    <line x1="440" y1="75" x2="480" y2="75" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
+
+    <g class="node">
+      <rect x="480" y="40" width="200" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+      <text x="580" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_customers</text>
+      <text x="580" y="88" text-anchor="middle" font-size="11" fill="#475569">risk_score + follow_up_date updated</text>
+    </g>
+
+    <line x1="680" y1="75" x2="720" y2="75" stroke="#3b82f6" stroke-width="1.5" class="flow-line-slow" marker-end="url(#afB)"/>
+
+    <g class="node">
+      <rect x="720" y="40" width="180" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="810" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_activities</text>
+      <text x="810" y="88" text-anchor="middle" font-size="11" fill="#475569">Assessment logged</text>
+    </g>
+  </svg>
+
+  <!-- Flow B: Email Drafting -->
+  <svg viewBox="0 0 960 160" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 2rem;">
+    <text x="20" y="20" class="flow-label" fill="#7c3aed">B. AI Email Drafting</text>
+
+    <g class="node">
+      <rect x="20" y="40" width="160" height="70" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+      <text x="100" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#16a34a">Worklist</text>
+      <text x="100" y="88" text-anchor="middle" font-size="11" fill="#475569">Click "Draft Email"</text>
+    </g>
+
+    <line x1="180" y1="75" x2="220" y2="75" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
+
+    <g class="node">
+      <rect x="220" y="30" width="240" height="90" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="340" y="56" text-anchor="middle" font-weight="600" font-size="13" fill="#7c3aed">ca_draft_email</text>
+      <text x="340" y="76" text-anchor="middle" font-size="11" fill="#475569">Picks template by overdue stage</text>
+      <text x="340" y="92" text-anchor="middle" font-size="11" fill="#475569">AI personalizes with invoice details</text>
+      <text x="340" y="108" text-anchor="middle" font-size="10" fill="#94a3b8">friendly → firm → urgent → final</text>
+    </g>
+
+    <line x1="460" y1="75" x2="500" y2="75" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
+
+    <g class="node">
+      <rect x="500" y="40" width="200" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+      <text x="600" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_activities</text>
+      <text x="600" y="88" text-anchor="middle" font-size="11" fill="#475569">Draft email saved as activity</text>
+    </g>
+
+    <line x1="700" y1="75" x2="740" y2="75" stroke="#3b82f6" stroke-width="1.5" class="flow-line-slow" marker-end="url(#afB)"/>
+
+    <g class="node">
+      <rect x="740" y="40" width="180" height="70" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="830" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_customers</text>
+      <text x="830" y="88" text-anchor="middle" font-size="11" fill="#475569">status → contacted</text>
+    </g>
+  </svg>
+
+  <!-- Flow C: Payment Recording -->
+  <svg viewBox="0 0 960 170" xmlns="http://www.w3.org/2000/svg">
+    <text x="20" y="20" class="flow-label" fill="#7c3aed">C. Payment Recording</text>
+
+    <g class="node">
+      <rect x="20" y="40" width="160" height="70" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+      <text x="100" y="68" text-anchor="middle" font-weight="600" font-size="13" fill="#16a34a">Customer Detail</text>
+      <text x="100" y="88" text-anchor="middle" font-size="11" fill="#475569">Record payment</text>
+    </g>
+
+    <line x1="180" y1="75" x2="220" y2="75" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
+
+    <g class="node">
+      <rect x="220" y="30" width="230" height="90" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="335" y="56" text-anchor="middle" font-weight="600" font-size="13" fill="#7c3aed">ca_record_payment</text>
+      <text x="335" y="76" text-anchor="middle" font-size="11" fill="#475569">Applies payment oldest-first</text>
+      <text x="335" y="92" text-anchor="middle" font-size="11" fill="#475569">Updates invoice balances</text>
+      <text x="335" y="108" text-anchor="middle" font-size="10" fill="#94a3b8">Auto-resolves when fully paid</text>
+    </g>
+
+    <line x1="450" y1="60" x2="490" y2="50" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
+    <line x1="450" y1="90" x2="490" y2="100" stroke="#64748b" stroke-width="2" class="flow-line" marker-end="url(#af)"/>
+
+    <g class="node">
+      <rect x="490" y="20" width="170" height="50" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="575" y="42" text-anchor="middle" font-weight="600" font-size="12" fill="#2563eb">ca_invoices</text>
+      <text x="575" y="58" text-anchor="middle" font-size="10" fill="#475569">balances reduced</text>
+    </g>
+
+    <g class="node">
+      <rect x="490" y="80" width="170" height="50" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="575" y="102" text-anchor="middle" font-weight="600" font-size="12" fill="#2563eb">ca_payments</text>
+      <text x="575" y="118" text-anchor="middle" font-size="10" fill="#475569">payment recorded</text>
+    </g>
+
+    <line x1="660" y1="75" x2="710" y2="75" stroke="#3b82f6" stroke-width="1.5" class="flow-line-slow" marker-end="url(#afB)"/>
+
+    <g class="node">
+      <rect x="710" y="45" width="200" height="60" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="810" y="70" text-anchor="middle" font-weight="600" font-size="12" fill="#16a34a">ca_customers</text>
+      <text x="810" y="88" text-anchor="middle" font-size="10" fill="#475569">auto → resolved when $0 owed</text>
+    </g>
+  </svg>
+
+  <!-- Audit hooks callout -->
+  <div style="margin-top: 1.5rem; padding: 1rem 1.25rem; border-radius: 8px; background: #fff7ed; border: 1.5px solid #f97316;">
+    <strong style="color: #ea580c; font-size: 0.9rem;">🔸 Audit Hooks</strong>
+    <p style="color: #475569; font-size: 0.85rem; margin-top: 0.25rem;">
+      All updates to <code style="background:#fef3c7; padding:0.1em 0.3em; border-radius:3px; font-size:0.85em;">ca_customers</code> and
+      <code style="background:#fef3c7; padding:0.1em 0.3em; border-radius:3px; font-size:0.85em;">ca_invoices</code> are automatically logged to
+      <code style="background:#fef3c7; padding:0.1em 0.3em; border-radius:3px; font-size:0.85em;">ca_audit_log</code> via after_create / after_update hooks with before/after state.
+    </p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: Collection Relationships -->
+<!-- ============================================================ -->
+<div class="section">
+  <h2><span class="dot" style="background:#3b82f6"></span> Collection Relationships</h2>
+  <svg viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="aRel" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#93c5fd"/></marker>
+    </defs>
+
+    <!-- ca_customers (center top) -->
+    <g class="node">
+      <rect x="300" y="10" width="360" height="120" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+      <text x="480" y="38" text-anchor="middle" font-weight="700" font-size="15" fill="#2563eb">ca_customers</text>
+      <line x1="320" y1="46" x2="640" y2="46" stroke="#bfdbfe" stroke-width="1"/>
+      <text x="325" y="66" font-size="11" fill="#475569">name · email · phone · status</text>
+      <text x="325" y="84" font-size="11" fill="#475569">total_outstanding · risk_score · risk_level</text>
+      <text x="325" y="102" font-size="11" fill="#475569">last_contact_date · follow_up_date · notes</text>
+    </g>
+
+    <!-- ca_invoices (left) -->
+    <g class="node">
+      <rect x="20" y="190" width="260" height="100" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="150" y="218" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_invoices</text>
+      <line x1="40" y1="226" x2="260" y2="226" stroke="#bfdbfe" stroke-width="1"/>
+      <text x="45" y="246" font-size="11" fill="#475569">customer (→ ca_customers)</text>
+      <text x="45" y="264" font-size="11" fill="#475569">amount · balance · due_date · status</text>
+      <text x="45" y="282" font-size="11" fill="#475569">invoice_number · days_overdue</text>
+    </g>
+    <line x1="380" y1="130" x2="200" y2="190" stroke="#93c5fd" stroke-width="1.5" marker-end="url(#aRel)"/>
+    <text x="270" y="155" font-size="10" fill="#93c5fd">has many ↓</text>
+
+    <!-- ca_activities (center) -->
+    <g class="node">
+      <rect x="340" y="190" width="280" height="100" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="480" y="218" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_activities</text>
+      <line x1="360" y1="226" x2="600" y2="226" stroke="#bfdbfe" stroke-width="1"/>
+      <text x="365" y="246" font-size="11" fill="#475569">customer (→ ca_customers)</text>
+      <text x="365" y="264" font-size="11" fill="#475569">type (email / call / note / system)</text>
+      <text x="365" y="282" font-size="11" fill="#475569">subject · body · metadata</text>
+    </g>
+    <line x1="480" y1="130" x2="480" y2="190" stroke="#93c5fd" stroke-width="1.5" marker-end="url(#aRel)"/>
+
+    <!-- ca_payments (right) -->
+    <g class="node">
+      <rect x="680" y="190" width="250" height="100" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="805" y="218" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_payments</text>
+      <line x1="700" y1="226" x2="910" y2="226" stroke="#bfdbfe" stroke-width="1"/>
+      <text x="705" y="246" font-size="11" fill="#475569">customer (→ ca_customers)</text>
+      <text x="705" y="264" font-size="11" fill="#475569">amount · payment_date · method</text>
+      <text x="705" y="282" font-size="11" fill="#475569">reference · allocations (json)</text>
+    </g>
+    <line x1="580" y1="130" x2="760" y2="190" stroke="#93c5fd" stroke-width="1.5" marker-end="url(#aRel)"/>
+    <text x="690" y="155" font-size="10" fill="#93c5fd">has many ↓</text>
+
+    <!-- ca_reminder_templates (bottom left) -->
+    <g class="node">
+      <rect x="20" y="350" width="260" height="80" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 2"/>
+      <text x="150" y="378" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_reminder_templates</text>
+      <line x1="40" y1="386" x2="260" y2="386" stroke="#bfdbfe" stroke-width="1"/>
+      <text x="45" y="406" font-size="11" fill="#475569">stage · days_trigger · subject · body</text>
+    </g>
+    <text x="150" y="340" text-anchor="middle" font-size="10" fill="#94a3b8" font-style="italic">Used by ca_draft_email automation</text>
+
+    <!-- ca_escalation_rules (bottom center) -->
+    <g class="node">
+      <rect x="340" y="350" width="280" height="80" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 2"/>
+      <text x="480" y="378" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_escalation_rules</text>
+      <line x1="360" y1="386" x2="600" y2="386" stroke="#bfdbfe" stroke-width="1"/>
+      <text x="365" y="406" font-size="11" fill="#475569">days_overdue · amount_threshold · action_type</text>
+    </g>
+    <text x="480" y="340" text-anchor="middle" font-size="10" fill="#94a3b8" font-style="italic">Used by ca_assess_risk automation</text>
+
+    <!-- ca_audit_log (bottom right) -->
+    <g class="node">
+      <rect x="680" y="350" width="250" height="80" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 2"/>
+      <text x="805" y="378" text-anchor="middle" font-weight="600" font-size="13" fill="#2563eb">ca_audit_log</text>
+      <line x1="700" y1="386" x2="910" y2="386" stroke="#bfdbfe" stroke-width="1"/>
+      <text x="705" y="406" font-size="11" fill="#475569">entity_type · entity_id · action</text>
+      <text x="705" y="422" font-size="11" fill="#475569">before_data · after_data</text>
+    </g>
+    <text x="805" y="340" text-anchor="middle" font-size="10" fill="#94a3b8" font-style="italic">Populated by audit hooks</text>
+  </svg>
+</div>
+
+</div>
+</body>
+</html>
