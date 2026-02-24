@@ -1,16 +1,37 @@
-# Default App - Claude Code Instructions
+# Default App
 
-**Full Architecture**: See `ARCHITECTURE.md`
+Blank starter template with a dashboard, one example collection (`example_items`), and a seed script. Use this as a starting point — replace the example collection with your own domain.
 
----
+## Project Structure
 
-## AI Agent Skills
+```
+platform/
+├── collections/example_items.json   # Example collection schema
+├── agents/assistant/                # AI agent (config.json + system_prompt.md)
+src/
+├── routes/index.tsx                 # Dashboard
+├── routes/settings.tsx              # Settings page
+├── lib/queries.ts                   # Data fetching helpers
+├── components/                      # Shared UI components
+scripts/seed-demo.py                 # Seed data script
+```
 
-This project includes Lumera skills for AI coding agents in `.claude/skills/`. Read the relevant skill file when you need detailed API docs and usage patterns for that capability.
+## Lumera Concepts
+
+A Lumera app is built from these primitives — all defined as code in `platform/`:
+
+- **Collections** (`platform/collections/*.json`) — Data tables with typed fields. Schemas are JSON files deployed via `lumera apply`. Query with SQL or the records API.
+- **Automations** (`platform/automations/*/`) — Python scripts that run on Lumera's servers. Each has a `config.json` (name, inputs) and `run.py`. Triggered from the frontend or by hooks.
+- **Hooks** (`platform/hooks/*.js`) — JavaScript snippets that run on collection lifecycle events (`before_create`, `after_update`, etc.). Used for triggering automations, audit logging, or data validation.
+- **Agents** (`platform/agents/*/`) — AI chat agents with a `config.json` (name, skills) and `system_prompt.md`. Deploy with `lumera apply agents`.
+
+All resources use **external IDs** in the format `<app-name>:<resource-name>` (auto-derived by the CLI from `package.json` name + directory/file name). Use external IDs when referencing automations from frontend or hooks.
+
+## Skills
+
+Read the skill files in `.claude/skills/` for detailed API docs. Key skills:
 
 <!-- LUMERA_SKILLS_START -->
-**lumera-architecture-diagrams** — Generate visual architecture diagrams for Lumera projects. Creates an ARCHITECTURE.html file with a polished, professional visual diagram.
-
 **lumera-automations** — Create, run, and manage Lumera automations (background Python scripts). Create automations with `POST /api/automations`. Run them with `POST /api/automation-runs`. Monitor via `GET /api/automation-runs/{id}` or stream logs with `GET /api/automation-runs/{id}/logs/live`.
 
 **lumera-collections** — Manage data collections and records via the `lumera_api` tool. Use `GET /api/pb/collections` to list collections, `PUT /api/pb/collections/{name}` to ensure a collection exists with a given schema, and the records API for data operations. Supports filtering, search, and upsert by `external_id`.
@@ -28,248 +49,61 @@ This project includes Lumera skills for AI coding agents in `.claude/skills/`. R
 **lumera-agents** — Build and manage AI-powered chat agents with custom system prompts, skills, and tools. Create agents via `POST /api/agents`, invoke synchronously via `POST /api/agents/{id}/invoke`, or stream responses via `POST /api/agents/{id}/chat`.
 <!-- LUMERA_SKILLS_END -->
 
-### Managing Skills
+## CLI Cheatsheet
 
 ```bash
-lumera skills update              # Update all skills to latest
-lumera skills install --force     # Re-install from scratch
+pnpm dev                              # Start dev server (login first: lumera login)
+lumera apply                           # Deploy all (collections, automations, hooks, agents, app)
+lumera plan                            # Preview what will change
+lumera run scripts/seed-demo.py        # Run seed script
+lumera apply app                       # Deploy frontend only
+lumera skills update                   # Update skill files to latest
 ```
 
----
+## Rules
 
-## Quick Reference
-
-### Lumera CLI
-
-All `lumera` commands are run via `pnpm dlx`:
-
-```bash
-# Shortcuts
-pnpm dev              # Start dev server
-pnpm deploy           # Deploy frontend
-
-# All other commands
-pnpm dlx @lumerahq/cli plan
-pnpm dlx @lumerahq/cli apply
-pnpm dlx @lumerahq/cli destroy
-pnpm dlx @lumerahq/cli run scripts/seed-demo.py
-pnpm dlx @lumerahq/cli status
-```
-
-### Running the Frontend
-
-```bash
-# Login first (stores credentials in .lumera/credentials.json)
-lumera login
-
-# Start dev server
-pnpm dev
-
-# With custom port
-lumera dev --port 3000
-
-# With ngrok tunnel
-lumera dev --url https://my-tunnel.ngrok.io
-
-# Plain vite (no Lumera registration)
-pnpm dev:vite
-```
-
-### Linting & Formatting
-
-```bash
-# Type check without emitting
-pnpm typecheck
-
-# Lint and auto-fix
-pnpm lint
-
-# Format code
-pnpm format
-
-# Run all checks (lint + format + typecheck) - use in CI
-pnpm check:ci
-```
-
-### Deploying
-
-```bash
-# Deploy frontend
-lumera apply app
-
-# Apply all resources (collections, automations, hooks, agents, app)
-lumera apply
-
-# Preview changes first
-lumera plan
-```
-
-### Running Scripts
-
-All scripts are **idempotent** - safe to run multiple times during iterative development.
-
-```bash
-# Run a script locally
-lumera run scripts/seed-demo.py
-
-# Dependencies can be declared inline (PEP 723)
-```
-
-### Running Automations via External ID
-
-Always run automations using their `external_id` (not the internal Lumera ID which changes per tenant).
-
-```python
-uv run python << 'EOF'
-from lumera import automations
-
-# Run automation by external_id (returns Run object immediately)
-run = automations.run_by_external_id(
-    "default-app:my_automation",
-    inputs={"param": "value"}
-)
-print(f"Run ID: {run.id}")
-print(f"Status: {run.status}")
-
-# Wait for completion (blocks until done or timeout)
-result = run.wait(timeout=600)  # 10 min timeout
-print(f"Result: {result}")
-EOF
-```
-
-**Run object properties**: `id`, `status`, `result`, `error`, `inputs`, `is_terminal`
-**Run object methods**: `wait(timeout)`, `refresh()`, `cancel()`
-**Status values**: `queued`, `running`, `succeeded`, `failed`, `cancelled`, `timeout`
-
-### Working with Agents
-
-Agents are defined in `platform/agents/`. Each agent has a `config.json` and `system_prompt.md`.
-
-```bash
-# Deploy agents
-lumera apply agents
-
-# Invoke an agent
-lumera run agents/assistant "What can you help me with?"
-
-# Invoke with session continuity
-lumera run agents/assistant "Follow up" --session my-session
-
-# List agents with sync status
-lumera list agents
-```
-
-For detailed API docs, refer to the **lumera-agents** skill (`.claude/skills/lumera_agents.md`).
-
----
-
-## Important Rules
-
-1. **Authenticate first** - Before running any CLI or SDK commands, ensure the user has run `lumera login`. This stores credentials in `.lumera/credentials.json` which the SDK reads automatically.
-
-2. **Source of truth is code** - `platform/` contains all schemas, automations, hooks, and agents. Update local code first, then deploy.
-
-3. **Never edit Lumera directly** - Don't change data/schema in Lumera UI without explicit user approval.
-
-4. **Offer to deploy** - When schemas, hooks, automations, or agents change, offer to deploy to Lumera.
-
-5. **Use lumera-sdk skill for Python** - When writing scripts or automations, refer to the **lumera-sdk** skill (`.claude/skills/lumera-sdk.md`) for available SDK functions and usage patterns. The SDK source code is also available in `.venv/lib/python*/site-packages/lumera/` for detailed implementation reference. Key modules:
-   - `lumera.pb` - Record and collection operations (search, get, create, update, delete)
-   - `lumera.storage` - File uploads and downloads
-   - `lumera.llm` - LLM completions
-   - `lumera.automations` - Running and managing automations
-   - `lumera.integrations` - Third-party integrations (Google, Slack, etc.)
-
-6. **Use Python SDK for ad-hoc investigation** - When you need to quickly query data, inspect records, or debug issues, use the Python SDK with `uv run python` (uses `.venv` automatically via `pyproject.toml`):
-   ```bash
-   uv run python -c "from lumera import pb; print(pb.search('collection_name'))"
-   ```
-
----
-
-## Key Directories
-
-```
-platform/
-├── agents/         # AI agent definitions (config.json + system_prompt.md)
-├── automations/    # Automation scripts (Python)
-├── collections/    # Collection schemas (JSON)
-└── hooks/          # Server-side JavaScript hooks
-
-scripts/            # Local scripts (seed, migrate, etc.)
-
-src/                # React frontend
-├── routes/         # TanStack Router pages
-├── lib/            # queries.ts, api helpers
-└── components/     # React components
-
-.venv/              # Python venv with lumera SDK (for IDE autocomplete)
-```
-
-### Python Environment
-
-A Python virtual environment is created at `.venv/` with the `lumera` SDK pre-installed. This provides IDE autocomplete when writing automations and scripts.
-
-```bash
-# Activate venv (optional - for IDE integration)
-source .venv/bin/activate
-
-# SDK is available for import
-python -c "from lumera import pb; print(pb)"
-```
-
-> **Note:** You don't need to activate the venv to run scripts - `lumera run` handles this automatically.
-
----
+1. **Read skills first** — Before writing automations, hooks, or collection schemas, read the relevant `.claude/skills/` file for API details and patterns.
+2. **Code is source of truth** — Edit files in `platform/` first, then deploy with `lumera apply`. Don't edit in the Lumera UI.
+3. **Offer to deploy** — After changing collections, hooks, automations, or agents, offer to run `lumera apply`.
+4. **Authenticate first** — User must run `lumera login` before any CLI/SDK commands.
+5. **Use Python SDK for debugging** — Quick data inspection: `uv run python -c "from lumera import pb; print(pb.search('collection_name'))"`
 
 ## Frontend Patterns
 
-### Fetching Data
-
 ```typescript
+// Data fetching (React Query + Lumera helpers)
 import { pbSql, pbList } from '@lumerahq/ui/lib';
 
-const result = await pbSql<{ id: string; name: string }>({
-  sql: 'SELECT id, name FROM users WHERE active = true'
-});
+const result = await pbSql<Row>({ sql: 'SELECT * FROM example_items WHERE status = {:status}', status: 'active' });
+const items = await pbList<Item>('example_items', { filter: JSON.stringify({ status: "active" }), sort: '-created', perPage: 50 });
 
-const items = await pbList<User>('users', {
-  filter: JSON.stringify({ status: "active" }),
-  sort: '-created',
-  perPage: 50,
-});
-```
+// Note: pbSql returns numbers as strings — always cast with Number()
 
-### Running Automations from Frontend
-
-```typescript
+// Running automations from frontend
 import { createRun, pollRun } from '@lumerahq/ui/lib';
-
-const run = await createRun({
-  automationId: 'default-app:process_data',
-  inputs: { file_id: 'abc123' },
-});
-
+const run = await createRun({ automationId: 'default-app:my_automation', inputs: { key: 'value' } });
 const result = await pollRun(run.id);
+
+// File uploads
+import { useFileUpload } from '@lumerahq/ui/hooks';
+// See lumera-file-uploads skill for details
 ```
 
----
-
-## Debugging with Lumera SDK
+## Backend Patterns (Python SDK)
 
 ```python
-uv run python << 'EOF'
-from lumera import pb
+from lumera import pb, llm, storage
 
-# List collections
-print(pb.list_collections())
+# Records
+records = pb.search("example_items", filter='status = "active"', per_page=50)
+record = pb.get("example_items", "record_id")
+pb.create("example_items", {"name": "New", "status": "active"})
+pb.update("example_items", "record_id", {"status": "done"})
 
-# Search records
-result = pb.search("my_collection", per_page=10)
-print(result)
+# AI
+result = llm.complete("Extract the key fields", json_mode=True)
+text = llm.extract_text(source=file_bytes, mime_type="application/pdf", filename="doc.pdf")
 
-# Get single record
-record = pb.get("my_collection", "record_id")
-print(record)
-EOF
+# Files
+file_bytes = storage.download("object_key")
 ```

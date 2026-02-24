@@ -1,16 +1,59 @@
-# Fixed Asset Tracker - Claude Code Instructions
+# Fixed Asset Tracker
 
-**Full Architecture**: See `ARCHITECTURE.md`
+Track fixed assets across categories (equipment, vehicles, software, etc.), run monthly depreciation (straight-line or declining balance), view depreciation schedules, and handle disposals with gain/loss tracking.
 
----
+## How It Works
 
-## AI Agent Skills
+1. User adds assets manually with cost basis, useful life, salvage value, and depreciation method
+2. User clicks "Run Depreciation" → triggers `calculate_depreciation` automation for a given period
+3. Automation creates a `depreciation_entries` record, updates `accumulated_depreciation` on the asset
+4. When NBV reaches salvage value, status auto-sets to `fully_depreciated`
+5. User can dispose an asset — records disposal date, proceeds, and gain/loss
 
-This project includes Lumera skills for AI coding agents in `.claude/skills/`. Read the relevant skill file when you need detailed API docs and usage patterns for that capability.
+**Asset statuses:** `active` → `fully_depreciated` (automatic) or `disposed` (manual)
+
+**Depreciation entry statuses:** `pending` → `posted`
+
+## Project Structure
+
+```
+platform/
+├── collections/
+│   ├── fixed_assets.json             # Asset register (cost, useful life, salvage, method, status)
+│   ├── depreciation_entries.json     # Monthly depreciation records (amount, accumulated, NBV)
+│   └── asset_gl_accounts.json        # GL accounts (asset, contra_asset, expense types)
+├── automations/calculate_depreciation/  # Depreciation automation (config.json + run.py)
+├── agents/asset_assistant/           # AI agent (config.json + system_prompt.md)
+src/
+├── routes/
+│   ├── index.tsx                     # Dashboard (NBV, asset counts, category breakdown)
+│   ├── assets.index.tsx              # Asset list with status and category filters
+│   ├── assets.$id.tsx                # Asset detail (financials, depreciation schedule, dispose)
+│   ├── depreciation.tsx              # Batch depreciation runner
+│   └── settings.tsx                  # GL account management
+├── lib/queries.ts                    # All data fetching and mutation helpers
+├── components/                       # Shared UI (StatusBadge, StatCard, etc.)
+scripts/seed-demo.py                  # Seeds assets, GL accounts, and depreciation history
+```
+
+**Key external IDs:** `fixed-asset-tracker:calculate_depreciation` (automation — inputs: `asset_id`, `period` as YYYY-MM)
+
+## Lumera Concepts
+
+A Lumera app is built from these primitives — all defined as code in `platform/`:
+
+- **Collections** (`platform/collections/*.json`) — Data tables with typed fields. Schemas are JSON files deployed via `lumera apply`. Query with SQL or the records API.
+- **Automations** (`platform/automations/*/`) — Python scripts that run on Lumera's servers. Each has a `config.json` (name, inputs) and `run.py`. Triggered from the frontend or by hooks.
+- **Hooks** (`platform/hooks/*.js`) — JavaScript snippets that run on collection lifecycle events (`before_create`, `after_update`, etc.). Used for triggering automations, audit logging, or data validation.
+- **Agents** (`platform/agents/*/`) — AI chat agents with a `config.json` (name, skills) and `system_prompt.md`. Deploy with `lumera apply agents`.
+
+All resources use **external IDs** in the format `<app-name>:<resource-name>` (auto-derived by the CLI from `package.json` name + directory/file name). Use external IDs when referencing automations from frontend or hooks.
+
+## Skills
+
+Read the skill files in `.claude/skills/` for detailed API docs. Key skills:
 
 <!-- LUMERA_SKILLS_START -->
-**lumera-architecture-diagrams** — Generate visual architecture diagrams for Lumera projects. Creates an ARCHITECTURE.html file with a polished, professional visual diagram.
-
 **lumera-automations** — Create, run, and manage Lumera automations (background Python scripts). Create automations with `POST /api/automations`. Run them with `POST /api/automation-runs`. Monitor via `GET /api/automation-runs/{id}` or stream logs with `GET /api/automation-runs/{id}/logs/live`.
 
 **lumera-collections** — Manage data collections and records via the `lumera_api` tool. Use `GET /api/pb/collections` to list collections, `PUT /api/pb/collections/{name}` to ensure a collection exists with a given schema, and the records API for data operations. Supports filtering, search, and upsert by `external_id`.
@@ -28,285 +71,50 @@ This project includes Lumera skills for AI coding agents in `.claude/skills/`. R
 **lumera-agents** — Build and manage AI-powered chat agents with custom system prompts, skills, and tools. Create agents via `POST /api/agents`, invoke synchronously via `POST /api/agents/{id}/invoke`, or stream responses via `POST /api/agents/{id}/chat`.
 <!-- LUMERA_SKILLS_END -->
 
-### Managing Skills
+## CLI Cheatsheet
 
 ```bash
-lumera skills update              # Update all skills to latest
-lumera skills install --force     # Re-install from scratch
+pnpm dev                              # Start dev server (login first: lumera login)
+lumera apply                           # Deploy all (collections, automations, hooks, agents, app)
+lumera plan                            # Preview what will change
+lumera run scripts/seed-demo.py        # Run seed script
+lumera apply app                       # Deploy frontend only
+lumera skills update                   # Update skill files to latest
 ```
 
----
-
-## Fixed Asset Tracker — Template Context
-
-### Data Flow
-
-1. User adds an asset manually or via CSV import
-2. System stores asset in `fixed_assets` with status `active`
-3. User clicks "Run Depreciation" — triggers `calculate_depreciation` automation
-4. Automation creates `depreciation_entries` record and updates asset's `accumulated_depreciation`
-5. User reviews entries, clicks "Post" to finalize
-6. When asset is retired, user clicks "Dispose" with sale proceeds
-
-### Collections
-
-| Collection | Purpose |
-|---|---|
-| `fixed_assets` | Asset register — cost basis, useful life, accumulated depreciation, status |
-| `depreciation_entries` | Monthly depreciation records — amount, accumulated total, NBV |
-| `asset_gl_accounts` | Chart of accounts for fixed asset accounting (asset, contra_asset, expense) |
-
-### Key External IDs
-
-- **Automation**: `fixed-asset-tracker:calculate_depreciation` — calculates monthly depreciation for a single asset
-- Takes inputs: `asset_id` (string), `period` (string, YYYY-MM)
-- Supports straight-line and declining-balance methods
-
-### Status Lifecycle
-
-**Assets**: `active` → `fully_depreciated` (automatic when NBV reaches salvage) or `disposed` (manual)
-
-**Depreciation Entries**: `pending` → `posted` (manual approval)
-
-### Sample Files
-
-CSV files in `samples/` contain asset data that can be imported. Each has columns: Name, Asset Tag, Category, Acquisition Date, Cost Basis, Salvage Value, Useful Life, Depreciation Method, Location, Department.
-
----
-
-## Quick Reference
-
-### Lumera CLI
-
-All `lumera` commands are run via `pnpm dlx`:
-
-```bash
-# Shortcuts
-pnpm dev              # Start dev server
-pnpm deploy           # Deploy frontend
-
-# All other commands
-pnpm dlx @lumerahq/cli plan
-pnpm dlx @lumerahq/cli apply
-pnpm dlx @lumerahq/cli destroy
-pnpm dlx @lumerahq/cli run scripts/seed-demo.py
-pnpm dlx @lumerahq/cli status
-```
-
-### Running the Frontend
-
-```bash
-# Login first (stores credentials in .lumera/credentials.json)
-lumera login
-
-# Start dev server
-pnpm dev
-
-# With custom port
-lumera dev --port 3000
-
-# With ngrok tunnel
-lumera dev --url https://my-tunnel.ngrok.io
-
-# Plain vite (no Lumera registration)
-pnpm dev:vite
-```
-
-### Linting & Formatting
-
-```bash
-# Type check without emitting
-pnpm typecheck
-
-# Lint and auto-fix
-pnpm lint
-
-# Format code
-pnpm format
-
-# Run all checks (lint + format + typecheck) - use in CI
-pnpm check:ci
-```
-
-### Deploying
-
-```bash
-# Deploy frontend
-lumera apply app
-
-# Apply all resources (collections, automations, hooks, agents, app)
-lumera apply
-
-# Preview changes first
-lumera plan
-```
-
-### Running Scripts
-
-All scripts are **idempotent** - safe to run multiple times during iterative development.
-
-```bash
-# Run a script locally
-lumera run scripts/seed-demo.py
-
-# Dependencies can be declared inline (PEP 723)
-```
-
-### Running Automations via External ID
-
-Always run automations using their `external_id` (not the internal Lumera ID which changes per tenant).
-
-```python
-uv run python << 'EOF'
-from lumera import automations
-
-# Run automation by external_id (returns Run object immediately)
-run = automations.run_by_external_id(
-    "fixed-asset-tracker:my_automation",
-    inputs={"param": "value"}
-)
-print(f"Run ID: {run.id}")
-print(f"Status: {run.status}")
-
-# Wait for completion (blocks until done or timeout)
-result = run.wait(timeout=600)  # 10 min timeout
-print(f"Result: {result}")
-EOF
-```
-
-**Run object properties**: `id`, `status`, `result`, `error`, `inputs`, `is_terminal`
-**Run object methods**: `wait(timeout)`, `refresh()`, `cancel()`
-**Status values**: `queued`, `running`, `succeeded`, `failed`, `cancelled`, `timeout`
-
-### Working with Agents
-
-Agents are defined in `platform/agents/`. Each agent has a `config.json` and `system_prompt.md`.
-
-```bash
-# Deploy agents
-lumera apply agents
-
-# Invoke an agent
-lumera run agents/asset_assistant "What is the total depreciation this month?"
-
-# Invoke with session continuity
-lumera run agents/asset_assistant "Follow up" --session my-session
-
-# List agents with sync status
-lumera list agents
-```
-
-For detailed API docs, refer to the **lumera-agents** skill (`.claude/skills/lumera_agents.md`).
-
----
-
-## Important Rules
-
-1. **Authenticate first** - Before running any CLI or SDK commands, ensure the user has run `lumera login`. This stores credentials in `.lumera/credentials.json` which the SDK reads automatically.
-
-2. **Source of truth is code** - `platform/` contains all schemas, automations, hooks, and agents. Update local code first, then deploy.
-
-3. **Never edit Lumera directly** - Don't change data/schema in Lumera UI without explicit user approval.
-
-4. **Offer to deploy** - When schemas, hooks, automations, or agents change, offer to deploy to Lumera.
-
-5. **Use lumera-sdk skill for Python** - When writing scripts or automations, refer to the **lumera-sdk** skill (`.claude/skills/lumera-sdk.md`) for available SDK functions and usage patterns. The SDK source code is also available in `.venv/lib/python*/site-packages/lumera/` for detailed implementation reference. Key modules:
-   - `lumera.pb` - Record and collection operations (search, get, create, update, delete)
-   - `lumera.storage` - File uploads and downloads
-   - `lumera.llm` - LLM completions
-   - `lumera.automations` - Running and managing automations
-   - `lumera.integrations` - Third-party integrations (Google, Slack, etc.)
-
-6. **Use Python SDK for ad-hoc investigation** - When you need to quickly query data, inspect records, or debug issues, use the Python SDK with `uv run python` (uses `.venv` automatically via `pyproject.toml`):
-   ```bash
-   uv run python -c "from lumera import pb; print(pb.search('collection_name'))"
-   ```
-
----
-
-## Key Directories
-
-```
-platform/
-├── agents/         # AI agent definitions (config.json + system_prompt.md)
-├── automations/    # Automation scripts (Python)
-├── collections/    # Collection schemas (JSON)
-└── hooks/          # Server-side JavaScript hooks
-
-scripts/            # Local scripts (seed, migrate, etc.)
-
-src/                # React frontend
-├── routes/         # TanStack Router pages
-├── lib/            # queries.ts, api helpers
-└── components/     # React components
-
-.venv/              # Python venv with lumera SDK (for IDE autocomplete)
-```
-
-### Python Environment
-
-A Python virtual environment is created at `.venv/` with the `lumera` SDK pre-installed. This provides IDE autocomplete when writing automations and scripts.
-
-```bash
-# Activate venv (optional - for IDE integration)
-source .venv/bin/activate
-
-# SDK is available for import
-python -c "from lumera import pb; print(pb)"
-```
-
-> **Note:** You don't need to activate the venv to run scripts - `lumera run` handles this automatically.
-
----
+## Rules
+
+1. **Read skills first** — Before writing automations, hooks, or collection schemas, read the relevant `.claude/skills/` file for API details and patterns.
+2. **Code is source of truth** — Edit files in `platform/` first, then deploy with `lumera apply`. Don't edit in the Lumera UI.
+3. **Offer to deploy** — After changing collections, hooks, automations, or agents, offer to run `lumera apply`.
+4. **Authenticate first** — User must run `lumera login` before any CLI/SDK commands.
+5. **Use Python SDK for debugging** — Quick data inspection: `uv run python -c "from lumera import pb; print(pb.search('fixed_assets'))"`
 
 ## Frontend Patterns
 
-### Fetching Data
-
 ```typescript
+// Data fetching (React Query + Lumera helpers)
 import { pbSql, pbList } from '@lumerahq/ui/lib';
 
-const result = await pbSql<{ id: string; name: string }>({
-  sql: 'SELECT id, name FROM users WHERE active = true'
-});
+const result = await pbSql<Row>({ sql: 'SELECT * FROM fixed_assets WHERE status = {:status}', status: 'active' });
+const items = await pbList<Asset>('fixed_assets', { filter: JSON.stringify({ status: "active" }), sort: '-created', perPage: 50 });
 
-const items = await pbList<User>('users', {
-  filter: JSON.stringify({ status: "active" }),
-  sort: '-created',
-  perPage: 50,
-});
-```
+// Note: pbSql returns numbers as strings — always cast with Number()
 
-### Running Automations from Frontend
-
-```typescript
+// Running automations from frontend
 import { createRun, pollRun } from '@lumerahq/ui/lib';
-
-const run = await createRun({
-  automationId: 'fixed-asset-tracker:process_data',
-  inputs: { file_id: 'abc123' },
-});
-
+const run = await createRun({ automationId: 'fixed-asset-tracker:calculate_depreciation', inputs: { asset_id: id, period: '2026-02' } });
 const result = await pollRun(run.id);
 ```
 
----
-
-## Debugging with Lumera SDK
+## Backend Patterns (Python SDK)
 
 ```python
-uv run python << 'EOF'
 from lumera import pb
 
-# List collections
-print(pb.list_collections())
-
-# Search records
-result = pb.search("my_collection", per_page=10)
-print(result)
-
-# Get single record
-record = pb.get("my_collection", "record_id")
-print(record)
-EOF
+# Records
+assets = pb.search("fixed_assets", filter='status = "active"', per_page=100)
+asset = pb.get("fixed_assets", "asset_id")
+pb.create("depreciation_entries", {"asset": asset_id, "period": "2026-02", "amount": 500.00})
+pb.update("fixed_assets", asset_id, {"accumulated_depreciation": new_total, "status": "fully_depreciated"})
 ```
