@@ -43,6 +43,25 @@ scripts/seed-demo.py              # Seeds vendors, GL accounts, and demo invoice
 
 **Key external IDs:** `invoice-processing:extract_invoice` (automation), `invoice-processing:ip_trigger_extract` (hook)
 
+## Architecture Diagram (`ARCHITECTURE.html`)
+
+Maintain an `ARCHITECTURE.html` file in the project root that gives a human a visual, instant understanding of how the app works. **Regenerate it whenever the data model, automations, hooks, or pages change significantly.**
+
+Requirements:
+- **Single self-contained HTML file** — no external dependencies. All CSS and JS inline.
+- **SVG diagrams** (not ASCII art) showing the data flow, collection relationships, and automation triggers. Use `<svg>` elements directly in the HTML.
+- **Animated flow lines** — Use CSS animations (`stroke-dashoffset`, `@keyframes`) to show data moving through the pipeline (e.g., upload → AI extraction → review → approval). Keep animations subtle and purposeful.
+- **Interactive sections** — Clickable/hoverable nodes that highlight related components or show tooltips with details.
+- **Color-coded by type** — Collections (blue), automations (purple), hooks (orange), frontend pages (green), external services (gray).
+- **Three visual sections**:
+  1. **System overview** — High-level boxes showing Frontend → Lumera API → Database / Automation Runtime
+  2. **Data flow** — Step-by-step animated diagram of the invoice workflow: Upload → `trigger_extract` hook → `extract_invoice` automation → Review → Approve/Reject, with `create_status_comment` and audit hooks shown as side branches
+  3. **Collection relationships** — ER diagram showing `ip_invoices` → `ip_line_items`, `ip_invoices` → `ip_comments`, `ip_vendors` → `ip_invoices`, `ip_gl_accounts` → `ip_line_items`
+- **Clean, modern styling** — White background, rounded corners, subtle shadows, system font stack. Should look professional when opened in a browser.
+- **Responsive** — Readable on both desktop and tablet widths.
+
+Generate with: "Create/update the ARCHITECTURE.html file to reflect the current app structure."
+
 ## Lumera Concepts
 
 A Lumera app is built from these primitives — all defined as code in `platform/`:

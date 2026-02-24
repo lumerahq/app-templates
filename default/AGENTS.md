@@ -16,6 +16,25 @@ src/
 scripts/seed-demo.py                 # Seed data script
 ```
 
+## Architecture Diagram (`ARCHITECTURE.html`)
+
+Maintain an `ARCHITECTURE.html` file in the project root that gives a human a visual, instant understanding of how the app works. **Regenerate it whenever the data model, automations, hooks, or pages change significantly.**
+
+Requirements:
+- **Single self-contained HTML file** — no external dependencies. All CSS and JS inline.
+- **SVG diagrams** (not ASCII art) showing the data flow, collection relationships, and automation triggers. Use `<svg>` elements directly in the HTML.
+- **Animated flow lines** — Use CSS animations (`stroke-dashoffset`, `@keyframes`) to show data moving through the pipeline (e.g., upload → extraction → review → approval). Keep animations subtle and purposeful.
+- **Interactive sections** — Clickable/hoverable nodes that highlight related components or show tooltips with details.
+- **Color-coded by type** — Collections (blue), automations (purple), hooks (orange), frontend pages (green), external services (gray).
+- **Three visual sections**:
+  1. **System overview** — High-level boxes showing Frontend → Lumera API → Database / Automation Runtime
+  2. **Data flow** — Step-by-step animated diagram of the main user workflow (what triggers what)
+  3. **Collection relationships** — Entity-relationship style diagram showing collections and their links
+- **Clean, modern styling** — White background, rounded corners, subtle shadows, system font stack. Should look professional when opened in a browser.
+- **Responsive** — Readable on both desktop and tablet widths.
+
+Generate with: "Create/update the ARCHITECTURE.html file to reflect the current app structure."
+
 ## Lumera Concepts
 
 A Lumera app is built from these primitives — all defined as code in `platform/`:
