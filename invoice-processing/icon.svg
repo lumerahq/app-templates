@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#eff6ff"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+    <linearGradient id="b1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="scan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="80" height="80" rx="18" fill="url(#bg)"/>
+  <!-- Document shadow -->
+  <rect x="22" y="13" width="38" height="50" rx="4" fill="#93c5fd" opacity="0.4" transform="translate(2,2)"/>
+  <!-- Document -->
+  <rect x="20" y="11" width="38" height="50" rx="4" fill="white" stroke="#3b82f6" stroke-width="1.5"/>
+  <!-- Folded corner -->
+  <path d="M48 11 L58 11 L58 21 Z" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M48 11 L48 21 L58 21" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Text lines -->
+  <rect x="27" y="26" width="22" height="3" rx="1.5" fill="#3b82f6" opacity="0.6"/>
+  <rect x="27" y="33" width="16" height="2.5" rx="1.25" fill="#93c5fd"/>
+  <rect x="27" y="39" width="20" height="2.5" rx="1.25" fill="#93c5fd"/>
+  <rect x="27" y="45" width="14" height="2.5" rx="1.25" fill="#93c5fd"/>
+  <!-- AI sparkle badge -->
+  <circle cx="58" cy="54" r="14" fill="url(#b1)"/>
+  <circle cx="58" cy="54" r="14" fill="none" stroke="#1d4ed8" stroke-width="1" opacity="0.3"/>
+  <!-- Sparkle/magic icon -->
+  <path d="M58 45 L59.5 50 L64.5 50 L60.5 53 L62 58 L58 55 L54 58 L55.5 53 L51.5 50 L56.5 50Z" fill="white"/>
+  <!-- Scan line effect -->
+  <rect x="20" y="28" width="38" height="16" fill="url(#scan)" rx="2" opacity="0.5"/>
+</svg>

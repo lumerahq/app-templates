@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ecfdf5"/>
+      <stop offset="100%" stop-color="#d1fae5"/>
+    </linearGradient>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <rect width="80" height="80" rx="18" fill="url(#bg)"/>
+  <!-- Rocket body -->
+  <path d="M40 12 C40 12 28 28 28 44 C28 52 33 58 40 58 C47 58 52 52 52 44 C52 28 40 12 40 12Z" fill="url(#g1)" opacity="0.9"/>
+  <!-- Window -->
+  <circle cx="40" cy="34" r="5" fill="#ecfdf5"/>
+  <circle cx="40" cy="34" r="3" fill="#059669" opacity="0.3"/>
+  <!-- Fins -->
+  <path d="M28 44 L20 54 L28 50Z" fill="#34d399" opacity="0.7"/>
+  <path d="M52 44 L60 54 L52 50Z" fill="#34d399" opacity="0.7"/>
+  <!-- Flame -->
+  <path d="M36 58 Q38 68 40 72 Q42 68 44 58" fill="#fbbf24"/>
+  <path d="M38 58 Q39 65 40 68 Q41 65 42 58" fill="#f97316"/>
+  <!-- Stars -->
+  <circle cx="18" cy="18" r="1.5" fill="#059669" opacity="0.5"/>
+  <circle cx="62" cy="14" r="1" fill="#059669" opacity="0.4"/>
+  <circle cx="14" cy="38" r="1" fill="#059669" opacity="0.3"/>
+  <circle cx="66" cy="32" r="1.5" fill="#059669" opacity="0.4"/>
+</svg>

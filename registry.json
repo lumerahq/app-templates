@@ -7,6 +7,7 @@
       "description": "A minimal starter with a dashboard, example collection, and seed script.",
       "category": "General",
       "version": "1.0.0",
+      "icon": "default/icon.svg",
       "starter_prompt": "I want to build an app for [describe what you're building, e.g. \"tracking customer orders\", \"managing support tickets\", \"expense approvals\"]. Here's what I need:\n\n1. Replace the example collection with the right collections and fields for my domain.\n2. A dashboard with key stats and a recent items table.\n3. A list page with filters, search, and pagination that links to detail pages.\n4. A detail page with an edit form and status actions (approve/reject/archive).\n5. Seed data so I can test right away.\n6. Any automations needed for AI processing, calculations, or notifications."
     },
     {
@@ -15,6 +16,7 @@
       "description": "Upload invoices, extract data with AI, review and approve.",
       "category": "Procure-to-Pay",
       "version": "1.0.0",
+      "icon": "invoice-processing/icon.svg",
       "starter_prompt": "I want an invoice processing app. Users upload invoice documents (PDFs, images) and AI automatically extracts the vendor, amounts, line items, and dates. Extracted invoices go into a review queue where I can correct any mistakes, then approve or reject them.\n\nI also need:\n- A dashboard showing invoice counts by status and recent activity\n- Vendor and GL account management in settings\n- An audit trail for all changes\n- Seed data with sample vendors, GL accounts, and demo invoices"
     },
     {
@@ -23,6 +25,7 @@
       "description": "Upload payroll reports, extract data with AI, review and post journal entries.",
       "category": "Payroll",
       "version": "1.0.0",
+      "icon": "payroll-journal-entry/icon.svg",
       "starter_prompt": "I want an app to process payroll journal entries. Upload a payroll report (PDF or CSV), have AI read it and generate the debit/credit journal lines with account codes and departments, then review and post.\n\nI also need:\n- A dashboard showing payroll runs by status\n- A detail page showing the uploaded report alongside the journal entry table, with balance validation\n- GL account management in settings\n- Seed data with sample GL accounts and demo payroll runs"
     },
     {
@@ -31,6 +34,7 @@
       "description": "Track fixed assets, calculate depreciation, and manage disposals with automated journal entries.",
       "category": "Record-to-Report",
       "version": "1.0.0",
+      "icon": "fixed-asset-tracker/icon.svg",
       "starter_prompt": "I want a fixed asset tracking app. Maintain an asset register with categories (equipment, vehicles, software, etc.), run monthly depreciation (straight-line or declining balance), view depreciation schedules, and handle disposals with gain/loss tracking.\n\nI also need:\n- A dashboard showing net book value, asset counts, and a category breakdown\n- Asset list with filters by status and category\n- Asset detail page with financials, depreciation schedule, and dispose/depreciate actions\n- GL account management in settings\n- Seed data with assets across different categories and some depreciation history"
     },
     {
@@ -39,6 +43,7 @@
       "description": "Monitor overdue accounts, assess risk with AI, draft collection emails, and track payments.",
       "category": "Order-to-Cash",
       "version": "1.0.0",
+      "icon": "collections-agent/icon.svg",
       "starter_prompt": "I want an AR collections app. Monitor overdue customer accounts, use AI to assess risk and draft collection emails, record payments, and track everything in an audit log.\n\nI also need:\n- A dashboard with total outstanding, AR aging summary, and priority customers\n- A worklist page sorted by risk score with buttons to run AI assessment and draft emails\n- Customer detail with tabs for invoices, activity log, and payments\n- Payment recording that auto-applies to oldest invoices first\n- Settings for reminder templates and escalation rules\n- Seed data with customers, invoices across aging buckets, and payment history"
     }
   ]
