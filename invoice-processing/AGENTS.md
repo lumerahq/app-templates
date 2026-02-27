@@ -57,12 +57,20 @@ A Lumera app is built from these primitives — all defined as code in `platform
 
 All resources use **external IDs** in the format `<app-name>:<resource-name>` (auto-derived from `package.json` name + directory/file name).
 
+## Architecture Files
+
+Keep these up to date as the design evolves:
+
+- **architecture.md** — Technical reference for coding agents. Data models, schemas, relations, hook logic, automation flows, design decisions. An agent starting a new session should understand the full system from this file.
+- **ARCHITECTURE.html** — Human-facing docs. Self-contained HTML with product overview, data flow diagrams, system architecture visuals.
+
 ## Workflow
 
 1. **Read skills first** — Before writing automations, hooks, collections, or agents, read the matching skill file for API details and patterns.
 2. **Code is source of truth** — Edit files in `platform/`, then deploy with `lumera apply`. Don't edit in the Lumera UI.
 3. **Plan before apply** — Run `lumera plan` to preview changes, then `lumera apply` to deploy.
 4. **Offer to deploy** — After changing platform resources, offer to run `lumera apply`.
+5. **Deploy marker** — When your changes create or modify platform resources that need `lumera apply`, include at the very end of your response: `<!-- DEPLOY: short commit message -->`. Do NOT include for frontend-only changes.
 
 ## Key Commands
 
