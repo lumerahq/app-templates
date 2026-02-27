@@ -47,13 +47,24 @@ All resources use **external IDs** in the format `<app-name>:<resource-name>` (a
 
 When the user describes what they want to build:
 
+### Phase 1: Design
 1. **Read skills first** — Read the matching skill files for API details and patterns.
-2. **Design before code** — Write `architecture.md` (technical details) and `ARCHITECTURE.html` (visual overview showing what will be built, how data flows, what the user experience looks like). Then **stop and ask the user to review ARCHITECTURE.html**. Iterate on the design until the user is satisfied before writing any code.
-3. **Build incrementally** — Implement in stages. After each stage, summarize what was done and what's next.
-4. **Code is source of truth** — Edit files in `platform/`, then deploy with `lumera apply`. Don't edit in the Lumera UI.
-5. **Offer to deploy** — After changing platform resources, run `lumera plan` to preview, then offer to run `lumera apply`.
-6. **Keep architecture current** — Update both architecture files after significant changes to the data model or flows.
-7. **Deploy marker** — When your changes create or modify platform resources that need `lumera apply`, include at the very end of your response: `<!-- DEPLOY: short commit message -->`. Do NOT include for frontend-only changes.
+2. **Design before code** — Write `architecture.md` (technical details) and `ARCHITECTURE.html` (visual product brief). Then **stop and ask the user to review ARCHITECTURE.html**. Iterate until satisfied.
+
+### Phase 2: Interactive Prototype
+3. **Build a clickable prototype** — Build every screen with mock data so the user can open the Preview tab and experience the real app. This means:
+   - Create a `src/lib/mock-data.ts` file with realistic dummy data matching the domain (real account names, plausible numbers, 12+ months of data, multiple scenarios).
+   - Build all routes and components using this mock data — dashboard, editors, tables, charts, detail views. Full navigation, real layouts, working interactions (tabs, filters, sorts, modals).
+   - Add a small **status banner** on each page: a subtle top bar or badge showing `✅ Live in prototype` for features that are fully represented, and `🔜 Connects to backend` for actions that will work once collections and automations are deployed (e.g. "Save" buttons, "Run forecast" actions).
+   - The prototype should feel like a finished app with frozen data — not a wireframe.
+4. **Stop and ask for feedback** — Tell the user to check the Preview tab. Iterate on layout, columns, navigation, and flows until they approve.
+
+### Phase 3: Build
+5. **Build the backend** — Create collection schemas matching the mock data shapes, write automations and hooks, deploy with `lumera apply`, create a seed script with the mock data.
+6. **Connect the frontend** — Replace mock data imports with API calls (`pbSql`, `pbList`, `createRun`). The layouts stay the same — only the data source changes.
+7. **Code is source of truth** — Edit files in `platform/`, then deploy with `lumera apply`. Don't edit in the Lumera UI.
+8. **Keep architecture current** — Update both architecture files after significant changes.
+9. **Deploy marker** — When your changes create or modify platform resources that need `lumera apply`, include at the very end of your response: `<!-- DEPLOY: short commit message -->`. Do NOT include for frontend-only changes.
 
 ## Key Commands
 
