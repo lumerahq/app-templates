@@ -65,7 +65,13 @@ All resources use **external IDs** in the format `<app-name>:<resource-name>` (a
 ## Architecture Files
 
 - **architecture.md** — Technical reference for coding agents. Data models, schemas, relations, hook logic, automation flows, design decisions. An agent starting a new session should understand the full system from this file.
-- **ARCHITECTURE.html** — Human-facing visual overview. Self-contained HTML with product overview, data flow diagrams, system architecture visuals. Built for humans to review in a browser.
+- **ARCHITECTURE.html** — Product brief for the user. This is NOT a system diagram — it's a visual pitch showing what the app will do from the user's perspective. Structure it as:
+  1. **Hero**: App name, one-line value prop, who it's for.
+  2. **Your workflow**: 3-5 step animated walkthrough of the main user journey (e.g. "Set up drivers → Generate forecasts → Compare scenarios → Share with board"). Each step gets a simple icon/illustration and a sentence. Use subtle CSS animations to reveal steps sequentially.
+  3. **What you'll see**: Wireframe-style mockups of key screens (SVG rectangles with placeholder labels showing layout — sidebar, tables, charts, cards). Enough to convey the UX, not pixel-perfect.
+  4. **Under the hood** (collapsed `<details>`): The technical system diagram for those who want it.
+  
+  Keep it clean and minimal. Finance person should look at it and say "yes, that's what I want" or "no, change X."
 
 ## Workflow
 
