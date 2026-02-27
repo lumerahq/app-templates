@@ -64,18 +64,19 @@ All resources use **external IDs** in the format `<app-name>:<resource-name>` (a
 
 ## Architecture Files
 
-Keep these up to date as the design evolves:
-
 - **architecture.md** — Technical reference for coding agents. Data models, schemas, relations, hook logic, automation flows, design decisions. An agent starting a new session should understand the full system from this file.
 - **ARCHITECTURE.html** — Human-facing docs. Self-contained HTML with product overview, data flow diagrams, system architecture visuals.
+
+**Write `architecture.md` before writing code.** When the user describes what they want to build, first propose a plan and write it to `architecture.md` — which collections, hooks, automations, and pages are needed and how they connect. Then implement. Update `architecture.md` after any significant changes to the data model or flows.
 
 ## Workflow
 
 1. **Read skills first** — Before writing automations, hooks, collections, or agents, read the matching skill file for API details and patterns.
-2. **Code is source of truth** — Edit files in `platform/`, then deploy with `lumera apply`. Don't edit in the Lumera UI.
-3. **Plan before apply** — Run `lumera plan` to preview changes, then `lumera apply` to deploy.
-4. **Offer to deploy** — After changing platform resources, offer to run `lumera apply`.
-5. **Deploy marker** — When your changes create or modify platform resources that need `lumera apply`, include at the very end of your response: `<!-- DEPLOY: short commit message -->`. Do NOT include for frontend-only changes.
+2. **Architecture first** — Propose a plan, write `architecture.md`, then implement. Update it after significant changes.
+3. **Code is source of truth** — Edit files in `platform/`, then deploy with `lumera apply`. Don't edit in the Lumera UI.
+4. **Plan before apply** — Run `lumera plan` to preview changes, then `lumera apply` to deploy.
+5. **Offer to deploy** — After changing platform resources, offer to run `lumera apply`.
+6. **Deploy marker** — When your changes create or modify platform resources that need `lumera apply`, include at the very end of your response: `<!-- DEPLOY: short commit message -->`. Do NOT include for frontend-only changes.
 
 ## Key Commands
 
