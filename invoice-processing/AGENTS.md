@@ -89,7 +89,8 @@ When the user describes what they want to build:
 6. **Connect the frontend** — Replace mock data imports with API calls (`pbSql`, `pbList`, `createRun`). The layouts stay the same — only the data source changes.
 7. **Code is source of truth** — Edit files in `platform/`, then deploy with `lumera apply`. Don't edit in the Lumera UI.
 8. **Keep architecture current** — Update both architecture files after significant changes.
-9. **Deploy marker** — When your changes create or modify platform resources that need `lumera apply`, include at the very end of your response: `<!-- DEPLOY: short commit message -->`. Do NOT include for frontend-only changes.
+9. **Commit your work** — After completing each phase or making significant changes, commit to git: `git add -A && git commit -m "descriptive message"`. This persists your work — the sandbox filesystem is ephemeral and may be recycled.
+10. **Deploy marker** — When your changes create or modify platform resources that need `lumera apply`, include at the very end of your response: `<!-- DEPLOY: short commit message -->`. Do NOT include for frontend-only changes.
 
 ## Key Commands
 
