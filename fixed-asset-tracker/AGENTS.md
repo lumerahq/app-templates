@@ -77,7 +77,7 @@ When the user describes what they want to build:
    - Build all routes and components using this mock data — dashboard, editors, tables, charts, detail views. Full navigation, real layouts, working interactions (tabs, filters, sorts, modals).
    - Add a small **status banner** on each page: a subtle top bar or badge showing `✅ Live in prototype` for features that are fully represented, and `🔜 Connects to backend` for actions that will work once collections and automations are deployed (e.g. "Save" buttons, "Run forecast" actions).
    - The prototype should feel like a finished app with frozen data — not a wireframe.
-4. **Stop and ask for feedback** — Tell the user to check the Preview tab. Iterate on layout, columns, navigation, and flows until they approve.
+4. **Stop and ask for feedback** — Tell the user to open the **Preview tab** in Studio. The dev server starts automatically when they open it — you do NOT need to run `pnpm dev` or start any server yourself. Iterate on layout, columns, navigation, and flows until they approve.
 
 ### Phase 3: Build
 5. **Build the backend** — Create collection schemas matching the mock data shapes, write automations and hooks, deploy with `lumera apply`, create a seed script with the mock data.
