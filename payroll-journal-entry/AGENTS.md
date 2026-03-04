@@ -55,7 +55,7 @@ When the user describes what they want to build:
 
 ### Step 1: Plan
 1. **Read skills first** — Read the matching skill files for API details and patterns.
-2. **Write `architecture.md`** — This is your plan. Start from the **simplest thing that works** — one collection, one screen, one feature. Then list incremental steps that layer on complexity. Each step should be a complete horizontal slice (collection + backend logic + UI). Example:
+2. **Write `plan.md`** — This is your plan. Start from the **simplest thing that works** — one collection, one screen, one feature. Then list incremental steps that layer on complexity. Each step should be a complete horizontal slice (collection + backend logic + UI). Example:
    - Step 1: A `forecasts` collection with a basic table view.
    - Step 2: Add a `scenarios` collection, link to forecasts, add a scenario picker.
    - Step 3: Add a comparison chart across scenarios.
@@ -65,11 +65,11 @@ When the user describes what they want to build:
 ### Step 2: Build (one slice at a time)
 4. **Build horizontally** — Pick the first step from the plan. Build the full slice: collection schema → `lumera apply` → seed data → UI route/components → commit. Each slice should be deployable and usable on its own.
 5. **Stop and ask for feedback** — Tell the user to open the **Preview tab** to see the app. The dev server starts automatically — you do NOT need to run `pnpm dev` or start any server. Iterate on the slice until they're happy.
-6. **Repeat** — Move to the next step in the plan. Update `architecture.md` as the design evolves.
+6. **Repeat** — Move to the next step in the plan. Update `plan.md` as the design evolves.
 
 ### Rules
 7. **Code is source of truth** — Edit files in `platform/`, then deploy with `lumera apply`. Don't edit in the Lumera UI.
-8. **Keep `architecture.md` current** — Update it after each slice so a new session can pick up where you left off.
+8. **Keep `plan.md` current** — Update it after each slice so a new session can pick up where you left off.
 9. **Commit and push** — After each slice or significant change: `git add -A && git commit -m "descriptive message" && git push`. The sandbox is ephemeral — uncommitted work is lost if recycled.
 10. **Deploy marker** — When your changes need `lumera apply`, include at the end of your response: `<!-- DEPLOY: short commit message -->`. Skip for frontend-only changes.
 
