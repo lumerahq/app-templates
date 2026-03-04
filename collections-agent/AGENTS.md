@@ -64,7 +64,7 @@ All resources use **external IDs** in the format `<app-name>:<resource-name>` (a
 
 ## Workflow
 
-When the user describes what they want to build:
+Follow the user's lead. If they tell you exactly what to build, build it. The workflow below is the default when they describe a goal and leave the approach to you.
 
 ### Step 1: Plan
 1. **Read skills first** — Read the matching skill files for API details and patterns.
