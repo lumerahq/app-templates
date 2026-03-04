@@ -32,7 +32,6 @@ for t in data['templates']:
 TEMPLATE_DIRS=""
 for dir in "$REPO_ROOT"/*/; do
   dirname="$(basename "$dir")"
-  # Skip non-template directories
   case "$dirname" in
     scripts|docs|.git|.github|node_modules) continue ;;
   esac
@@ -47,7 +46,7 @@ for name in $TEMPLATE_DIRS; do
   PREV_ERRORS=$ERRORS
   echo "[$name]"
 
-  # Check template.json is valid and has required fields
+  # template.json: valid JSON with required fields, name matches directory
   VALID=$(python3 -c "
 import json, sys
 try:
@@ -72,35 +71,55 @@ except Exception as e:
     invalid_json:*) error "template.json is not valid JSON: ${VALID#invalid_json:}" ;;
   esac
 
-  # Check registry.json has a matching entry
+  # Must be listed in registry.json
   if ! echo "$REGISTRY_NAMES" | grep -qx "$name"; then
     error "not listed in registry.json"
   fi
 
-  # Check package.json exists and has a valid name (not the old placeholder)
+  # package.json: exists and has a real name
   if [ -f "$dir/package.json" ]; then
     PKG_NAME=$(python3 -c "import json; print(json.load(open('$dir/package.json'))['name'])" 2>/dev/null || echo "")
     if [ -z "$PKG_NAME" ]; then
       error "package.json missing name field"
-    elif [ "$PKG_NAME" = "my-lumera-app" ]; then
-      error "package.json still uses placeholder 'my-lumera-app' — use the template's own name"
     fi
   else
     error "missing package.json"
   fi
 
-  # Check no git-tracked build artifacts
+  # AGENTS.md must exist
+  if [ ! -f "$dir/AGENTS.md" ]; then
+    error "missing AGENTS.md"
+  fi
+
+  # CLAUDE.md should be a symlink to AGENTS.md
+  if [ -f "$dir/CLAUDE.md" ]; then
+    if [ -L "$dir/CLAUDE.md" ]; then
+      target=$(readlink "$dir/CLAUDE.md")
+      if [ "$target" != "AGENTS.md" ]; then
+        error "CLAUDE.md symlink points to '$target' instead of AGENTS.md"
+      fi
+    else
+      error "CLAUDE.md should be a symlink to AGENTS.md, not a separate file"
+    fi
+  else
+    error "missing CLAUDE.md (should be symlink to AGENTS.md)"
+  fi
+
+  # architecture.md must exist
+  if [ ! -f "$dir/architecture.md" ]; then
+    error "missing architecture.md"
+  fi
+
+  # No git-tracked build artifacts
   for artifact in node_modules dist .lumera .venv __pycache__; do
     if git ls-files --error-unmatch "$dir/$artifact" >/dev/null 2>&1; then
       error "git-tracked build artifact: $artifact/"
     fi
   done
 
-  # Check CLAUDE.md has skill markers
-  if [ -f "$dir/CLAUDE.md" ]; then
-    if ! grep -q "LUMERA_SKILLS_START" "$dir/CLAUDE.md"; then
-      error "CLAUDE.md missing skill markers (<!-- LUMERA_SKILLS_START/END -->)"
-    fi
+  # No stale ARCHITECTURE.html
+  if [ -f "$dir/ARCHITECTURE.html" ]; then
+    error "stale ARCHITECTURE.html — should have been removed"
   fi
 
   if [ $ERRORS -eq $PREV_ERRORS ]; then
@@ -130,7 +149,7 @@ COLLISION_RESULT=$(python3 -c "
 import json, os, sys
 
 repo_root = sys.argv[1]
-collections = {}  # name -> list of template dirs
+collections = {}
 
 for entry in os.listdir(repo_root):
     coll_dir = os.path.join(repo_root, entry, 'platform', 'collections')
@@ -151,7 +170,8 @@ for entry in os.listdir(repo_root):
 collisions = {k: v for k, v in collections.items() if len(v) > 1}
 if collisions:
     for name, templates in sorted(collisions.items()):
-        print(f'collision:{name}:{','.join(templates)}')
+        tpl = ','.join(templates)
+        print(f'collision:{name}:{tpl}')
 else:
     print('ok')
 " "$REPO_ROOT" 2>&1)
