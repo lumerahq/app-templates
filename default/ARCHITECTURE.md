@@ -1,8 +1,10 @@
-# Default App — Technical Reference
+# Architecture
+
+> **This is a starter template.** Update this file as you build — it should always reflect the current state of the project so any agent or developer can understand the system from this file alone.
 
 ## Overview
 
-Blank starter template. One collection, dashboard with placeholders, settings page, AI agent, seed script.
+Blank starter app with one example collection (`example_items`), a dashboard, settings page, and an AI agent.
 
 ## Collections
 
@@ -16,37 +18,17 @@ Blank starter template. One collection, dashboard with placeholders, settings pa
 
 ## Agents
 
-| Agent | Directory | Purpose |
-|-------|-----------|---------|
-| `assistant` | `platform/agents/assistant/` | General-purpose AI agent. Config + system prompt. |
+| Agent | Purpose |
+|-------|---------|
+| `assistant` | General-purpose AI agent |
 
 ## Frontend Routes
 
-| Route | File | Purpose |
-|-------|------|---------|
-| `/` | `src/routes/index.tsx` | Dashboard — placeholder stat cards, recent activity |
-| `/settings` | `src/routes/settings.tsx` | Settings page placeholder |
+| Route | Purpose |
+|-------|---------|
+| `/` | Dashboard — placeholder stat cards |
+| `/settings` | Settings page |
 
-## Key Files
+## Design Decisions
 
-```
-platform/
-├── collections/example_items.json
-├── agents/assistant/
-│   ├── config.json
-│   └── system_prompt.md
-src/
-├── routes/index.tsx
-├── routes/settings.tsx
-├── routes/__root.tsx          # Layout — sidebar, auth bridge
-├── lib/queries.ts             # Data fetching helpers (pbSql, pbList wrappers)
-├── components/StatCard.tsx
-├── components/Sidebar.tsx     # APP_NAME constant controls sidebar label
-├── main.tsx                   # Auth context, router init
-scripts/
-└── seed-demo.py               # Idempotent seed script
-```
-
-## External IDs
-
-None defined yet. When you add automations or hooks, the CLI derives external IDs as `<package-name>:<resource-name>` from `package.json` name + the automation directory or hook filename.
+_None yet — document key decisions here as you make them._

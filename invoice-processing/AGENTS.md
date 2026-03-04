@@ -57,6 +57,8 @@ A Lumera app is built from these primitives — all defined as code in `platform
 
 All resources use **external IDs** in the format `<app-name>:<resource-name>` (auto-derived from `package.json` name + directory/file name).
 
+For detailed technical reference (data models, relationships, design decisions), see [architecture.md](architecture.md).
+
 ## Workflow
 
 Follow the user's lead. If they tell you exactly what to build, build it. The workflow below is the default when they describe a goal and leave the approach to you.
@@ -73,7 +75,7 @@ Follow the user's lead. If they tell you exactly what to build, build it. The wo
 
 ### Rules
 7. **Code is source of truth** — Edit files in `platform/`, then deploy with `lumera apply`. Don't edit in the Lumera UI.
-8. **Keep `architecture.md` current** — After each slice, update `architecture.md` with what was built: data models, relationships, hook logic, design decisions. This is the project knowledge base — a new session should understand the full system from this file alone.
+8. **Keep docs current** — After each slice, update `architecture.md` with what was built (data models, relationships, hook logic, design decisions). Also update the project description at the top of this file (`AGENTS.md`) so it reflects what the project actually does now — not the original template description.
 9. **Commit and push** — After each slice or significant change: `git add -A && git commit -m "descriptive message" && git push`. The sandbox is ephemeral — uncommitted work is lost if recycled.
 10. **Deploy marker** — When your changes need `lumera apply`, include at the end of your response: `<!-- DEPLOY: short commit message -->`. Skip for frontend-only changes.
 
