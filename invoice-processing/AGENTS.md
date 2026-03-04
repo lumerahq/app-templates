@@ -92,6 +92,22 @@ When the user describes what they want to build:
 9. **Commit and push** — After completing each phase or making significant changes, commit and push: `git add -A && git commit -m "descriptive message" && git push`. The sandbox filesystem is ephemeral — uncommitted or unpushed work is lost if the sandbox is recycled.
 10. **Deploy marker** — When your changes create or modify platform resources that need `lumera apply`, include at the very end of your response: `<!-- DEPLOY: short commit message -->`. Do NOT include for frontend-only changes.
 
+## File Artifacts
+
+When you create a file the user should **see** in chat (HTML pages, SVG graphics,
+CSV exports, PDFs, images, charts, etc.), call `create_artifact` with the file path
+after writing it. This uploads the file and renders an inline preview or download
+card in the chat. Without this step, the file exists in the sandbox but the user
+cannot see it.
+
+Always call `create_artifact` for: `.html`, `.svg`, `.csv`, `.json`, `.xml`, `.md`,
+`.txt`, `.pdf`, `.png`, `.jpg`, `.gif`, `.xlsx`, `.docx`, `.pptx`, `.zip` — any file
+the user asked to see or download.
+
+## Python
+
+Python 3.14 is pre-installed with common data packages (pandas, numpy, matplotlib, pdfplumber, openpyxl, etc.). To install additional packages use `uv add <package>` (preferred) or `pip install <package>`.
+
 ## Key Commands
 
 ```bash
