@@ -11,7 +11,6 @@ app-templates/
 ├── registry.json          # Template manifest (source of truth)
 ├── scripts/
 │   ├── create-template.sh    # Scaffold a new template from default
-│   ├── sync-skills.sh        # Fetch latest skills from Lumera API
 │   └── validate-templates.sh # CI validation for all templates
 ├── .github/workflows/
 │   └── validate.yml       # GitHub Actions CI — runs validation on PRs
@@ -257,25 +256,24 @@ pnpm install && pnpm typecheck
 
 ## AI Agent Skills
 
-Each template includes Lumera skills in `.claude/skills/` that provide AI agents with detailed API docs and usage patterns. Skills are served from the Lumera platform API and committed to git so agents have them immediately.
+Each template includes Lumera skills in `.agents/skills/` that provide AI agents with detailed API docs and usage patterns. Skills are served from the Lumera platform API and installed via the CLI.
 
 ### How skills work
 
-- Skill files live at `<template>/.claude/skills/lumera_*.md`
+- Skill files live at `<template>/.agents/skills/*.md`
 - Each template's `CLAUDE.md` has skill description markers (`<!-- LUMERA_SKILLS_START -->` / `<!-- LUMERA_SKILLS_END -->`)
-- The `create-template.sh` script copies skills from `default` when scaffolding a new template
-- When a user runs `lumera init`, the CLI re-fetches the latest skills from the API and updates the CLAUDE.md markers
+- When a user runs `lumera init`, the CLI fetches the latest skills from the API
 
 ### Keeping skills up to date
 
-Run the sync script to pull the latest skills from the Lumera API into all templates:
+Use the Lumera CLI to install or update skills in each template:
 
 ```bash
-./scripts/sync-skills.sh          # Update all templates
-./scripts/sync-skills.sh --dry-run # Preview changes
+cd <template-dir>
+pnpx @lumerahq/cli skills install --force   # First-time install (or overwrite)
+pnpx @lumerahq/cli skills update            # Update all skills
+pnpx @lumerahq/cli skills update --dry-run  # Preview changes
 ```
-
-This fetches from `https://app.lumerahq.com/api/public/skills`, updates `.claude/skills/` in each template, and regenerates the CLAUDE.md skill descriptions.
 
 ## Collection Naming
 

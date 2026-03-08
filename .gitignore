@@ -12,4 +12,4 @@ src/routeTree.gen.ts
 .tanstack/
 .DS_Store
 uv.lock
-.claude/skills/
+.pi/
