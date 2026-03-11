@@ -1,7 +1,7 @@
 import { type HostPayload, isEmbedded, onInitMessage, postReadyMessage } from '@lumerahq/ui/lib';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createHashHistory, createRouter, RouterProvider } from '@tanstack/react-router';
-import { createContext, StrictMode, useEffect, useState } from 'react';
+import { createContext, StrictMode, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from 'sonner';
 
@@ -15,9 +15,12 @@ const queryClient = new QueryClient({
   },
 });
 
+const hashHistory = createHashHistory();
+
 const router = createRouter({
   routeTree,
-  history: createHashHistory(),
+  history: hashHistory,
+  context: {},
   defaultPreload: 'intent',
   scrollRestoration: true,
 });
@@ -26,6 +29,28 @@ declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;
   }
+}
+
+const ROUTE_STORAGE_KEY = 'default-app-route';
+
+function RouteRestorer() {
+  const isFirstLoad = useRef(true);
+
+  useEffect(() => {
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      const savedRoute = localStorage.getItem(ROUTE_STORAGE_KEY);
+      if (savedRoute && savedRoute !== '/' && router.state.location.pathname === '/') {
+        router.navigate({ to: savedRoute });
+      }
+    }
+
+    return router.subscribe('onResolved', ({ toLocation }) => {
+      localStorage.setItem(ROUTE_STORAGE_KEY, toLocation.pathname);
+    });
+  }, []);
+
+  return null;
 }
 
 type AuthContextValue = {
@@ -87,6 +112,7 @@ const App = () => {
     <AuthContext.Provider value={hostContext}>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        <RouteRestorer />
         <Toaster position="top-right" richColors />
       </QueryClientProvider>
     </AuthContext.Provider>
