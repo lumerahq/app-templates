@@ -1,21 +1,19 @@
-# Default App
+# {{projectTitle}}
 
-Blank starter template with a dashboard, one example collection (`example_items`), and a seed script. Use this as a starting point — replace the example collection with your own domain.
+A Lumera app built with collections, automations, hooks, and a React frontend.
 
 ## Project Structure
 
 ```
 platform/
-├── collections/example_items.json   # Example collection schema
-├── automations/                     # Python automations (config.json + run.py per automation)
-├── hooks/                           # JavaScript hooks on collection lifecycle events
-├── agents/assistant/                # AI agent (config.json + system_prompt.md)
+├── collections/       # Collection schemas (JSON) — deployed via lumera apply
+├── automations/       # Python automations (config.json + run.py per automation)
+├── hooks/             # JavaScript hooks on collection lifecycle events
 src/
-├── routes/index.tsx                 # Dashboard
-├── routes/settings.tsx              # Settings page
-├── lib/queries.ts                   # Data fetching helpers
-├── components/                      # Shared UI components
-scripts/seed-demo.py                 # Seed data script
+├── routes/index.tsx   # Home page
+├── lib/queries.ts     # Data fetching helpers
+├── components/        # Shared UI components
+scripts/               # Utility scripts (seed data, migrations, etc.)
 ```
 
 ## Lumera Concepts
@@ -25,12 +23,22 @@ A Lumera app is built from these primitives — all defined as code in `platform
 - **Collections** (`platform/collections/*.json`) — Data tables with typed fields. Deployed via `lumera apply`.
 - **Automations** (`platform/automations/*/`) — Python scripts that run on Lumera's servers. Each has a `config.json` and `run.py`.
 - **Hooks** (`platform/hooks/*.js`) — JavaScript on collection lifecycle events (`before_create`, `after_update`, etc.).
-- **Agents** (`platform/agents/*/`) — AI chat agents with a `config.json` and `system_prompt.md`.
 - **Webhooks** — Receive events from external services (Stripe, GitHub, etc.). Events land in `lm_event_log`; process them with hooks or automations.
 - **Mailbox** — Each tenant gets an email address. Inbound emails are persisted to `lm_mailbox_messages` — use hooks to trigger automations on new mail.
 - **Email** — Send transactional emails from automations via `from lumera import email`. Logged to `lm_email_logs`.
 
 All resources use **external IDs** in the format `<app-name>:<resource-name>` (auto-derived from `package.json` name + directory/file name).
+
+## Project Namespacing
+
+**All collection names are automatically namespaced by project.** Always use bare names (e.g. `orders`, not `myproject__orders`) everywhere — in collection JSON files, Python SDK calls, JavaScript hooks, and frontend queries. The platform resolves bare names to the project-scoped version transparently.
+
+- `pb.ensure_collection("orders", ...)` → stored as `{project}__orders`
+- `pb.search("orders", ...)` → resolves to `{project}__orders`
+- `ctx.dao.find("orders", ...)` → resolves to `{project}__orders`
+- `pbList("orders", ...)` in frontend → resolves via `X-Lumera-Project` header
+
+**Never manually prefix collection names with `{project}__`.** Two projects can each have an `orders` collection — they are fully isolated.
 
 For detailed technical reference (data models, relationships, design decisions), see [architecture.md](architecture.md).
 
@@ -69,6 +77,6 @@ Python 3.14 is pre-installed with common data packages (pandas, numpy, matplotli
 ```bash
 lumera plan                            # Preview changes (dry run)
 lumera apply                           # Deploy everything
-lumera run scripts/seed-demo.py        # Run seed script remotely
+lumera run scripts/seed.py             # Run a script remotely
 lumera status                          # Show sync status
 ```

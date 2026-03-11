@@ -1,34 +1,29 @@
 # Architecture
 
-> **This is a starter template.** Update this file as you build — it should always reflect the current state of the project so any agent or developer can understand the system from this file alone.
+> Update this file as you build — it should always reflect the current state of the project so any agent or developer can understand the system from this file alone.
 
 ## Overview
 
-Blank starter app with one example collection (`example_items`), a dashboard, settings page, and an AI agent.
+This is a blank starter. No collections, automations, or hooks are defined yet. Build your app by adding resources to `platform/` and deploying with `lumera apply`.
 
 ## Collections
 
-### example_items
-| Field | Type | Notes |
-|-------|------|-------|
-| `name` | text | |
-| `status` | select | |
-| `description` | text | |
-| `source_id` | text | External reference ID |
+_None yet — add collection schemas to `platform/collections/` as you build._
 
-## Agents
+## Automations
 
-| Agent | Purpose |
-|-------|---------|
-| `assistant` | General-purpose AI agent |
+_None yet — add automation configs to `platform/automations/` as you build._
+
+## Hooks
+
+_None yet — add hook scripts to `platform/hooks/` as you build._
 
 ## Frontend Routes
 
 | Route | Purpose |
 |-------|---------|
-| `/` | Dashboard — placeholder stat cards |
-| `/settings` | Settings page |
+| `/` | Home page — blank canvas, ready to build |
 
 ## Design Decisions
 
-_None yet — document key decisions here as you make them._
+_Document key decisions here as you make them._

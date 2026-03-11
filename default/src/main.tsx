@@ -1,7 +1,7 @@
 import { type HostPayload, isEmbedded, onInitMessage, postReadyMessage } from '@lumerahq/ui/lib';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createHashHistory, createRouter, RouterProvider } from '@tanstack/react-router';
-import { createContext, StrictMode, useEffect, useRef, useState } from 'react';
+import { createContext, StrictMode, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from 'sonner';
 
@@ -15,13 +15,9 @@ const queryClient = new QueryClient({
   },
 });
 
-// Use hash history so route persists across iframe refreshes
-const hashHistory = createHashHistory();
-
 const router = createRouter({
   routeTree,
-  history: hashHistory,
-  context: {},
+  history: createHashHistory(),
   defaultPreload: 'intent',
   scrollRestoration: true,
 });
@@ -30,28 +26,6 @@ declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;
   }
-}
-
-const ROUTE_STORAGE_KEY = 'default-app-route';
-
-function RouteRestorer() {
-  const isFirstLoad = useRef(true);
-
-  useEffect(() => {
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-      const savedRoute = localStorage.getItem(ROUTE_STORAGE_KEY);
-      if (savedRoute && savedRoute !== '/' && router.state.location.pathname === '/') {
-        router.navigate({ to: savedRoute });
-      }
-    }
-
-    return router.subscribe('onResolved', ({ toLocation }) => {
-      localStorage.setItem(ROUTE_STORAGE_KEY, toLocation.pathname);
-    });
-  }, []);
-
-  return null;
 }
 
 type AuthContextValue = {
@@ -92,19 +66,18 @@ const App = () => {
 
   if (status === 'pending') {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-900 text-white">
-        <p>Authenticating...</p>
+      <main className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
       </main>
     );
   }
 
   if (status === 'denied' || !hostContext) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-900 text-white">
-        <div className="text-center space-y-4 rounded-xl border border-slate-700/60 bg-slate-800/70 px-8 py-10">
-          <p className="text-sm uppercase tracking-widest text-slate-400">Error</p>
-          <p className="text-6xl font-semibold">403</p>
-          <p className="text-sm text-slate-300">Access Denied</p>
+      <main className="flex min-h-screen items-center justify-center">
+        <div className="text-center space-y-2">
+          <p className="text-4xl font-semibold">403</p>
+          <p className="text-sm text-muted-foreground">Access Denied</p>
         </div>
       </main>
     );
@@ -114,7 +87,6 @@ const App = () => {
     <AuthContext.Provider value={hostContext}>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
-        <RouteRestorer />
         <Toaster position="top-right" richColors />
       </QueryClientProvider>
     </AuthContext.Provider>
@@ -126,6 +98,6 @@ if (rootElement && !rootElement.innerHTML) {
   ReactDOM.createRoot(rootElement).render(
     <StrictMode>
       <App />
-    </StrictMode>
+    </StrictMode>,
   );
 }

@@ -1,8 +1,3 @@
----
-name: how-to-use-lumera
-description: Build event-driven automation pipelines using collections, hooks, and automations. Each step is an automation, hooks connect the steps, and collections store state.
----
-
 # How to Use Lumera
 
 Build event-driven automation pipelines using collections, hooks, and automations. Each step is an automation, hooks connect the steps, and collections store state.
@@ -92,3 +87,14 @@ Use `external_id` on automations, hooks, and collections. Deploy scripts can run
 external_id = f"{source_id}:{version}"
 pb.upsert("results", {"external_id": external_id, **data})
 ```
+
+## Project Namespacing
+
+All resources (collections, automations, hooks) are scoped to a project. The platform handles namespacing automatically:
+
+- **Collections** are stored as `{project}__orders` but you always use bare names like `orders` in code, schemas, and CLI commands.
+- **Automations and hooks** have a `project_id` field set automatically by `lumera apply`.
+- **The Python SDK** reads `LUMERA_PROJECT_EXTERNAL_ID` from the environment and sends the project context header on every API call.
+- **The CLI** reads the project name from `package.json` and sends it on every request.
+
+**Never manually prefix collection names.** Two projects can each have `orders` — they are isolated at the database level. Pre-existing bare-named collections remain accessible for backward compatibility.

@@ -1,8 +1,3 @@
----
-name: building-collections
-description: Design and create Lumera collection schemas. Use `pb.ensure_collection()` for idempotent create/update, stable IDs for automation references, and `lumera_file` fields for attachments.
----
-
 # Building Collections
 
 Design and create Lumera collection schemas. Use `pb.ensure_collection()` for idempotent create/update, stable IDs for automation references, and `lumera_file` fields for attachments.
@@ -122,6 +117,27 @@ Before creating new collections, check what already exists. These platform-manag
 
 Also list tenant collections with `pb.list_collections()` — users may already have custom collections you can reuse or extend rather than duplicating.
 
+## Project Namespacing
+
+Collections are automatically namespaced by project. You write bare names (e.g. `orders`) and the platform handles the rest:
+
+- **SDK calls** like `pb.ensure_collection("orders", ...)` send bare names — the backend sees the project context (via `LUMERA_PROJECT_EXTERNAL_ID` env var) and stores the collection as `{project}__orders` internally.
+- **`lumera apply`** sends bare names from your `platform/collections/*.json` files — same automatic namespacing.
+- All reads, writes, and lookups use bare names — the backend resolves them to the namespaced version transparently.
+
+**You never need to include the namespace prefix yourself.** Just use bare names everywhere:
+
+```python
+# These all work with bare names — backend resolves automatically
+pb.ensure_collection("orders", schema=[...])
+pb.create("orders", {"amount": 100})
+results = pb.search("orders", filter={"status": "pending"})
+```
+
+**Cross-project isolation:** Two projects can each have an `orders` collection — they are stored as `project_a__orders` and `project_b__orders` and never collide.
+
+**Backward compatibility:** Pre-existing bare-named collections (created before namespacing) remain accessible from any project context.
+
 ## Guidelines
 
 - **Check existing collections first** — call `pb.list_collections()` and review platform tables above before proposing new ones
@@ -129,3 +145,4 @@ Also list tenant collections with `pb.list_collections()` — users may already 
 - Use `external_id` on records for upsert/sync workflows
 - Use stable `id` on collections referenced by automations or hooks
 - Keep schemas focused — one collection per domain concept
+- **Use bare names** — never manually prefix with `{project}__`; the platform handles namespacing

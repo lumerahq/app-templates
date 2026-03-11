@@ -1,13 +1,17 @@
----
-name: building-automations
-description: Create and manage Lumera automations — background Python scripts with the Lumera SDK. Define inputs with Pydantic or type hints, set schedules, and manage via `from lumera import automations`.
----
-
 # Building Automations
 
 Create and manage Lumera automations — background Python scripts with the Lumera SDK. Define inputs with Pydantic or type hints, set schedules, and manage via `from lumera import automations`.
 
 ---
+
+## Project Context
+
+Automations belong to a project via `project_id`. When deployed through `lumera apply`, the CLI automatically sets this field. The project context ensures:
+
+- The automation's SDK calls (`pb.search()`, `pb.create()`, etc.) resolve collection names within the project's namespace.
+- `LUMERA_PROJECT_EXTERNAL_ID` is set in the execution environment, so the Python SDK sends the correct `X-Lumera-Project` header.
+
+**You don't need to set `project_id` manually** — `lumera apply` handles it. Just use bare collection names in your code.
 
 ## Create an Automation
 
@@ -109,8 +113,21 @@ automations.upsert(
 
 ## Schedules
 
+Scheduled runs use a saved preset for their inputs:
+
 ```python
-automations.update("abc123", schedule="0 9 * * *", schedule_tz="America/New_York")
+preset = automations.create_preset(
+    "abc123",
+    name="Daily Run",
+    inputs={"status": "pending"},
+)
+
+automations.update(
+    "abc123",
+    schedule="0 9 * * *",
+    schedule_tz="America/New_York",
+    schedule_preset_id=preset.id,
+)
 ```
 
 Cron: `minute hour day month weekday` (e.g., `*/15 * * * *` = every 15 min).

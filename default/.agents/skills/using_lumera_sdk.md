@@ -1,8 +1,3 @@
----
-name: using-lumera-sdk
-description: Write Python automations using the Lumera SDK. Always use the SDK for all platform operations — never make raw API calls. Import modules directly: `from lumera import pb` for records, `from lumera import storage` for files, `from lumera import llm` for AI, `from lumera import email` for sending emails.
----
-
 # Using Lumera SDK
 
 Write Python automations using the Lumera SDK. Always use the SDK for all platform operations — never make raw API calls. Import modules directly: `from lumera import pb` for records, `from lumera import storage` for files, `from lumera import llm` for AI, `from lumera import email` for sending emails.
@@ -15,7 +10,8 @@ Write Python automations using the Lumera SDK. Always use the SDK for all platfo
 |--------|--------|---------|
 | `pb` | `from lumera import pb` | Record CRUD |
 | `storage` | `from lumera import storage` | File uploads |
-| `agents` | `from lumera import agents` | Invoke agents, with optional file attachments |
+| `agents` | `from lumera import agents` | Invoke agents, or watch live agent runs |
+| `studio` | `from lumera import studio` | Start and watch live Studio project runs |
 | `llm` | `from lumera import llm` | LLM completions |
 | `locks` | `from lumera import locks` | Prevent concurrent processing |
 | `email` | `from lumera import email` | Transactional emails |
@@ -24,6 +20,8 @@ Write Python automations using the Lumera SDK. Always use the SDK for all platfo
 | `integrations.google` | `from lumera.integrations import google` | Google Sheets, Drive |
 
 **Never** import from `lumera.sdk` directly.
+
+**Project namespacing is automatic.** The SDK reads `LUMERA_PROJECT_EXTERNAL_ID` from the environment and sends it as the `X-Lumera-Project` header on every API call. All collection names you pass (e.g. `pb.search("orders")`) are bare — the backend resolves them to the project-namespaced version. Never manually prefix with `{project}__`.
 
 ## Records (`pb`)
 
@@ -97,7 +95,7 @@ files = storage.list_files(prefix="exports/")
 ```python
 from lumera import agents
 
-# Invoke another agent
+# Invoke another agent (best for automations / request-response work)
 result = agents.invoke("agent_id", "Summarize last month's expenses")
 print(result.output)
 print(result.success)
@@ -107,6 +105,14 @@ result = agents.invoke("classifier", "Classify this invoice",
     files=["invoice.pdf", "/tmp/receipt.png"])
 print(result.output)
 
+# Thin live client: start a run and watch what it does
+run = agents.start_live("agent_id", "Review this invoice", session_id="invoice-42")
+for evt in run.stream():
+    if evt.kind == "event" and evt.type == "text_delta":
+        print(evt.delta, end="")
+final = run.wait()
+print(final.status)
+
 # List agents
 for agent in agents.list():
     print(agent.name, agent.id)
@@ -115,6 +121,24 @@ for agent in agents.list():
 agent = agents.get("agent_id")
 print(agent.name)
 ```
+
+Use `agents.invoke()` for normal automation/backend calls. Use `start_live()` only when you need partial progress, live visibility, or reconnectable streaming.
+
+## Studio (`studio`)
+
+```python
+from lumera import studio
+
+run = studio.start_live("collections-agent", "Add an aging report")
+final = run.print_stream()
+print(final.status)
+
+# Inspect current snapshot or durable history
+state = run.state()
+history = run.history()
+```
+
+Use Studio live helpers when you want to watch a project-scoped coding run from Python. The Studio SDK surface is intentionally live-first.
 
 ## LLM (`llm`)
 

@@ -1,8 +1,3 @@
----
-name: building-hooks
-description: Write JavaScript hooks on Lumera collection lifecycle events. Hooks run server-side on `before_create`, `after_update`, etc. Manage via `GET/POST/PATCH/DELETE /api/pb/hooks`.
----
-
 # Building Hooks
 
 Write JavaScript hooks on Lumera collection lifecycle events. Hooks run server-side on `before_create`, `after_update`, etc. Manage via `GET/POST/PATCH/DELETE /api/pb/hooks`.
@@ -134,6 +129,16 @@ POST   /api/pb/hooks/compile             # Validate script
 | JSON | `object/array` | Nested access: `ctx.record.config?.theme` |
 | Date | `string` | ISO format, parse with `new Date()` |
 | LumeraFile | `object[]` | `{ object_key, original_name, size, content_type }` |
+
+## Project Context
+
+Hooks belong to a project via `project_id`. When deployed through `lumera apply`, this is set automatically. The hook's `ctx.dao` calls resolve collection names within the project's namespace — use bare names like `orders`, not `myproject__orders`.
+
+```javascript
+// Correct — bare names in dao calls
+const items = await ctx.dao.find('orders', { filter: { status: 'active' } });
+await ctx.dao.create('audit_log', { action: 'processed', source_id: ctx.record.id });
+```
 
 ## Best Practices
 

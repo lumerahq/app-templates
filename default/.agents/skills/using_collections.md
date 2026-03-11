@@ -1,8 +1,3 @@
----
-name: using-collections
-description: Query and manage records in Lumera collections. Use `from lumera import pb` for all record operations and `from lumera import query_sql` for complex reads.
----
-
 # Using Collections
 
 Query and manage records in Lumera collections. Use `from lumera import pb` for all record operations and `from lumera import query_sql` for complex reads.
@@ -95,3 +90,18 @@ collections = pb.list_collections()
 for col in collections:
     print(col["name"])
 ```
+
+## Project Namespacing
+
+Collections are automatically namespaced by project. **Always use bare names** (e.g. `orders`, not `myproject__orders`) in all SDK calls — the platform resolves the correct namespaced collection transparently via the project context.
+
+```python
+# Correct — bare names everywhere
+results = pb.search("orders", filter={"status": "pending"})
+pb.create("orders", {"amount": 100})
+pb.update("orders", record_id, {"status": "done"})
+
+# The backend resolves "orders" → "myproject__orders" automatically
+```
+
+Two projects can each have an `orders` collection without conflict. Pre-existing bare-named collections remain accessible for backward compatibility.

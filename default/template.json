@@ -1,7 +1,7 @@
 {
   "name": "default",
   "title": "Blank Starter",
-  "description": "A minimal starter with a dashboard, example collection, and seed script.",
+  "description": "A minimal blank canvas with React frontend and Lumera platform scaffolding. No pre-built collections or agents — start from scratch.",
   "category": "General",
-  "version": "1.0.0"
+  "version": "1.1.0"
 }
