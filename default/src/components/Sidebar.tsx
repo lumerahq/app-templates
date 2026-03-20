@@ -9,7 +9,7 @@ type NavItem = {
   icon: React.ElementType;
 };
 
-const APP_NAME = 'Default App';
+const APP_NAME = '{{projectTitle}}';
 
 const navItems: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },

@@ -31,7 +31,7 @@ declare module '@tanstack/react-router' {
   }
 }
 
-const ROUTE_STORAGE_KEY = 'default-app-route';
+const ROUTE_STORAGE_KEY = '{{projectName}}-route';
 
 function RouteRestorer() {
   const isFirstLoad = useRef(true);

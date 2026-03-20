@@ -1,4 +1,4 @@
-# Default App
+# {{projectTitle}}
 
 Blank Lumera starter — a minimal React app with platform scaffolding. No pre-built collections, automations, or agents. Start building from scratch.
 
