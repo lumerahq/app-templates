@@ -42,13 +42,40 @@ All resources use **external IDs** in the format `<app-name>:<resource-name>` (a
 
 For detailed technical reference (data models, relationships, design decisions), see [architecture.md](architecture.md).
 
+## Frontend API Calls
+
+Custom apps run in an **iframe**. **Always use the `@lumerahq/ui` bridge for API calls.** Never use raw `fetch()` against Lumera API endpoints.
+
+```ts
+// ✅ Correct — uses postMessage bridge, no CORS issues
+import { pbSql, pbList, pbCreate, pbUpdate, pbDelete } from '@lumerahq/ui/lib';
+
+// CRUD
+const records = await pbList('orders', { filter: JSON.stringify({ status: "pending" }) });
+await pbCreate('orders', { amount: 100 });
+await pbUpdate('orders', recordId, { status: 'done' });
+await pbDelete('orders', recordId);
+
+// ❌ WRONG — direct fetch will fail with CORS errors
+fetch('/api/pb/sql', { method: 'POST', body: JSON.stringify({ sql: '...' }) });
+fetch('https://app.lumerahq.com/api/pb/sql', ...);
+```
+
+**Why:** The bridge sends requests to the parent window via `postMessage`. The parent makes the actual API call on its own origin — no CORS, and auth is handled automatically.
+
+**Rules:**
+- Always import from `@lumerahq/ui/lib` — never write a custom `apiFetch` with raw `fetch()`
+- Token is not needed — the bridge handles auth via the parent session
+- `X-Lumera-Project` header is not needed — the parent adds it automatically
+
+
 ## Workflow
 
 Follow the user's lead. If they tell you exactly what to build, build it. The workflow below is the default when they describe a goal and leave the approach to you.
 
 ### Step 1: Plan
 1. **Read skills first** — Read the matching skill files for API details and patterns.
-2. **Discuss the plan** — Start from the **simplest thing that works** — one collection, one screen, one feature. Propose incremental steps that layer on complexity. Each step should be a complete horizontal slice (collection + backend logic + UI).
+2. **Discuss the plan** — Start from the **simplest thing that works** — one collection, one screen, one feature. Propose incremental steps that layer on complexity but if the decisions are obvious, you can execute multiple steps in one go. Each step should be a complete horizontal slice (collection + backend logic + UI).
 3. **Stop and ask the user to approve.** Iterate until they're happy with the plan. They may reorder steps, drop features, or add ones you didn't think of.
 
 ### Step 2: Build (one slice at a time)
