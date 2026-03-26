@@ -1,10 +1,11 @@
 import { type HostPayload, isEmbedded, onInitMessage, postReadyMessage } from '@lumerahq/ui/lib';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createHashHistory, createRouter, RouterProvider } from '@tanstack/react-router';
-import { createContext, StrictMode, useEffect, useRef, useState } from 'react';
+import { StrictMode, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from 'sonner';
 
+import { AuthContext, type AuthContextValue } from './lib/auth';
 import { routeTree } from './routeTree.gen';
 import '@lumerahq/ui/styles.css';
 import './styles.css';
@@ -46,20 +47,12 @@ function RouteRestorer() {
     }
 
     return router.subscribe('onResolved', ({ toLocation }) => {
-      localStorage.setItem(ROUTE_STORAGE_KEY, toLocation.pathname);
+      localStorage.setItem(ROUTE_STORAGE_KEY, toLocation.href);
     });
   }, []);
 
   return null;
 }
-
-type AuthContextValue = {
-  company?: { id: string; name?: string; apiName?: string };
-  user?: { id: string; name: string; email: string; role?: string };
-  sessionToken?: string;
-};
-
-export const AuthContext = createContext<AuthContextValue | null>(null);
 
 const App = () => {
   const [hostContext, setHostContext] = useState<AuthContextValue | null>(null);
@@ -91,18 +84,27 @@ const App = () => {
 
   if (status === 'pending') {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+      <main className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="size-10 rounded-xl bg-gradient-to-br from-[var(--accent-gradient-from)] to-[var(--accent-gradient-to)] flex items-center justify-center text-white font-semibold text-lg shadow-sm animate-pulse">
+            L
+          </div>
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
       </main>
     );
   }
 
   if (status === 'denied' || !hostContext) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <div className="text-center space-y-2">
-          <p className="text-4xl font-semibold">403</p>
-          <p className="text-sm text-muted-foreground">Access Denied</p>
+      <main className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center space-y-3">
+          <div className="inline-flex size-12 rounded-xl bg-muted items-center justify-center mb-2">
+            <span className="text-2xl font-semibold text-muted-foreground">403</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Access denied, this app can only be accessed from within Lumera.
+          </p>
         </div>
       </main>
     );
