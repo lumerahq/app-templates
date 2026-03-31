@@ -2,9 +2,9 @@
 # does not currently have write access to this repository, so it cannot serve as
 # an effective CODEOWNERS target for review requests.
 
-* @ajayaa @somzee
+* @ajayaa @somzee @ramagr07 @parthagr
 
 # Publishing and CI changes are especially sensitive because they control what
 # reaches the public artifact bucket and who can assume the publisher role.
-.github/workflows/* @ajayaa @somzee
-scripts/build-public-artifact.sh @ajayaa @somzee
+.github/workflows/* @ajayaa @somzee @ramagr07 @parthagr
+scripts/build-public-artifact.sh @ajayaa @somzee @ramagr07 @parthagr
