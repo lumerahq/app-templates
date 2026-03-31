@@ -1,0 +1,10 @@
+# Explicit maintainers are used here because the org `devs` team is closed and
+# does not currently have write access to this repository, so it cannot serve as
+# an effective CODEOWNERS target for review requests.
+
+* @ajayaa @somzee
+
+# Publishing and CI changes are especially sensitive because they control what
+# reaches the public artifact bucket and who can assume the publisher role.
+.github/workflows/* @ajayaa @somzee
+scripts/build-public-artifact.sh @ajayaa @somzee
