@@ -7,6 +7,7 @@ import { Toaster } from 'sonner';
 
 import { AuthContext, type AuthContextValue } from './lib/auth';
 import { routeTree } from './routeTree.gen';
+import '@lumerahq/ui/styles.css';
 import './styles.css';
 
 const queryClient = new QueryClient({
