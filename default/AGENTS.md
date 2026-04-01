@@ -13,6 +13,7 @@ src/
 ├── routes/index.tsx   # Home page
 ├── lib/queries.ts     # Data fetching helpers
 ├── components/        # Shared UI components
+├── components/ui/     # shadcn UI primitives (installed via MCP)
 scripts/               # Utility scripts (seed data, migrations, etc.)
 ```
 
@@ -41,6 +42,25 @@ All resources use **external IDs** in the format `<app-name>:<resource-name>` (a
 **Never manually prefix collection names with `{project}__`.** Two projects can each have an `orders` collection — they are fully isolated.
 
 For detailed technical reference (data models, relationships, design decisions), see [architecture.md](architecture.md).
+
+## UI Components
+
+**Use shadcn components for all UI.** A shadcn MCP server is available in this project. Use it to browse, search, and install components instead of hand-coding UI primitives.
+
+```
+mcp({ search: "button" })                    # Find components
+mcp({ search: "card" })                      # Find card, dialog, etc.
+npx shadcn@latest add button card dialog     # Install components
+```
+
+shadcn components install into `src/components/ui/` and are fully editable. The project includes a `components.json` that configures paths and aliases.
+
+**`@lumerahq/ui`** provides Lumera platform utilities — use it only for:
+- `@lumerahq/ui/lib` — `cn`, `pbList`, `pbSql`, `pbCreate`, `pbUpdate`, `pbDelete`, `isEmbedded`, `onInitMessage`, `postReadyMessage`
+- `@lumerahq/ui/hooks` — `useSqlTable`, `useLumeraUser`, `useFileUpload`
+- `@lumerahq/ui/styles.css` — Base CSS theme with Tailwind vars
+
+Do **not** import UI primitives (Button, Card, Dialog, etc.) from `@lumerahq/ui/components`. Install them via shadcn instead.
 
 ## Frontend API Calls
 
