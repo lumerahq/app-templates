@@ -1,4 +1,4 @@
-import { cn } from '@lumerahq/ui/lib';
+import { cn } from '@/lib/utils';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { ChevronLeft, ChevronRight, LayoutDashboard, Settings } from 'lucide-react';
 import { useState } from 'react';

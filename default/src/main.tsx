@@ -6,7 +6,6 @@ import ReactDOM from 'react-dom/client';
 import { Toaster } from 'sonner';
 
 import { routeTree } from './routeTree.gen';
-import '@lumerahq/ui/styles.css';
 import './styles.css';
 
 const queryClient = new QueryClient({

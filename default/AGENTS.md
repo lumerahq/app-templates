@@ -53,14 +53,9 @@ mcp({ search: "card" })                      # Find card, dialog, etc.
 npx shadcn@latest add button card dialog     # Install components
 ```
 
-shadcn components install into `src/components/ui/` and are fully editable. The project includes a `components.json` that configures paths and aliases.
+shadcn components install into `src/components/ui/` and are fully editable. The project includes a `components.json` that configures paths, aliases, and theme.
 
-**`@lumerahq/ui`** provides Lumera platform utilities — use it only for:
-- `@lumerahq/ui/lib` — `cn`, `pbList`, `pbSql`, `pbCreate`, `pbUpdate`, `pbDelete`, `isEmbedded`, `onInitMessage`, `postReadyMessage`
-- `@lumerahq/ui/hooks` — `useSqlTable`, `useLumeraUser`, `useFileUpload`
-- `@lumerahq/ui/styles.css` — Base CSS theme with Tailwind vars
-
-Do **not** import UI primitives (Button, Card, Dialog, etc.) from `@lumerahq/ui/components`. Install them via shadcn instead.
+The `cn()` utility lives at `src/lib/utils.ts` — import from `@/lib/utils`.
 
 ## Frontend API Calls
 
