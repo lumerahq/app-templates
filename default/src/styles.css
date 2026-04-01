@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
-
 body {
   @apply m-0;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -10,11 +8,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Lumera brand theme + full shadcn variable set */
-
 :root {
-  --radius: 0.75rem;
-
   /* Warm off-white background */
   --background: oklch(0.985 0.002 60);
   /* Near-black foreground with warm undertone */
@@ -22,48 +16,27 @@ body {
   /* Cards: true white */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.16 0.01 60);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.16 0.01 60);
   /* Lumera coral-orange primary */
   --primary: oklch(0.62 0.17 35);
   --primary-foreground: oklch(0.995 0 0);
-  /* Secondary */
-  --secondary: oklch(0.955 0.005 60);
-  --secondary-foreground: oklch(0.16 0.01 60);
   /* Warm stone muted tones */
   --muted: oklch(0.955 0.005 60);
   --muted-foreground: oklch(0.50 0.01 60);
-  /* Accent — lighter orange tint */
-  --accent: oklch(0.95 0.03 50);
-  --accent-foreground: oklch(0.35 0.12 35);
-  /* Destructive */
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.995 0 0);
   /* Warm border */
   --border: oklch(0.91 0.005 60);
-  --input: oklch(0.91 0.005 60);
-  --ring: oklch(0.62 0.17 35);
-  /* Charts */
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  /* Sidebar */
-  --sidebar: oklch(0.985 0.002 60);
-  --sidebar-foreground: oklch(0.16 0.01 60);
-  --sidebar-primary: oklch(0.62 0.17 35);
-  --sidebar-primary-foreground: oklch(0.995 0 0);
-  --sidebar-accent: oklch(0.95 0.03 50);
-  --sidebar-accent-foreground: oklch(0.35 0.12 35);
-  --sidebar-border: oklch(0.91 0.005 60);
-  --sidebar-ring: oklch(0.62 0.17 35);
+  --radius: 0.75rem;
 
   /* Semantic status colors */
   --success: oklch(0.55 0.14 145);
   --success-foreground: oklch(0.995 0 0);
   --warning: oklch(0.75 0.15 70);
   --warning-foreground: oklch(0.25 0.05 60);
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.995 0 0);
+
+  /* Accent — lighter orange tint for backgrounds */
+  --accent: oklch(0.95 0.03 50);
+  --accent-foreground: oklch(0.35 0.12 35);
 
   /* Accent gradient for logo mark */
   --accent-gradient-from: oklch(0.62 0.17 35);
@@ -75,42 +48,20 @@ body {
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
 }
 
 @layer base {
