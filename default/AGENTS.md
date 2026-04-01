@@ -45,47 +45,35 @@ For detailed technical reference (data models, relationships, design decisions),
 
 ## UI Components
 
-**Always use shadcn components for UI.** Never hand-code primitives like buttons, dialogs, cards, inputs, tables, etc. A `shadcn` MCP server is available — use it to find, preview, and install components from the `@shadcn` registry.
+**Always use shadcn components for UI.** Never hand-code primitives like buttons, dialogs, cards, inputs, tables, etc.
 
-### How to use the shadcn MCP server
+### Installing components
 
-The MCP server provides these tools through the `mcp` proxy:
+Use `bunx` to install shadcn components (the sandbox has `bun`, not `npm`/`npx`):
 
-**1. Search for components:**
-```
-mcp({ tool: "shadcn_search_items_in_registries", args: '{"registries": ["@shadcn"], "query": "button"}' })
-mcp({ tool: "shadcn_search_items_in_registries", args: '{"registries": ["@shadcn"], "query": "data table"}' })
-```
-
-**2. View component details and source code:**
-```
-mcp({ tool: "shadcn_view_items_in_registries", args: '{"items": ["@shadcn/button", "@shadcn/card"]}' })
+```bash
+bunx shadcn@latest add button card dialog      # Install specific components
+bunx shadcn@latest add table input label select  # Install more as needed
 ```
 
-**3. Get usage examples with full implementation code:**
+Components install into `src/components/ui/` and are fully editable.
+
+### shadcn MCP server
+
+A `shadcn` MCP server is available to browse and search the registry. Use `mcp({ server: "shadcn" })` to list available tools, then:
+
 ```
-mcp({ tool: "shadcn_get_item_examples_from_registries", args: '{"registries": ["@shadcn"], "query": "card-demo"}' })
-mcp({ tool: "shadcn_get_item_examples_from_registries", args: '{"registries": ["@shadcn"], "query": "form example"}' })
+mcp({ search: "button" })        # Search across all MCP servers
+mcp({ server: "shadcn" })        # List shadcn tools
 ```
 
-**4. Get the install command, then run it:**
-```
-mcp({ tool: "shadcn_get_add_command_for_items", args: '{"items": ["@shadcn/button", "@shadcn/card", "@shadcn/dialog"]}' })
-```
-Then execute the returned command (e.g. `npx shadcn@latest add @shadcn/button @shadcn/card @shadcn/dialog`).
+Useful MCP tools:
+- **search_items_in_registries** — fuzzy search components by name
+- **view_items_in_registries** — view component source code
+- **get_item_examples_from_registries** — find usage examples with full code
+- **get_add_command_for_items** — get the install command
 
-**5. After adding components, run the audit checklist:**
-```
-mcp({ tool: "shadcn_get_audit_checklist" })
-```
-
-### Workflow for building UI
-
-1. **Search** for what you need → find the right component names
-2. **View examples** → see how components are used together
-3. **Install** → run the add command
-4. **Import and use** → components are in `src/components/ui/`
-5. **Audit** → verify imports, deps, and types
+All tools use the `@shadcn` registry (e.g. `@shadcn/button`, `@shadcn/card`).
 
 ### Project setup
 
@@ -94,7 +82,7 @@ mcp({ tool: "shadcn_get_audit_checklist" })
 - `src/lib/utils.ts` — `cn()` utility, import from `@/lib/utils`
 - `src/components/ui/` — installed shadcn components (editable)
 
-**Do not hand-code UI primitives.** If you need a button, card, dialog, table, form, select, tabs, tooltip, or any standard UI element — search the shadcn registry first and install it.
+**Do not hand-code UI primitives.** If you need a button, card, dialog, table, form, select, tabs, tooltip, or any standard UI element — install it from shadcn first.
 
 ## Frontend API Calls
 
