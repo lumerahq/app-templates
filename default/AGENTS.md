@@ -45,17 +45,56 @@ For detailed technical reference (data models, relationships, design decisions),
 
 ## UI Components
 
-**Use shadcn components for all UI.** A shadcn MCP server is available in this project. Use it to browse, search, and install components instead of hand-coding UI primitives.
+**Always use shadcn components for UI.** Never hand-code primitives like buttons, dialogs, cards, inputs, tables, etc. A `shadcn` MCP server is available — use it to find, preview, and install components from the `@shadcn` registry.
 
+### How to use the shadcn MCP server
+
+The MCP server provides these tools through the `mcp` proxy:
+
+**1. Search for components:**
 ```
-mcp({ search: "button" })                    # Find components
-mcp({ search: "card" })                      # Find card, dialog, etc.
-npx shadcn@latest add button card dialog     # Install components
+mcp({ tool: "shadcn_search_items_in_registries", args: '{"registries": ["@shadcn"], "query": "button"}' })
+mcp({ tool: "shadcn_search_items_in_registries", args: '{"registries": ["@shadcn"], "query": "data table"}' })
 ```
 
-shadcn components install into `src/components/ui/` and are fully editable. The project includes a `components.json` that configures paths, aliases, and theme.
+**2. View component details and source code:**
+```
+mcp({ tool: "shadcn_view_items_in_registries", args: '{"items": ["@shadcn/button", "@shadcn/card"]}' })
+```
 
-The `cn()` utility lives at `src/lib/utils.ts` — import from `@/lib/utils`.
+**3. Get usage examples with full implementation code:**
+```
+mcp({ tool: "shadcn_get_item_examples_from_registries", args: '{"registries": ["@shadcn"], "query": "card-demo"}' })
+mcp({ tool: "shadcn_get_item_examples_from_registries", args: '{"registries": ["@shadcn"], "query": "form example"}' })
+```
+
+**4. Get the install command, then run it:**
+```
+mcp({ tool: "shadcn_get_add_command_for_items", args: '{"items": ["@shadcn/button", "@shadcn/card", "@shadcn/dialog"]}' })
+```
+Then execute the returned command (e.g. `npx shadcn@latest add @shadcn/button @shadcn/card @shadcn/dialog`).
+
+**5. After adding components, run the audit checklist:**
+```
+mcp({ tool: "shadcn_get_audit_checklist" })
+```
+
+### Workflow for building UI
+
+1. **Search** for what you need → find the right component names
+2. **View examples** → see how components are used together
+3. **Install** → run the add command
+4. **Import and use** → components are in `src/components/ui/`
+5. **Audit** → verify imports, deps, and types
+
+### Project setup
+
+- `components.json` — configures shadcn paths, aliases, and theme
+- `src/styles.css` — shadcn neutral theme CSS variables
+- `src/lib/utils.ts` — `cn()` utility, import from `@/lib/utils`
+- `src/components/ui/` — installed shadcn components (editable)
+
+**Do not hand-code UI primitives.** If you need a button, card, dialog, table, form, select, tabs, tooltip, or any standard UI element — search the shadcn registry first and install it.
 
 ## Frontend API Calls
 
