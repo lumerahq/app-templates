@@ -13,6 +13,7 @@ src/
 ├── routes/index.tsx   # Home page
 ├── lib/queries.ts     # Data fetching helpers
 ├── components/        # Shared UI components
+├── components/ui/     # shadcn UI primitives (installed via MCP)
 scripts/               # Utility scripts (seed data, migrations, etc.)
 ```
 
@@ -41,6 +42,47 @@ All resources use **external IDs** in the format `<app-name>:<resource-name>` (a
 **Never manually prefix collection names with `{project}__`.** Two projects can each have an `orders` collection — they are fully isolated.
 
 For detailed technical reference (data models, relationships, design decisions), see [architecture.md](architecture.md).
+
+## UI Components
+
+**Always use shadcn components for UI.** Never hand-code primitives like buttons, dialogs, cards, inputs, tables, etc.
+
+### Installing components
+
+Use `bunx` to install shadcn components (the sandbox has `bun`, not `npm`/`npx`):
+
+```bash
+bunx shadcn@latest add button card dialog      # Install specific components
+bunx shadcn@latest add table input label select  # Install more as needed
+```
+
+Components install into `src/components/ui/` and are fully editable.
+
+### shadcn MCP server
+
+A `shadcn` MCP server is available to browse and search the registry. Use `mcp({ server: "shadcn" })` to list available tools, then:
+
+```
+mcp({ search: "button" })        # Search across all MCP servers
+mcp({ server: "shadcn" })        # List shadcn tools
+```
+
+Useful MCP tools:
+- **search_items_in_registries** — fuzzy search components by name
+- **view_items_in_registries** — view component source code
+- **get_item_examples_from_registries** — find usage examples with full code
+- **get_add_command_for_items** — get the install command
+
+All tools use the `@shadcn` registry (e.g. `@shadcn/button`, `@shadcn/card`).
+
+### Project setup
+
+- `components.json` — configures shadcn paths, aliases, and theme
+- `src/styles.css` — shadcn neutral theme CSS variables
+- `src/lib/utils.ts` — `cn()` utility, import from `@/lib/utils`
+- `src/components/ui/` — installed shadcn components (editable)
+
+**Do not hand-code UI primitives.** If you need a button, card, dialog, table, form, select, tabs, tooltip, or any standard UI element — install it from shadcn first.
 
 ## Frontend API Calls
 
