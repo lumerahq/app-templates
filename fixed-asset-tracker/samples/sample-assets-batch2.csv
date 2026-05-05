@@ -1,7 +1,0 @@
-Name,Asset Tag,Category,Acquisition Date,Cost Basis,Salvage Value,Useful Life (Months),Depreciation Method,Location,Department
-"Conference Room AV System",FA-201,equipment,2025-03-01,15000.00,500.00,60,straight_line,"HQ - Floor 3",IT
-"Lobby Furniture Set",FA-202,furniture,2025-03-01,6800.00,400.00,84,straight_line,"HQ - Lobby",Operations
-"Security Camera System",FA-203,equipment,2025-02-15,3200.00,0,60,straight_line,"HQ - All Floors",Facilities
-"HVAC Upgrade - Floor 2",FA-204,leasehold_improvements,2025-02-20,28000.00,0,120,straight_line,"HQ - Floor 2",Facilities
-"Slack Enterprise Grid (2-yr)",FA-205,software,2025-03-01,14400.00,0,24,straight_line,Cloud,IT
-"Electric Delivery Van - Rivian",FA-206,vehicles,2025-03-10,73000.00,15000.00,72,declining_balance,Warehouse,Logistics
