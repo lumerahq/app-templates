@@ -110,6 +110,11 @@ fetch('https://app.lumerahq.com/api/pb/sql', ...);
 - Token is not needed — the bridge handles auth via the parent session
 - `X-Lumera-Project` header is not needed — the parent adds it automatically
 
+## Lumera Skills
+
+<!-- LUMERA_SKILLS_START -->
+_No skills installed yet. The Lumera CLI fills this section during `lumera init`._
+<!-- LUMERA_SKILLS_END -->
 
 ## Workflow
 

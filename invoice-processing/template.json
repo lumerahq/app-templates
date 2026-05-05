@@ -1,7 +1,0 @@
-{
-  "name": "invoice-processing",
-  "title": "Invoice Processing",
-  "description": "Upload invoices, extract data with AI, review and approve.",
-  "category": "Procure-to-Pay",
-  "version": "1.0.0"
-}
